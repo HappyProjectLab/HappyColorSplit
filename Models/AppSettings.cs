@@ -7,4 +7,5 @@ public sealed class AppSettings
     public int MinimumAlpha { get; set; } = 128;
     public string LastExportFolder { get; set; } = "";
     public bool ExportInColor { get; set; }
+    public ExportBackground ExportBackground { get; set; } = ExportBackground.Black;
 }

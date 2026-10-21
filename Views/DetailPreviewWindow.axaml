@@ -15,7 +15,7 @@
       <TextBlock Grid.Column="3" Text="{Binding Text[PreviewHelp]}" VerticalAlignment="Center" FontSize="11" Classes="muted" />
     </Grid>
     <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="Black">
-      <Grid Width="{Binding ImageWidth}" Height="{Binding ImageHeight}" HorizontalAlignment="Left" VerticalAlignment="Top">
+      <Grid Width="{Binding ImageWidth}" Height="{Binding ImageHeight}" HorizontalAlignment="Left" VerticalAlignment="Top" Background="{StaticResource TransparencyBackground}">
         <Image Source="{Binding Mask}" Stretch="Fill" IsVisible="{Binding !ShowOverlay}" RenderOptions.BitmapInterpolationMode="None" />
         <Image Source="{Binding Original}" Stretch="Fill" IsVisible="{Binding ShowOverlay}" RenderOptions.BitmapInterpolationMode="None" />
         <Image Source="{Binding Overlay}" Stretch="Fill" IsVisible="{Binding ShowOverlay}" Opacity="{Binding OverlayOpacity}" RenderOptions.BitmapInterpolationMode="None" />

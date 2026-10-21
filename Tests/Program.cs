@@ -266,6 +266,7 @@ try
     ImageInputRegressionTests.Run(root, Check, Pump);
     ExportFolderRegressionTests.Run(root, Check, Pump);
     ColorExportRegressionTests.Run(root, Check, Pump);
+    BackgroundExportRegressionTests.Run(root, Check, Pump);
     if (args.Contains("--capture-baseline") || args.Contains("--verify-baseline"))
     {
         string importDirectory = Path.GetFullPath(Path.Combine("..", "Import"));

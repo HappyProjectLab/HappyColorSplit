@@ -1,6 +1,6 @@
 # HappyColorSplit
 
-Windows-Desktop-Anwendung zum Trennen ähnlicher Farben aus PNG- und JPG-Bildern. Jede Farbgruppe wird als eigenes PNG exportiert: **weiße Farbfläche auf schwarzem Hintergrund**, in Originalgröße und an der ursprünglichen Position.
+Windows-Desktop-Anwendung zum Trennen ähnlicher Farben aus PNG- und JPG-Bildern. Jede Farbgruppe wird als eigenes PNG exportiert, in Originalgröße und an der ursprünglichen Position. Standard ist **weiße Farbfläche auf schwarzem Hintergrund**; der lokale Entwicklungsstand bietet außerdem Gruppenfarben und wählbare Hintergründe.
 
 Aktueller Entwicklungsstand: **0.1.0-preview.3**. Dies ist eine Vorabversion. Projekt und Quellcode sind im öffentlichen Repository [HappyProjectLab/HappyColorSplit](https://github.com/HappyProjectLab/HappyColorSplit) verfügbar.
 
@@ -64,7 +64,7 @@ dotnet run --project HappyColorSplit.csproj
 
 ## Verwendung
 
-**Lokaler Entwicklungsstand:** Drag-and-drop und die optionale Windows-Einbindung sind ergänzt, aber noch nicht im oben verlinkten Download `0.1.0-preview.3` enthalten.
+**Lokaler Entwicklungsstand:** Drag-and-drop, die optionale Windows-Einbindung, der Button für den letzten Exportordner sowie Farbexport und Hintergrundauswahl sind ergänzt, aber noch nicht im oben verlinkten Download `0.1.0-preview.3` enthalten.
 
 Ein oder mehrere Bilder lassen sich auf das Programmfenster ziehen. Unterstützt werden `.png`, `.jpg` und `.jpeg`; andere Formate und beschädigte Dateien werden nicht geladen. Bei gemischter Auswahl werden gültige Bilder übernommen und Fehler angezeigt. Während einer Verarbeitung nimmt das Fenster keine weiteren Dateien entgegen.
 
@@ -79,7 +79,7 @@ Für mehrere Bilder: **Alle Bilder exportieren** verarbeitet die gesamte Bildlis
 
 Die Mindestdeckkraft gilt für alle Bilder. Jede bereits geprüfte Datei behält ihre eigene Farbauswahl während der aktuellen Sitzung, auch nach einem Bildwechsel und erneuter Erkennung. Ungeprüfte Dateien exportieren alle erkannten Farben. Bilder mit komplett abgewählten Farben werden beim Stapel-Export mit einer entsprechenden Meldung übersprungen. Änderungen an Farbähnlichkeit oder Mindestdeckkraft verwerfen die Erkennung und setzen die Farbauswahl aller Bilder zurück. Die Farbauswahl bezieht sich auf die unveränderte Quelldatei; extern bearbeitete Bilder bitte neu laden und prüfen.
 
-**Detailansicht / Überlagerung** öffnet die ausgewählte Maske in Originalauflösung. Die Vergrößerung reicht von 25 bis 800 %. Scrollleisten verschieben den Ausschnitt. Bei aktiver Originalüberlagerung markiert eine grüne Fläche die ausgewählte Maske; die Überlagerungsstärke ist einstellbar. Ohne Überlagerung wird die Schwarz-Weiß-Maske gezeigt. Die Detailansicht ist eine Momentaufnahme der aktuellen Auswahl.
+**Detailansicht / Überlagerung** öffnet die ausgewählte Maske in Originalauflösung. Die Vergrößerung reicht von 25 bis 800 %. Scrollleisten verschieben den Ausschnitt. Bei aktiver Originalüberlagerung markiert eine grüne Fläche die ausgewählte Maske; die Überlagerungsstärke ist einstellbar. Ohne Überlagerung wird die Exportvorschau mit der gewählten Flächenfarbe und dem gewählten Hintergrund gezeigt. Die Detailansicht ist eine Momentaufnahme der aktuellen Auswahl.
 
 Die Bildliste zeigt Miniaturvorschauen. Ein Klick auf ein Bild zeigt dessen Original; **Farben erkennen** erzeugt die zugehörigen Farbgruppen und Maskenvorschauen. Die Farbauswahl bereits geprüfter Bilder bleibt beim Bildwechsel erhalten. Mit **Entfernen** oder **Liste leeren** lassen sich Bilder aus der Liste nehmen.
 
@@ -91,11 +91,13 @@ Der Export erzeugt einen neuen Unterordner. Dateinamen enthalten laufende Nummer
 
 **Flächen in Gruppenfarbe exportieren** gibt die gesamte ausgewählte Fläche statt in Weiß in der erkannten Referenzfarbe ihrer Gruppe aus. Ähnliche Farbtöne einer Gruppe erhalten dieselbe Referenzfarbe. Die Einstellung gilt für Einzel- und Stapel-Export, wird gespeichert und aktualisiert die Exportvorschau und neu geöffnete Detailansichten direkt. Die Farberkennung und die ausgewählten Exportgruppen bleiben dabei erhalten. Standard bleibt Weiß auf Schwarz.
 
+**Export-Hintergrund** bietet **Schwarz**, **Grau** (`#808080`), **Weiß** oder **Transparent**. Die Einstellung gilt unabhängig von der Flächenfarbe für Vorschau, neue Detailansichten und beide Exportarten; sie wird gespeichert. Transparent bedeutet echte PNG-Transparenz außerhalb der ausgewählten Fläche. Ausgewählte Pixel bleiben vollständig deckend. Das Schachbrettraster in der Vorschau dient nur zur Anzeige und wird nicht mitgespeichert. Gleiche Flächen- und Hintergrundfarben sind möglich und können die Fläche unsichtbar machen.
+
 ## Farbverarbeitung
 
 Die häufigste noch nicht zugeordnete RGB-Farbe dient als feste Referenzfarbe einer Gruppe. Farben werden anhand ihres euklidischen Abstands im RGB-Farbraum der nächstgelegenen passenden Referenz zugeordnet. Der Regler gibt den maximalen Abstand zur Referenz an (0–150). Es handelt sich um eine einfache RGB-Gruppierung, nicht um eine wahrnehmungsbasierte Farbraumanalyse. Auch die Hintergrundfarbe erhält eine eigene Gruppe.
 
-Vollständig transparente Pixel und Pixel unterhalb der Mindestdeckkraft gehören keiner Gruppe an und werden schwarz exportiert. Übrige Pixel werden anhand ihres gespeicherten RGB-Werts zugeordnet und in der Maske deckend weiß ausgegeben. Abgewählte Farbgruppen werden nicht gespeichert; ihre Pixel bleiben in allen anderen Masken schwarz und werden keiner anderen Farbe zugewiesen. Diese Version führt keine automatische Konturreparatur oder Entfernung kleiner zusammenhängender Flächen durch. Alle Masken sind deckende Schwarz-Weiß-PNGs. EXIF-Ausrichtung wird vor der Verarbeitung angewendet. Bei animierten PNGs wird nur das erste Bild verwendet.
+Vollständig transparente Pixel und Pixel unterhalb der Mindestdeckkraft gehören keiner Gruppe an und verwenden den gewählten Export-Hintergrund. Übrige Pixel werden anhand ihres gespeicherten RGB-Werts zugeordnet und deckend weiß oder in der Referenzfarbe ihrer Gruppe ausgegeben. Abgewählte Farbgruppen werden nicht gespeichert; ihre Pixel verwenden in allen anderen Masken den gewählten Hintergrund und werden keiner anderen Farbe zugewiesen. Diese Version führt keine automatische Konturreparatur oder Entfernung kleiner zusammenhängender Flächen durch. EXIF-Ausrichtung wird vor der Verarbeitung angewendet. Bei animierten PNGs wird nur das erste Bild verwendet.
 
 Grenzen der ersten Version: maximal 16 Millionen Bildpixel und 256 Farbgruppen. Bei zu vielen Gruppen die Farbähnlichkeit erhöhen. Große JPGs und viele Gruppen können Zeit und Arbeitsspeicher benötigen; Verarbeitung und Export laufen außerhalb der Oberfläche und können abgebrochen werden.
 
@@ -104,7 +106,7 @@ Grenzen der ersten Version: maximal 16 Millionen Bildpixel und 256 Farbgruppen. 
 - C#, .NET 10, Avalonia 12.1.1 mit AXAML, dunkles Fluent-Theme und Inter.
 - `Views`: Fenster; `ViewModels`: Zustand und Befehle; `Models`: Daten; `Services`: Bildverarbeitung, Dateiauswahl, Einstellungen und Übersetzungen; `Controls`: wiederverwendbare Farbkachel; `Assets`: Programmsymbol.
 - Zentral verwaltete deutsche und englische Texte in `Services/Texts.cs`.
-- Einstellungen: `%LOCALAPPDATA%\HappyColorSplit\settings.json` (Sprache, Farbähnlichkeit und Mindestdeckkraft).
+- Einstellungen: `%LOCALAPPDATA%\HappyColorSplit\settings.json` (Sprache, Farbähnlichkeit, Mindestdeckkraft, Flächenfarbe, Export-Hintergrund und letzter erfolgreicher Exportordner).
 - Wenn noch keine neuen Einstellungen vorliegen, werden die Einstellungen der bisherigen Anwendung eingelesen. Beim Speichern werden sie im neuen Benutzerdatenordner abgelegt; die bisherige Datei bleibt erhalten.
 - NuGet: Avalonia 12.1.1 und SkiaSharp 3.119.4 für Bilddecodierung, Vorschau und PNG-Export. Bildverarbeitung und Avalonia-Rendering verwenden dieselbe SkiaSharp-Version. Details: [Bildverarbeitung](docs/IMAGE_PROCESSING.md).
 

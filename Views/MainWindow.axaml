@@ -48,6 +48,13 @@
         <Button Grid.Column="3" Content="{Binding Text[Analyze]}" Command="{Binding AnalyzeCommand}" VerticalAlignment="Center" />
         <StackPanel Grid.Row="1" Grid.ColumnSpan="4" Orientation="Horizontal" Spacing="18" IsEnabled="{Binding IsIdle}">
           <CheckBox Content="{Binding Text[ExportInColor]}" IsChecked="{Binding ExportInColor, Mode=TwoWay}" />
+          <TextBlock Text="{Binding Text[ExportBackground]}" VerticalAlignment="Center" />
+          <ComboBox SelectedIndex="{Binding ExportBackgroundIndex, Mode=TwoWay}" MinWidth="155">
+            <ComboBoxItem Content="{Binding Text[BackgroundBlack]}" />
+            <ComboBoxItem Content="{Binding Text[BackgroundGray]}" />
+            <ComboBoxItem Content="{Binding Text[BackgroundWhite]}" />
+            <ComboBoxItem Content="{Binding Text[BackgroundTransparent]}" />
+          </ComboBox>
         </StackPanel>
       </Grid>
     </Border>
@@ -99,7 +106,7 @@
               <TextBlock Text="{Binding Text[Mask]}" FontWeight="SemiBold" VerticalAlignment="Center" />
               <Button Grid.Column="1" Content="{Binding Text[DetailPreview]}" Command="{Binding DetailPreviewCommand}" FontSize="11" Padding="10,5" />
             </Grid>
-            <Border Grid.Row="1" Background="Black" CornerRadius="8" ClipToBounds="True">
+            <Border Grid.Row="1" Background="{StaticResource TransparencyBackground}" CornerRadius="8" ClipToBounds="True">
               <Grid>
                 <TextBlock Text="{Binding Text[MaskHint]}" IsVisible="{Binding !HasMask}" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" Classes="muted" Margin="20" />
                 <Image Source="{Binding Mask}" Stretch="Uniform" Margin="8" />
@@ -139,11 +146,13 @@
               </ListBox.ItemTemplate>
             </ListBox>
           </Grid>
-          <StackPanel Grid.Row="2" Spacing="8" Margin="6,0">
-            <TextBlock Text="{Binding ExportOutputHelp}" Classes="muted" FontSize="11" TextWrapping="Wrap" />
-            <TextBlock Text="{Binding Text[BatchHelp]}" Classes="muted" FontSize="11" TextWrapping="Wrap" />
-            <TextBlock Text="{Binding Text[SelectionHint]}" ToolTip.Tip="{Binding Text[ColorSelectionHelp]}" Foreground="#7DD3FC" FontSize="11" TextWrapping="Wrap" />
-          </StackPanel>
+          <Expander Grid.Row="2" Header="{Binding Text[ExportHelp]}" Margin="6,0" HorizontalAlignment="Stretch">
+            <StackPanel Spacing="8">
+              <TextBlock Text="{Binding ExportOutputHelp}" Classes="muted" FontSize="11" TextWrapping="Wrap" />
+              <TextBlock Text="{Binding Text[BatchHelp]}" Classes="muted" FontSize="11" TextWrapping="Wrap" />
+              <TextBlock Text="{Binding Text[SelectionHint]}" ToolTip.Tip="{Binding Text[ColorSelectionHelp]}" Foreground="#7DD3FC" FontSize="11" TextWrapping="Wrap" />
+            </StackPanel>
+          </Expander>
         </Grid>
       </Border>
     </Grid>

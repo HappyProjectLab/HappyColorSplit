@@ -12,7 +12,11 @@ HappyColorSplit verwendet SkiaSharp 3.119.4 für PNG-/JPEG-Decodierung, Vorschau
 
 ## Export
 
-Ausgewählte Gruppen werden standardmäßig als deckende 8-Bit-Graustufen-PNGs mit schwarzen und weißen Pixeln ausgegeben. Optional wird die gesamte Fläche in der RGB-Referenzfarbe ihrer Gruppe ausgegeben; Hintergrundpixel bleiben schwarz. Dieser Farbexport verwendet ein RGB-fähiges PNG. Vorschau und Export verwenden denselben Renderer. Bildgröße und Position der Flächen bleiben erhalten. Dateinamen und neue Unterordner trennen die Ausgaben; Abbruch und Fehler werden berücksichtigt.
+Ausgewählte Gruppen werden standardmäßig als deckende 8-Bit-Graustufen-PNGs mit schwarzen und weißen Pixeln ausgegeben. Optional wird die gesamte Fläche in der RGB-Referenzfarbe ihrer Gruppe ausgegeben. Unabhängig davon ist der Hintergrund wählbar: Schwarz (`#000000`), Grau (`#808080`), Weiß (`#FFFFFF`) oder Transparent. Alle nicht zur ausgewählten Gruppe gehörenden Pixel verwenden diesen Hintergrund, einschließlich ignorierter und abgewählter Pixel.
+
+Weiße Flächen auf deckendem Hintergrund verwenden weiterhin 8-Bit-Graustufen-PNGs. Farbflächen oder transparenter Hintergrund verwenden RGBA-Pixel. Ausgewählte Pixel werden stets mit Alpha 255 ausgegeben; transparenter Hintergrund hat Alpha 0 und RGB 0. Es gibt keine Kantenglättung oder Zwischenwerte an den Flächengrenzen. Weiße Flächen auf Weiß oder schwarze Flächen auf Schwarz können unsichtbar sein; die gewählten Werte werden unverändert verwendet.
+
+Vorschau und Export verwenden denselben Renderer. Das Raster in der Oberfläche kennzeichnet transparente Bereiche und wird nicht in das PNG gezeichnet. Neue Detailfenster übernehmen die aktuellen Ausgabeoptionen als Momentaufnahme. Bildgröße und Position der Flächen bleiben erhalten. Dateinamen und neue Unterordner trennen die Ausgaben; Abbruch und Fehler werden berücksichtigt.
 
 Die Anwendung führt keine automatische Konturreparatur oder Entfernung kleiner Flächen durch. Hinweise zu möglichen Fehlern und Sicherungskopien stehen in [USAGE_NOTICE_DE.md](USAGE_NOTICE_DE.md).
 

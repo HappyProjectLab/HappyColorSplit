@@ -92,8 +92,19 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             RefreshMask(); SaveSettings();
         }
     }
-    public string ExportOutputHelp => Text[ExportInColor ? "ColorOutputHelp" : "OutputHelp"];
-    private ExportOptions CurrentExportOptions => new(ExportInColor);
+    public int ExportBackgroundIndex
+    {
+        get => (int)_settings.ExportBackground;
+        set
+        {
+            if (!Enum.IsDefined((ExportBackground)value) || ExportBackgroundIndex == value) return;
+            _settings.ExportBackground = (ExportBackground)value;
+            Changed(); Changed(nameof(ExportOutputHelp)); RefreshMask(); SaveSettings();
+        }
+    }
+    public string ExportOutputHelp => string.Format(Text["ExportAppearanceHelp"],
+        Text[ExportInColor ? "GroupColorOutput" : "WhiteOutput"], Text["Background" + _settings.ExportBackground]);
+    private ExportOptions CurrentExportOptions => new(ExportInColor, _settings.ExportBackground);
     public bool IsBusy { get => _busy; private set { Set(ref _busy, value); Changed(nameof(IsIdle)); RefreshCommands(); } }
     public bool IsIdle => !IsBusy;
     public bool CanIntegrateWithWindows => _windowsIntegration.IsAvailable;

@@ -22,6 +22,7 @@ public sealed class SettingsService(string? directory = null, string? legacyDire
             settings.Tolerance = double.IsFinite(settings.Tolerance) ? Math.Clamp(settings.Tolerance, 0, 150) : 40;
             settings.MinimumAlpha = Math.Clamp(settings.MinimumAlpha, 1, 254);
             settings.LastExportFolder ??= "";
+            if (!Enum.IsDefined(settings.ExportBackground)) settings.ExportBackground = ExportBackground.Black;
             return settings;
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException) { return new(); }
