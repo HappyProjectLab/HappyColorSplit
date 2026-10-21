@@ -1,0 +1,352 @@
+using System.Collections.ObjectModel;
+using Avalonia.Media.Imaging;
+using HappyColorSplit.Models;
+using HappyColorSplit.Services;
+
+namespace HappyColorSplit.ViewModels;
+
+public sealed class MainViewModel : ObservableObject, IDisposable
+{
+    private readonly IFileDialogService _dialogs;
+    private readonly SettingsService _settingsService;
+    private readonly AppSettings _settings;
+    private readonly IDetailPreviewService? _detailPreview;
+    private readonly ILicenseWindowService? _licenseWindow;
+    private readonly ColorSeparationService _service = new();
+    private RasterImage? _source;
+    private ColorAnalysis? _analysis;
+    private CancellationTokenSource? _cancellation;
+    private Bitmap? _original, _mask;
+    private bool _busy;
+    private string _filePath = "", _statusKey = "Ready";
+    private object[] _statusArgs = [];
+    private int _progress;
+    private ColorGroupViewModel? _selected;
+    private ImageFileViewModel? _selectedImage;
+    private IReadOnlyList<BatchFailure> _failures = [];
+
+    public MainViewModel(IFileDialogService dialogs, SettingsService settingsService, IDetailPreviewService? detailPreview = null,
+        ILicenseWindowService? licenseWindow = null)
+    {
+        _dialogs = dialogs; _settingsService = settingsService; _settings = settingsService.Load(); _detailPreview = detailPreview;
+        _licenseWindow = licenseWindow;
+        OpenCommand = new(OpenAsync, () => !IsBusy);
+        AnalyzeCommand = new(AnalyzeAsync, () => !IsBusy && _source is not null);
+        ExportCommand = new(ExportAsync, () => !IsBusy && _analysis is not null && ExportColorCount > 0);
+        ExportBatchCommand = new(ExportBatchAsync, () => !IsBusy && Images.Count > 0);
+        ClearImagesCommand = new(ClearImagesAsync, () => !IsBusy && Images.Count > 0);
+        RemoveImageCommand = new(RemoveImageAsync, () => !IsBusy && SelectedImage is not null);
+        CancelCommand = new(() => { Cancel(); return Task.CompletedTask; }, () => IsBusy);
+        DetailPreviewCommand = new(ShowDetailPreviewAsync, () => !IsBusy && _analysis is not null && SelectedGroup is not null && _detailPreview is not null);
+        SelectAllColorsCommand = new(() => SelectColors(true), () => !IsBusy && HasGroups);
+        DeselectAllColorsCommand = new(() => SelectColors(false), () => !IsBusy && HasGroups);
+        LicensesCommand = new(ShowLicensesAsync, () => _licenseWindow is not null);
+    }
+
+    public Texts Text => new(_settings.Language);
+    public string[] Languages { get; } = ["Deutsch", "English"];
+    public int LanguageIndex
+    {
+        get => _settings.Language == "en" ? 1 : 0;
+        set { _settings.Language = value == 1 ? "en" : "de"; Changed(); Changed(nameof(Text)); Changed(nameof(Status)); Changed(nameof(ErrorDetails)); SaveSettings(); }
+    }
+    public double Tolerance
+    {
+        get => _settings.Tolerance;
+        set
+        {
+            value = Math.Clamp(Math.Round(value), 0, 150);
+            if (_settings.Tolerance == value) return;
+            _settings.Tolerance = value; Changed();
+            InvalidateSelections();
+            if (_source is not null) StatusMessage("Changed");
+        }
+    }
+    public double MinimumAlpha
+    {
+        get => _settings.MinimumAlpha;
+        set
+        {
+            int alpha = (int)Math.Clamp(Math.Round(value), 1, 254);
+            if (_settings.MinimumAlpha == alpha) return;
+            _settings.MinimumAlpha = alpha; Changed(); InvalidateSelections();
+            if (_source is not null) StatusMessage("Changed");
+        }
+    }
+    public int ExportColorCount => Groups.Count(group => group.ExportEnabled);
+    public bool IsBusy { get => _busy; private set { Set(ref _busy, value); Changed(nameof(IsIdle)); RefreshCommands(); } }
+    public bool IsIdle => !IsBusy;
+    public bool HasImage => _source is not null;
+    public bool HasMask => Mask is not null;
+    public bool HasGroups => Groups.Count > 0;
+    public string FileName => Path.GetFileName(_filePath);
+    public Bitmap? Original { get => _original; private set { var old = _original; Set(ref _original, value); old?.Dispose(); } }
+    public Bitmap? Mask { get => _mask; private set { var old = _mask; Set(ref _mask, value); old?.Dispose(); Changed(nameof(HasMask)); } }
+    public int Progress { get => _progress; private set { Set(ref _progress, value); Changed(nameof(IsIndeterminate)); } }
+    public bool IsIndeterminate => Progress == 0;
+    public string Status => string.Format(Text[_statusKey], _statusArgs);
+    public string ErrorDetails => string.Join(Environment.NewLine, _failures.Select(f => $"{f.FilePath}: {ErrorText(f.Error)}"));
+    public bool HasErrors => _failures.Count > 0;
+    public ObservableCollection<ImageFileViewModel> Images { get; } = [];
+    public ImageFileViewModel? SelectedImage
+    {
+        get => _selectedImage;
+        set
+        {
+            if (IsBusy || !Set(ref _selectedImage, value)) return;
+            _ = RunAsync(LoadSelectedAsync);
+        }
+    }
+    public ObservableCollection<ColorGroupViewModel> Groups { get; } = [];
+    public ColorGroupViewModel? SelectedGroup
+    {
+        get => _selected;
+        set
+        {
+            if (!Set(ref _selected, value)) return;
+            if (_analysis is not null && value is not null)
+            {
+                using var stream = new MemoryStream(_service.MaskPreview(_analysis, value.Group.Index));
+                Mask = new Bitmap(stream);
+            }
+            else Mask = null;
+            DetailPreviewCommand.Refresh();
+        }
+    }
+    public AsyncCommand OpenCommand { get; }
+    public AsyncCommand AnalyzeCommand { get; }
+    public AsyncCommand ExportCommand { get; }
+    public AsyncCommand ExportBatchCommand { get; }
+    public AsyncCommand ClearImagesCommand { get; }
+    public AsyncCommand RemoveImageCommand { get; }
+    public AsyncCommand CancelCommand { get; }
+    public AsyncCommand DetailPreviewCommand { get; }
+    public AsyncCommand SelectAllColorsCommand { get; }
+    public AsyncCommand DeselectAllColorsCommand { get; }
+    public AsyncCommand LicensesCommand { get; }
+
+    private async Task ShowLicensesAsync()
+    {
+        try { await _licenseWindow!.ShowAsync(Text); }
+        catch (Exception error) { StatusMessage("Error", error.Message); }
+    }
+
+    private async Task OpenAsync() => await RunAsync(async token =>
+    {
+        var paths = await _dialogs.OpenImagesAsync(Text);
+        if (paths.Count == 0) return;
+        var failures = new List<BatchFailure>();
+        ImageFileViewModel? firstAdded = null;
+        SetFailures([]);
+        foreach (string path in paths)
+        {
+            token.ThrowIfCancellationRequested();
+            if (Images.Any(image => string.Equals(image.FilePath, path, StringComparison.OrdinalIgnoreCase))) continue;
+            try
+            {
+                byte[] preview = await Task.Run(() =>
+                {
+                    using var image = _service.Load(path);
+                    return _service.OriginalPreview(image, 200, 140);
+                }, token);
+                token.ThrowIfCancellationRequested();
+                using var stream = new MemoryStream(preview);
+                var item = new ImageFileViewModel(path, new Bitmap(stream));
+                Images.Add(item);
+                firstAdded ??= item;
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception error) when (error is not OutOfMemoryException) { failures.Add(new(path, error)); }
+            SetFailures(failures.ToArray());
+        }
+        if (firstAdded is not null)
+        {
+            Set(ref _selectedImage, firstAdded, nameof(SelectedImage));
+            await LoadSelectedAsync(token);
+        }
+        if (failures.Count > 0) StatusMessage("LoadErrors", Images.Count, failures.Count);
+        else StatusMessage("ImagesLoaded", Images.Count);
+    });
+
+    private async Task LoadSelectedAsync(CancellationToken token)
+    {
+        _source?.Dispose(); _source = null; Original = null;
+        ClearAnalysis(); Changed(nameof(HasImage));
+        _filePath = SelectedImage?.FilePath ?? ""; Changed(nameof(FileName));
+        if (SelectedImage is null) return;
+        var loaded = await Task.Run(() => _service.Load(_filePath), token);
+        try
+        {
+            var preview = await Task.Run(() => _service.OriginalPreview(loaded), token);
+            token.ThrowIfCancellationRequested();
+            using var stream = new MemoryStream(preview);
+            var bitmap = new Bitmap(stream);
+            _source?.Dispose(); _source = loaded; loaded = null!;
+            Original = bitmap;
+            ClearAnalysis(); Changed(nameof(HasImage)); Changed(nameof(FileName));
+            StatusMessage("Loaded");
+        }
+        finally { loaded?.Dispose(); }
+    }
+
+    private Task ClearImagesAsync()
+    {
+        Set(ref _selectedImage, null, nameof(SelectedImage));
+        var oldImages = Images.ToArray();
+        Images.Clear();
+        foreach (var image in oldImages) image.Dispose();
+        _source?.Dispose(); _source = null; Original = null;
+        _filePath = ""; ClearAnalysis(); SetFailures([]);
+        Changed(nameof(HasImage)); Changed(nameof(FileName)); RefreshCommands(); StatusMessage("Ready");
+        return Task.CompletedTask;
+    }
+
+    private async Task RemoveImageAsync() => await RunAsync(async token =>
+    {
+        var removed = SelectedImage!;
+        int index = Images.IndexOf(removed);
+        Images.Remove(removed);
+        Set(ref _selectedImage, Images.Count == 0 ? null : Images[Math.Min(index, Images.Count - 1)], nameof(SelectedImage));
+        removed.Dispose();
+        await LoadSelectedAsync(token);
+        StatusMessage(Images.Count == 0 ? "Ready" : "ImagesLoaded", Images.Count);
+    });
+
+    private async Task AnalyzeAsync() => await RunAsync(async token =>
+    {
+        var result = await Task.Run(() => _service.Analyze(_source!, Tolerance, token, (byte)MinimumAlpha), token);
+        _analysis = result;
+        foreach (var old in Groups) old.PropertyChanged -= ExportSelectionChanged;
+        Groups.Clear();
+        foreach (var group in result.Groups)
+        {
+            var item = new ColorGroupViewModel(group, (long)result.Width * result.Height)
+            { ExportEnabled = SelectedImage?.ExportColors?.Contains(group.Hex) ?? true };
+            item.PropertyChanged += ExportSelectionChanged;
+            Groups.Add(item);
+        }
+        ExportSelectionChanged(null, new(nameof(ColorGroupViewModel.ExportEnabled)));
+        Changed(nameof(HasGroups)); SelectedGroup = Groups.FirstOrDefault();
+        StatusMessage("Found", Groups.Count, result.Width, result.Height);
+    });
+
+    private async Task ExportAsync() => await RunAsync(async token =>
+    {
+        string? parent = await _dialogs.SelectOutputAsync(Text);
+        if (parent is null) return;
+        var result = _analysis!;
+        var selected = Groups.Where(g => g.ExportEnabled).Select(g => g.Group.Index).ToHashSet();
+        var progress = new Progress<int>(value => Progress = value);
+        string folder = await Task.Run(() => _service.Export(result, parent, _filePath, progress, token, selected), token);
+        StatusMessage("Exported", selected.Count, folder);
+    });
+
+    private async Task ExportBatchAsync() => await RunAsync(async token =>
+    {
+        string? parent = await _dialogs.SelectOutputAsync(Text);
+        if (parent is null) return;
+        SetFailures([]);
+        string[] paths = Images.Select(image => image.FilePath).ToArray();
+        double tolerance = Tolerance;
+        byte alpha = (byte)MinimumAlpha;
+        var selections = Images.Where(image => image.ExportColors is not null)
+            .ToDictionary(image => image.FilePath, image => (IReadOnlySet<string>)image.ExportColors!.ToHashSet(), StringComparer.OrdinalIgnoreCase);
+        var progress = new Progress<BatchProgress>(value =>
+        {
+            Progress = value.Percent;
+            StatusMessage("BatchWorking", value.FileNumber, value.TotalFiles, value.FileName);
+        });
+        var result = await Task.Run(() => new BatchExportService().Export(paths, parent, tolerance, progress, token, alpha, selections), token);
+        SetFailures(result.Failures);
+        StatusMessage(result.Cancelled ? "BatchCancelled" : "BatchDone", result.ExportedImages,
+            result.ExportedMasks, result.Failures.Count, result.Folder);
+    });
+
+    private async Task ShowDetailPreviewAsync() => await RunAsync(async token =>
+    {
+        var analysis = _analysis!;
+        int group = SelectedGroup!.Group.Index;
+        var bytes = await Task.Run(() =>
+        {
+            byte[] original = _service.OriginalPreview(_source!, analysis.Width, analysis.Height);
+            token.ThrowIfCancellationRequested();
+            byte[] mask = _service.MaskPreview(analysis, group, fullResolution: true);
+            byte[] overlay = _service.OverlayPreview(analysis, group, token);
+            return (original, mask, overlay);
+        }, token);
+        token.ThrowIfCancellationRequested();
+        _detailPreview!.Show(new(bytes.original, bytes.mask, bytes.overlay, Text, $"{FileName} · {SelectedGroup!.Hex}"));
+    });
+
+    private Task SelectColors(bool enabled)
+    {
+        foreach (var group in Groups) group.ExportEnabled = enabled;
+        return Task.CompletedTask;
+    }
+
+    private void ExportSelectionChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs args)
+    {
+        if (args.PropertyName != nameof(ColorGroupViewModel.ExportEnabled)) return;
+        if (SelectedImage is not null) SelectedImage.ExportColors = Groups.Where(g => g.ExportEnabled).Select(g => g.Hex).ToHashSet();
+        Changed(nameof(ExportColorCount)); ExportCommand.Refresh();
+    }
+
+    private void InvalidateSelections()
+    {
+        foreach (var image in Images) image.ExportColors = null;
+        ClearAnalysis();
+    }
+
+    private async Task RunAsync(Func<CancellationToken, Task> action)
+    {
+        IsBusy = true; Progress = 0;
+        using var cancellation = new CancellationTokenSource(); _cancellation = cancellation;
+        string previousKey = _statusKey; object[] previousArgs = _statusArgs;
+        StatusMessage("Working");
+        try
+        {
+            await action(cancellation.Token);
+            if (_statusKey == "Working") StatusMessage(previousKey, previousArgs);
+        }
+        catch (OperationCanceledException) { StatusMessage("Cancelled"); }
+        catch (ImageLimitException) { StatusMessage("TooLarge"); }
+        catch (ColorLimitException) { StatusMessage("TooMany"); }
+        catch (EmptyImageException) { StatusMessage("Empty"); }
+        catch (NoColorsSelectedException) { StatusMessage("NoColors"); }
+        catch (Exception e) { StatusMessage("Error", e.Message); }
+        finally { _cancellation = null; IsBusy = false; }
+    }
+
+    private void ClearAnalysis()
+    {
+        _analysis = null; SelectedGroup = null; Mask = null;
+        foreach (var group in Groups) group.PropertyChanged -= ExportSelectionChanged;
+        Groups.Clear(); Changed(nameof(HasGroups)); Changed(nameof(ExportColorCount)); RefreshCommands();
+    }
+    private void StatusMessage(string key, params object[] args) { _statusKey = key; _statusArgs = args; Changed(nameof(Status)); }
+    private string ErrorText(Exception error) => error switch
+    {
+        ImageLimitException => Text["TooLarge"], ColorLimitException => Text["TooMany"],
+        EmptyImageException => Text["Empty"], NoColorsSelectedException => Text["NoColors"], _ => error.Message
+    };
+    private void SetFailures(IReadOnlyList<BatchFailure> failures)
+    {
+        _failures = failures; Changed(nameof(ErrorDetails)); Changed(nameof(HasErrors));
+    }
+    private void RefreshCommands()
+    {
+        OpenCommand.Refresh(); AnalyzeCommand.Refresh(); ExportCommand.Refresh(); CancelCommand.Refresh();
+        ExportBatchCommand.Refresh(); ClearImagesCommand.Refresh(); RemoveImageCommand.Refresh();
+        DetailPreviewCommand.Refresh(); SelectAllColorsCommand.Refresh(); DeselectAllColorsCommand.Refresh();
+    }
+    private void SaveSettings() { if (!_settingsService.Save(_settings)) StatusMessage("SaveError"); }
+    public void Cancel() => _cancellation?.Cancel();
+    public void Dispose()
+    {
+        Cancel(); SaveSettings();
+        Set(ref _selectedImage, null, nameof(SelectedImage));
+        _source?.Dispose(); _source = null; Original = null; Mask = null;
+        foreach (var image in Images) image.Dispose();
+        Images.Clear();
+    }
+}

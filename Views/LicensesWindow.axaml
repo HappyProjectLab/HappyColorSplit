@@ -1,0 +1,33 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="HappyColorSplit.Views.LicensesWindow" Title="{Binding Title}"
+        Width="1080" Height="760" MinWidth="800" MinHeight="500" WindowStartupLocation="CenterOwner"
+        Background="#111824" Icon="/Assets/HappyColorSplit.ico">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="24" RowSpacing="18">
+    <StackPanel Spacing="8">
+      <TextBlock Text="{Binding Text[LicensesHeading]}" FontSize="23" FontWeight="SemiBold" />
+      <TextBlock Text="{Binding Text[LicensesIntro]}" Classes="muted" TextWrapping="Wrap" />
+    </StackPanel>
+    <Grid Grid.Row="1" ColumnDefinitions="280,*" ColumnSpacing="16">
+      <Border Classes="panel" Padding="8">
+        <ListBox ItemsSource="{Binding Documents}" SelectedItem="{Binding SelectedDocument, Mode=TwoWay}" Background="Transparent">
+          <ListBox.ItemTemplate>
+            <DataTemplate><TextBlock Text="{Binding Title}" TextWrapping="Wrap" Margin="4,7" FontSize="12" /></DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </Border>
+      <Border Grid.Column="1" Classes="panel" Padding="16">
+        <Grid RowDefinitions="Auto,Auto,*" RowSpacing="12">
+          <TextBlock Text="{Binding SelectedDocument.Title}" FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap" />
+          <ProgressBar Grid.Row="1" IsVisible="{Binding IsLoading}" IsIndeterminate="True" Height="3" />
+          <TextBox x:Name="LicenseTextBox" Grid.Row="2" Text="{Binding DocumentText, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True"
+                   TextWrapping="Wrap" FontSize="12" Background="#121A27" Padding="12"
+                   ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
+        </Grid>
+      </Border>
+    </Grid>
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="16">
+      <TextBlock Text="{Binding Text[LicensesFooter]}" Classes="muted" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center" />
+      <Button Grid.Column="1" Content="{Binding Text[Close]}" Click="Close_OnClick" IsCancel="True" />
+    </Grid>
+  </Grid>
+</Window>

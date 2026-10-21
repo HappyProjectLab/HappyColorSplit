@@ -1,0 +1,25 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="HappyColorSplit.Views.DetailPreviewWindow" Title="{Binding Title}"
+        Width="1100" Height="850" MinWidth="750" MinHeight="500" Background="#111824"
+        Icon="/Assets/HappyColorSplit.ico">
+  <Grid RowDefinitions="Auto,Auto,*" Margin="20" RowSpacing="12">
+    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
+      <TextBlock Text="{Binding Text[Zoom]}" VerticalAlignment="Center" />
+      <Slider Grid.Column="1" Value="{Binding Zoom, Mode=TwoWay}" Minimum="25" Maximum="800" TickFrequency="25" IsSnapToTickEnabled="True" />
+      <TextBlock Grid.Column="2" Text="{Binding Zoom, StringFormat={}{0:0}%}" VerticalAlignment="Center" MinWidth="55" />
+    </Grid>
+    <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="16">
+      <CheckBox Content="{Binding Text[Overlay]}" IsChecked="{Binding ShowOverlay, Mode=TwoWay}" />
+      <TextBlock Grid.Column="1" Text="{Binding Text[OverlayStrength]}" VerticalAlignment="Center" Classes="muted" />
+      <Slider Grid.Column="2" Minimum="0" Maximum="1" Value="{Binding OverlayOpacity, Mode=TwoWay}" IsEnabled="{Binding ShowOverlay}" />
+      <TextBlock Grid.Column="3" Text="{Binding Text[PreviewHelp]}" VerticalAlignment="Center" FontSize="11" Classes="muted" />
+    </Grid>
+    <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="Black">
+      <Grid Width="{Binding ImageWidth}" Height="{Binding ImageHeight}" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Image Source="{Binding Mask}" Stretch="Fill" IsVisible="{Binding !ShowOverlay}" RenderOptions.BitmapInterpolationMode="None" />
+        <Image Source="{Binding Original}" Stretch="Fill" IsVisible="{Binding ShowOverlay}" RenderOptions.BitmapInterpolationMode="None" />
+        <Image Source="{Binding Overlay}" Stretch="Fill" IsVisible="{Binding ShowOverlay}" Opacity="{Binding OverlayOpacity}" RenderOptions.BitmapInterpolationMode="None" />
+      </Grid>
+    </ScrollViewer>
+  </Grid>
+</Window>

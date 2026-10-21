@@ -1,0 +1,128 @@
+# HappyColorSplit
+
+Windows-Desktop-Anwendung zum Trennen ähnlicher Farben aus PNG- und JPG-Bildern. Jede Farbgruppe wird als eigenes PNG exportiert: **weiße Farbfläche auf schwarzem Hintergrund**, in Originalgröße und an der ursprünglichen Position.
+
+Aktueller Entwicklungsstand: **0.1.0-preview.3**. Dies ist eine Vorabversion. Projekt und Quellcode sind im öffentlichen Repository [HappyProjectLab/HappyColorSplit](https://github.com/HappyProjectLab/HappyColorSplit) verfügbar.
+
+## Programm herunterladen
+
+### [⬇ HappyColorSplit für Windows herunterladen (ZIP, x64)](https://github.com/HappyProjectLab/HappyColorSplit/releases/download/v0.1.0-preview.3/HappyColorSplit-0.1.0-preview.3-Windows-x64.zip)
+
+ZIP vollständig entpacken und im Ordner `HappyColorSplit` die Datei **HappyColorSplit.exe** starten. **Die .NET-Laufzeit ist enthalten; eine zusätzliche .NET-Installation ist nicht erforderlich.** Alle Dateien und Unterordner zusammen behalten.
+
+Voraussetzung: Windows 10/11 mit x64-Prozessor. Dies ist eine Vorabversion. Der Download ist öffentlich zugänglich; ein GitHub-Konto ist dafür nicht erforderlich.
+
+[Versionshinweise, Quellcode und SHA-256-Prüfsummen](https://github.com/HappyProjectLab/HappyColorSplit/releases/tag/v0.1.0-preview.3)
+
+## Lizenz
+
+HappyColorSplit ist freie Software unter der **GNU General Public License, Version 3 oder einer späteren Version** (`GPL-3.0-or-later`). Der vollständige maßgebliche Lizenztext steht in [LICENSE](LICENSE) und wird bei jedem Build und jeder Publish-Ausgabe mitgeliefert.
+
+Du darfst das Programm nach den Bedingungen dieser Lizenz verwenden, verändern und weitergeben. Bei einer Weitergabe sind insbesondere die Lizenzhinweise und die anwendbaren Pflichten zur Bereitstellung des zugehörigen Quellcodes zu beachten. Die Regelungen zu Gewährleistung und Haftung stehen im vollständigen Lizenztext.
+
+Rechte an verwendeten Bilddateien richten sich weiterhin nach deren eigenen Bedingungen. Drittanbieter-Komponenten bleiben unter ihren jeweiligen Lizenzen; die Projektlizenz ersetzt deren Lizenztexte und Hinweise nicht.
+
+HappyColorSplit is licensed under the **GNU General Public License, version 3 or later** (`GPL-3.0-or-later`). See [LICENSE](LICENSE) for the full terms. Third-party components remain subject to their own licenses.
+
+Die mitgelieferten Komponenten und ihre Lizenztexte sind in der [deutschen Komponentenübersicht](docs/THIRD_PARTY_COMPONENTS_DE.md), der [englischen Übersicht](docs/THIRD_PARTY_COMPONENTS.md) und den [Drittanbieterhinweisen](licenses/THIRD_PARTY_NOTICES.md) dokumentiert. Der vollständige Ordner `licenses` wird zusammen mit der Projektlizenz und den Übersichten automatisch mitgeliefert.
+
+Im Programm öffnet **Lizenzen & Hinweise** oben rechts einen eigenen Lesebereich. Dort sind die Projektlizenz, der Hinweis **Datensicherheit und Haftung**, die Komponentenübersicht und alle mitgelieferten Original-Lizenztexte auswählbar. Die Texte lassen sich markieren und kopieren. Bedienung, Nutzungshinweis und Komponentenübersicht folgen der ausgewählten Sprache; Original-Lizenztexte werden unverändert in ihrer jeweiligen Sprache angezeigt. Die Anzeige funktioniert ohne Internetverbindung.
+
+## Hinweis zu Datensicherheit und Haftung
+
+HappyColorSplit wird als kostenlose Open-Source-Software unter der GNU GPL Version 3 oder später bereitgestellt. Die Regelungen zu Gewährleistung und Haftung finden sich im mitgelieferten Lizenztext. Zwingende gesetzliche Rechte bleiben unberührt.
+
+Trotz sorgfältiger Entwicklung können Fehler und unerwartete Auswirkungen auftreten, einschließlich fehlerhafter Ergebnisse, Dateibeschädigungen oder Datenverlust. Erstelle deshalb vor der Verwendung Sicherungskopien wichtiger Dateien, arbeite möglichst mit Kopien und überprüfe die exportierten Ergebnisse.
+
+## Data safety and liability notice
+
+HappyColorSplit is provided as free, open-source software under the GNU GPL version 3 or later. The terms concerning warranty and liability are set out in the accompanying license text. Mandatory statutory rights remain unaffected.
+
+Despite careful development, errors and unexpected effects can occur, including incorrect results, file corruption, or data loss. Before using the program, back up important files, work with copies where possible, and check the exported results.
+
+## Maintainer und Kontakt
+
+Öffentlich sichtbarer Maintainer-Name: **HappyProjectLab**. HappyColorSplit ist ein kostenloses Open-Source-Hobbyprojekt.
+
+Fragen, Fehlerberichte und Verbesserungsvorschläge bitte über [GitHub Issues](https://github.com/HappyProjectLab/HappyColorSplit/issues) einreichen. Dafür ist ein GitHub-Konto erforderlich. Issues sind öffentlich einsehbar; bitte keine Zugangsdaten, persönlichen Angaben oder vertraulichen Bilder einstellen. Sicherheitslücken gehören in den getrennten Meldeweg gemäß [SECURITY.md](SECURITY.md).
+
+Public maintainer name: **HappyProjectLab**. Please use [GitHub Issues](https://github.com/HappyProjectLab/HappyColorSplit/issues) for general questions, bugs and suggestions. Issues are public and require a GitHub account to submit. Do not post sensitive data or vulnerability details; follow [SECURITY.md](SECURITY.md) for security reports.
+
+## Mitwirken und Sicherheitsmeldungen
+
+Die [Beitragsregeln](CONTRIBUTING.md) beschreiben Fehlerberichte, Entwicklung, Prüfungen und den Umgang mit Bildrechten und Abhängigkeiten. Für Sicherheitslücken gilt [SECURITY.md](SECURITY.md); dort ist auch der aktuelle Stand des vertraulichen Meldewegs beschrieben.
+
+## Starten
+
+Voraussetzung: .NET SDK 10.
+
+```powershell
+dotnet restore
+dotnet build
+dotnet run --project HappyColorSplit.csproj
+```
+
+## Verwendung
+
+1. Ein oder mehrere PNG-/JPG-Bilder über **Bilder hinzufügen** auswählen (Strg/Shift im Dateidialog). Weitere Auswahlvorgänge ergänzen die Liste; dieselbe Datei wird nicht doppelt aufgenommen.
+2. Farbähnlichkeit und **Mindestdeckkraft** einstellen und **Farben erkennen** wählen. Ein kleiner Ähnlichkeitswert trennt Farben feiner, ein großer Wert fasst mehr Farben zusammen. Bei 0 werden nur identische RGB-Farben zusammengefasst. Die Mindestdeckkraft ist standardmäßig 128/255 (etwa 50 %); schwächere Pixel werden ignoriert. 1 entspricht dem früheren Verhalten. JPG-Dateien sind deckend und werden vom Deckkraftfilter nicht verändert.
+3. Farbgruppen in der Liste auswählen, um die Exportvorschau zu sehen. Die Häkchen bestimmen, welche Farben exportiert werden. **Alle** und **Keine** setzen die Auswahl gemeinsam. Ohne gewählte Farben ist der Einzelexport deaktiviert.
+4. **Ausgewähltes Bild exportieren** wählen und einen Zielordner auswählen.
+
+Für mehrere Bilder: **Alle Bilder exportieren** verarbeitet die gesamte Bildliste mit der aktuellen Farbähnlichkeit. Die Farben werden pro Bild automatisch erkannt, eine vorherige Einzelanalyse ist nicht nötig. Im gemeinsamen Exportordner erhält jedes Bild einen eigenen Unterordner, auch bei identischen Dateinamen aus verschiedenen Quellordnern.
+
+Die Mindestdeckkraft gilt für alle Bilder. Jede bereits geprüfte Datei behält ihre eigene Farbauswahl während der aktuellen Sitzung, auch nach einem Bildwechsel und erneuter Erkennung. Ungeprüfte Dateien exportieren alle erkannten Farben. Bilder mit komplett abgewählten Farben werden beim Stapel-Export mit einer entsprechenden Meldung übersprungen. Änderungen an Farbähnlichkeit oder Mindestdeckkraft verwerfen die Erkennung und setzen die Farbauswahl aller Bilder zurück. Die Farbauswahl bezieht sich auf die unveränderte Quelldatei; extern bearbeitete Bilder bitte neu laden und prüfen.
+
+**Detailansicht / Überlagerung** öffnet die ausgewählte Maske in Originalauflösung. Die Vergrößerung reicht von 25 bis 800 %. Scrollleisten verschieben den Ausschnitt. Bei aktiver Originalüberlagerung markiert eine grüne Fläche die ausgewählte Maske; die Überlagerungsstärke ist einstellbar. Ohne Überlagerung wird die Schwarz-Weiß-Maske gezeigt. Die Detailansicht ist eine Momentaufnahme der aktuellen Auswahl.
+
+Die Bildliste zeigt Miniaturvorschauen. Ein Klick auf ein Bild zeigt dessen Original; **Farben erkennen** erzeugt die zugehörigen Farbgruppen und Maskenvorschauen. Die Farbauswahl bereits geprüfter Bilder bleibt beim Bildwechsel erhalten. Mit **Entfernen** oder **Liste leeren** lassen sich Bilder aus der Liste nehmen.
+
+Die Stapelverarbeitung lädt jeweils nur ein Bild in voller Auflösung. Fehlerhafte Dateien werden übersprungen und mit ihren Fehlerdetails angezeigt. Ein Abbruch behält bereits vollständig exportierte Bilder bei und entfernt den unvollständigen Export des gerade bearbeiteten Bildes. Die Abschlussmeldung nennt die Anzahl fertiger Bilder, PNGs, Fehler und den Zielordner.
+
+Der Export erzeugt einen neuen Unterordner. Dateinamen enthalten laufende Nummer und RGB-Hexwert der Referenzfarbe. Vorhandene Exporte werden nicht überschrieben. Bei Abbruch werden die temporären Dateien des aktuellen Exports entfernt.
+
+## Farbverarbeitung
+
+Die häufigste noch nicht zugeordnete RGB-Farbe dient als feste Referenzfarbe einer Gruppe. Farben werden anhand ihres euklidischen Abstands im RGB-Farbraum der nächstgelegenen passenden Referenz zugeordnet. Der Regler gibt den maximalen Abstand zur Referenz an (0–150). Es handelt sich um eine einfache RGB-Gruppierung, nicht um eine wahrnehmungsbasierte Farbraumanalyse. Auch die Hintergrundfarbe erhält eine eigene Gruppe.
+
+Vollständig transparente Pixel und Pixel unterhalb der Mindestdeckkraft gehören keiner Gruppe an und werden schwarz exportiert. Übrige Pixel werden anhand ihres gespeicherten RGB-Werts zugeordnet und in der Maske deckend weiß ausgegeben. Abgewählte Farbgruppen werden nicht gespeichert; ihre Pixel bleiben in allen anderen Masken schwarz und werden keiner anderen Farbe zugewiesen. Diese Version führt keine automatische Konturreparatur oder Entfernung kleiner zusammenhängender Flächen durch. Alle Masken sind deckende Schwarz-Weiß-PNGs. EXIF-Ausrichtung wird vor der Verarbeitung angewendet. Bei animierten PNGs wird nur das erste Bild verwendet.
+
+Grenzen der ersten Version: maximal 16 Millionen Bildpixel und 256 Farbgruppen. Bei zu vielen Gruppen die Farbähnlichkeit erhöhen. Große JPGs und viele Gruppen können Zeit und Arbeitsspeicher benötigen; Verarbeitung und Export laufen außerhalb der Oberfläche und können abgebrochen werden.
+
+## Technik und Struktur
+
+- C#, .NET 10, Avalonia 12.1.1 mit AXAML, dunkles Fluent-Theme und Inter.
+- `Views`: Fenster; `ViewModels`: Zustand und Befehle; `Models`: Daten; `Services`: Bildverarbeitung, Dateiauswahl, Einstellungen und Übersetzungen; `Controls`: wiederverwendbare Farbkachel; `Assets`: Programmsymbol.
+- Zentral verwaltete deutsche und englische Texte in `Services/Texts.cs`.
+- Einstellungen: `%LOCALAPPDATA%\HappyColorSplit\settings.json` (Sprache, Farbähnlichkeit und Mindestdeckkraft).
+- Wenn noch keine neuen Einstellungen vorliegen, werden die Einstellungen der bisherigen Anwendung eingelesen. Beim Speichern werden sie im neuen Benutzerdatenordner abgelegt; die bisherige Datei bleibt erhalten.
+- NuGet: Avalonia 12.1.1 und SkiaSharp 3.119.4 für Bilddecodierung, Vorschau und PNG-Export. Bildverarbeitung und Avalonia-Rendering verwenden dieselbe SkiaSharp-Version. Details: [Bildverarbeitung](docs/IMAGE_PROCESSING.md).
+
+## Windows-Paket
+
+```powershell
+dotnet publish HappyColorSplit.csproj -p:PublishProfile=Windows -o artifacts/HappyColorSplit-Windows
+pwsh -NoProfile -File tools/ValidateThirdPartyCompliance.ps1 -PublishDirectory artifacts/HappyColorSplit-Windows
+```
+
+Der Ausgabeordner enthält `HappyColorSplit.exe`, die verwendeten Bibliotheken, die integrierte .NET-Laufzeit **10.0.12** und die Lizenzunterlagen. Das geprüfte Paket ist für Windows x64; eine separat installierte .NET-Laufzeit wird nicht benötigt. Änderungen an der Laufzeit oder Zielplattform benötigen eine neue Komponenten- und Lizenzinventur.
+
+Für ein vollständiges Release nach dem Commit ausführen:
+
+```powershell
+pwsh -NoProfile -File tools/New-WindowsRelease.ps1
+```
+
+Das Skript benötigt einen sauberen Git-Stand und erzeugt unter `artifacts/releases` das Windows-ZIP, ein Quellcode-ZIP desselben Commits und SHA-256-Prüfsummen. Es prüft das Programmpaket und sämtliche Dateien im fertigen ZIP. Vorhandene Release-Dateien werden nicht überschrieben. Das Erstellen der Dateien allein lädt sie noch nicht auf GitHub hoch.
+
+## Funktionsprüfung
+
+```powershell
+dotnet run --project Tests/HappyColorSplit.Tests.csproj
+```
+
+Die Prüfung verwendet synthetische Bilder und kontrolliert die tatsächlichen Exportpixel, Farbgruppierung, Transparenz, Abbruch, Grenzen, JSON-Einstellungen und den Ablauf der Oberfläche ohne sichtbares Fenster. Sie prüft außerdem Mehrfachauswahl, Bildwechsel, das Entfernen und Leeren der Liste sowie Stapel-Exporte mit gleichen Dateinamen, beschädigten Dateien und Abbruch nach einem fertig exportierten Bild.
+
+Zusätzliche Prüfungen kontrollieren Deckkraft-Grenzwerte, Farbauswahl, Exportfortschritt, transparente Überlagerung, Zoom und die Auswahl pro Bild im Stapel-Export. Optionale lokale Bildvergleiche ergänzen die synthetischen Prüfungen; die dafür verwendeten Bilddateien gehören nicht zum Repository.
+
+Die Decoder-Prüfungen umfassen außerdem alle acht EXIF-Ausrichtungen bei JPEG, den ersten Frame eines animierten PNG, exakte RGB-Erhaltung bei geringer Deckkraft und das 8-Bit-Graustufenformat der Exportmasken. Optionale lokale Referenzwerte lassen sich mit `--capture-baseline` erfassen und mit `--verify-baseline` vergleichen; die Bilder und Referenzdatei werden nicht ins Repository aufgenommen.

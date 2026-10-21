@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="HappyColorSplit.csproj" />
+  <Folder Name="/Tests/">
+    <Project Path="Tests/HappyColorSplit.Tests.csproj" />
+  </Folder>
+</Solution>

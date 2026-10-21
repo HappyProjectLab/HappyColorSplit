@@ -1,0 +1,4 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="HappyColorSplit.Controls.ColorSwatch">
+  <Border Width="30" Height="30" CornerRadius="7" BorderBrush="#608294B0" BorderThickness="1" Background="{Binding Swatch}" />
+</UserControl>

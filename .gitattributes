@@ -1,0 +1,9 @@
+* text=auto eol=lf
+*.png binary
+*.ico binary
+*.zip binary
+*.pdf binary
+
+# Preserve upstream legal texts, including their original line endings.
+LICENSE -text -eol -whitespace
+licenses/** -text -eol -whitespace

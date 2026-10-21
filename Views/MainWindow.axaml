@@ -1,0 +1,147 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:HappyColorSplit.Controls"
+        x:Class="HappyColorSplit.Views.MainWindow"
+        Title="HappyColorSplit" Width="1380" Height="870" MinWidth="1120" MinHeight="740"
+        Background="#111824" Icon="/Assets/HappyColorSplit.ico">
+  <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" Margin="28" RowSpacing="16">
+    <Grid ColumnDefinitions="*,Auto">
+      <StackPanel Spacing="6">
+        <TextBlock Text="HappyColorSplit" FontSize="27" FontWeight="SemiBold" />
+        <TextBlock Text="{Binding Text[Subtitle]}" Classes="muted" FontSize="14" />
+      </StackPanel>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+        <Button Content="{Binding Text[Licenses]}" Command="{Binding LicensesCommand}" />
+        <TextBlock Text="{Binding Text[Language]}" VerticalAlignment="Center" Classes="muted" />
+        <ComboBox ItemsSource="{Binding Languages}" SelectedIndex="{Binding LanguageIndex, Mode=TwoWay}" MinWidth="120" />
+      </StackPanel>
+    </Grid>
+    <Border Grid.Row="1" Classes="panel">
+      <Grid ColumnDefinitions="Auto,*,*,Auto" ColumnSpacing="20">
+        <Button Content="{Binding Text[Open]}" Command="{Binding OpenCommand}" VerticalAlignment="Center" />
+        <StackPanel Grid.Column="1" Spacing="5" IsEnabled="{Binding IsIdle}">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Text="{Binding Text[Tolerance]}" FontWeight="SemiBold" />
+            <TextBlock Grid.Column="1" Text="{Binding Tolerance, StringFormat={}{0:0}}" Foreground="#7DD3FC" />
+          </Grid>
+          <Slider Minimum="0" Maximum="150" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding Tolerance, Mode=TwoWay}" />
+          <TextBlock Text="{Binding Text[ToleranceHelp]}" Classes="muted" FontSize="11" TextWrapping="Wrap" />
+        </StackPanel>
+        <StackPanel Grid.Column="2" Spacing="5" IsEnabled="{Binding IsIdle}">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Text="{Binding Text[MinimumAlpha]}" FontWeight="SemiBold" />
+            <TextBlock Grid.Column="1" Text="{Binding MinimumAlpha, StringFormat={}{0:0}/255}" Foreground="#7DD3FC" />
+          </Grid>
+          <Slider Minimum="1" Maximum="254" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding MinimumAlpha, Mode=TwoWay}" />
+          <TextBlock Text="{Binding Text[AlphaHelp]}" Classes="muted" FontSize="11" TextWrapping="Wrap" />
+        </StackPanel>
+        <Button Grid.Column="3" Content="{Binding Text[Analyze]}" Command="{Binding AnalyzeCommand}" VerticalAlignment="Center" />
+      </Grid>
+    </Border>
+    <Grid Grid.Row="2" ColumnDefinitions="220,*,270" ColumnSpacing="16">
+      <Border Classes="panel" Padding="12,20">
+        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="12">
+          <Grid ColumnDefinitions="*,Auto" Margin="4,0">
+            <TextBlock Text="{Binding Text[ImageList]}" FontWeight="SemiBold" />
+            <TextBlock Grid.Column="1" Text="{Binding Images.Count}" Foreground="#7DD3FC" />
+          </Grid>
+          <TextBlock Grid.Row="1" Text="{Binding Text[ImageListHint]}" TextWrapping="Wrap" Classes="muted" FontSize="11" Margin="4,0" />
+          <ListBox Grid.Row="2" ItemsSource="{Binding Images}" SelectedItem="{Binding SelectedImage, Mode=TwoWay}"
+                   IsEnabled="{Binding IsIdle}" Background="Transparent">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <StackPanel Spacing="6" Margin="0,4" ToolTip.Tip="{Binding FilePath}">
+                  <Border Background="#10151F" CornerRadius="6" ClipToBounds="True">
+                    <Image Source="{Binding Thumbnail}" Height="85" Stretch="Uniform" Margin="4" />
+                  </Border>
+                  <TextBlock Text="{Binding FileName}" TextTrimming="CharacterEllipsis" FontSize="12" />
+                </StackPanel>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+          <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="6">
+            <Button Content="{Binding Text[RemoveImage]}" Command="{Binding RemoveImageCommand}" FontSize="11" Padding="8,8" />
+            <Button Content="{Binding Text[ClearImages]}" Command="{Binding ClearImagesCommand}" FontSize="11" Padding="8,8" />
+          </StackPanel>
+        </Grid>
+      </Border>
+      <Grid Grid.Column="1" RowDefinitions="*,*" RowSpacing="16">
+        <Border Classes="panel">
+          <Grid RowDefinitions="Auto,*" RowSpacing="12">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+              <TextBlock Text="{Binding Text[Original]}" FontWeight="SemiBold" />
+              <TextBlock Grid.Column="1" Text="{Binding FileName}" Classes="muted" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" />
+            </Grid>
+            <Border Grid.Row="1" Background="#10151F" CornerRadius="8" ClipToBounds="True">
+              <Grid>
+                <TextBlock Text="{Binding Text[Hint]}" IsVisible="{Binding !HasImage}" TextWrapping="Wrap" MaxWidth="320" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Classes="muted" Margin="20" />
+                <Image Source="{Binding Original}" Stretch="Uniform" Margin="8" />
+              </Grid>
+            </Border>
+          </Grid>
+        </Border>
+        <Border Grid.Row="1" Classes="panel">
+          <Grid RowDefinitions="Auto,*" RowSpacing="12">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="{Binding Text[Mask]}" FontWeight="SemiBold" VerticalAlignment="Center" />
+              <Button Grid.Column="1" Content="{Binding Text[DetailPreview]}" Command="{Binding DetailPreviewCommand}" FontSize="11" Padding="10,5" />
+            </Grid>
+            <Border Grid.Row="1" Background="Black" CornerRadius="8" ClipToBounds="True">
+              <Grid>
+                <TextBlock Text="{Binding Text[MaskHint]}" IsVisible="{Binding !HasMask}" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" Classes="muted" Margin="20" />
+                <Image Source="{Binding Mask}" Stretch="Uniform" Margin="8" />
+              </Grid>
+            </Border>
+          </Grid>
+        </Border>
+      </Grid>
+      <Border Grid.Column="2" Classes="panel" Padding="14,20">
+        <Grid RowDefinitions="Auto,*,Auto" RowSpacing="14">
+          <StackPanel Spacing="8" Margin="6,0">
+            <TextBlock Text="{Binding Text[Colors]}" FontWeight="SemiBold" />
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="6">
+              <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Text[ExportColors]}" FontSize="11" Classes="muted" />
+                <TextBlock Text="{Binding ExportColorCount}" FontSize="11" Foreground="#7DD3FC" />
+              </StackPanel>
+              <Button Grid.Column="1" Content="{Binding Text[AllColors]}" Command="{Binding SelectAllColorsCommand}" FontSize="11" Padding="7,4" />
+              <Button Grid.Column="2" Content="{Binding Text[NoColorSelection]}" Command="{Binding DeselectAllColorsCommand}" FontSize="11" Padding="7,4" />
+            </Grid>
+          </StackPanel>
+          <Grid Grid.Row="1">
+            <TextBlock Text="{Binding Text[EmptyColors]}" IsVisible="{Binding !HasGroups}" Classes="muted" TextWrapping="Wrap" Margin="6,8" />
+            <ListBox ItemsSource="{Binding Groups}" SelectedItem="{Binding SelectedGroup, Mode=TwoWay}" Background="Transparent" IsEnabled="{Binding IsIdle}">
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <Grid ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="8" Margin="0,5">
+                    <CheckBox IsChecked="{Binding ExportEnabled, Mode=TwoWay}" VerticalAlignment="Center" MinWidth="0" Padding="0" />
+                    <controls:ColorSwatch Grid.Column="1" />
+                    <StackPanel Grid.Column="2" Spacing="2">
+                      <TextBlock Text="{Binding Hex}" FontWeight="SemiBold" FontSize="13" />
+                      <TextBlock Text="{Binding PixelCount}" Classes="muted" FontSize="11" />
+                    </StackPanel>
+                    <TextBlock Grid.Column="3" Text="{Binding Coverage}" VerticalAlignment="Center" Classes="muted" FontSize="11" />
+                  </Grid>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </Grid>
+          <StackPanel Grid.Row="2" Spacing="8" Margin="6,0">
+            <TextBlock Text="{Binding Text[OutputHelp]}" Classes="muted" FontSize="11" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding Text[BatchHelp]}" Classes="muted" FontSize="11" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding Text[SelectionHint]}" ToolTip.Tip="{Binding Text[ColorSelectionHelp]}" Foreground="#7DD3FC" FontSize="11" TextWrapping="Wrap" />
+          </StackPanel>
+        </Grid>
+      </Border>
+    </Grid>
+    <Grid Grid.Row="3" ColumnDefinitions="*,Auto,Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="10">
+      <TextBlock Text="{Binding Status}" TextWrapping="Wrap" VerticalAlignment="Center" Classes="muted" MaxHeight="64" />
+      <Button Grid.Column="1" Content="{Binding Text[Cancel]}" Command="{Binding CancelCommand}" IsVisible="{Binding IsBusy}" />
+      <Button Grid.Column="2" Content="{Binding Text[Export]}" Command="{Binding ExportCommand}" />
+      <Button Grid.Column="3" Content="{Binding Text[ExportBatch]}" Command="{Binding ExportBatchCommand}" Background="#89D6FA" Foreground="#0B2333" FontWeight="SemiBold" />
+      <ProgressBar Grid.Row="1" Grid.ColumnSpan="4" IsVisible="{Binding IsBusy}" Value="{Binding Progress}" IsIndeterminate="{Binding IsIndeterminate}" Height="4" />
+    </Grid>
+    <Expander Grid.Row="4" Header="{Binding Text[ErrorDetails]}" IsVisible="{Binding HasErrors}" HorizontalAlignment="Stretch">
+      <TextBox Text="{Binding ErrorDetails, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" MaxHeight="100" />
+    </Expander>
+  </Grid>
+</Window>
