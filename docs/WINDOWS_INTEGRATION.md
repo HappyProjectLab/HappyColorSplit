@@ -2,7 +2,7 @@
 
 ## Deutsch
 
-Diese Funktionen gehören zum lokalen Entwicklungsstand und sind noch nicht im veröffentlichten Download `0.1.0-preview.3` enthalten.
+Diese Funktionen sind ab `0.1.0-preview.4` enthalten.
 
 - **Drag-and-drop:** Eine oder mehrere PNG-/JPG-/JPEG-Dateien aus dem Explorer in das Fenster ziehen. Die vorhandene Bildliste wird ergänzt. Dieselben normalisierten Dateipfade werden nicht doppelt aufgenommen. Ordner werden nicht durchsucht. Während Laden, Erkennung oder Export wird kein weiterer Drop angenommen.
 - **Einrichten:** Das vollständige Programmpaket zuerst an seinen dauerhaften Speicherort entpacken. `HappyColorSplit.exe` starten und oben **Windows-Einbindung → Explorer-Einträge einrichten / aktualisieren** wählen. Die Einträge gelten nur für das aktuelle Benutzerkonto. Das Standardprogramm für Bilder bleibt unverändert.
@@ -17,7 +17,7 @@ Technisch werden ausschließlich eigene Einträge unter `HKEY_CURRENT_USER\Softw
 
 ## English
 
-These features are part of local development and are not yet included in the published `0.1.0-preview.3` download.
+These features are included starting with `0.1.0-preview.4`.
 
 - **Drag and drop:** Drop one or more PNG/JPG/JPEG files into the window to add them to the image list. Normalized duplicate paths are skipped. Folders are not scanned. Drops are unavailable while loading, processing or exporting.
 - **Set up:** Extract the entire application package to its permanent location first. Run `HappyColorSplit.exe`, then choose **Windows integration → Set up / update Explorer entries**. This only affects your account, requires no administrator privileges and leaves your default image viewer unchanged.

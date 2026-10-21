@@ -1,6 +1,6 @@
 # Windows-Download mit integrierter Laufzeit
 
-HappyColorSplit **0.1.0-preview.3** wird als Windows-x64-ZIP mit integrierter .NET-Laufzeit **10.0.12** bereitgestellt. Der öffentlich sichtbare Maintainer-Name ist **HappyProjectLab**; allgemeiner Kontakt erfolgt über [GitHub Issues](https://github.com/HappyProjectLab/HappyColorSplit/issues).
+HappyColorSplit **0.1.0-preview.4** wird als Windows-x64-ZIP mit integrierter .NET-Laufzeit **10.0.12** bereitgestellt. Der öffentlich sichtbare Maintainer-Name ist **HappyProjectLab**; allgemeiner Kontakt erfolgt über [GitHub Issues](https://github.com/HappyProjectLab/HappyColorSplit/issues).
 
 ## Für Anwender
 
@@ -26,13 +26,13 @@ pwsh -NoProfile -File tools/New-WindowsRelease.ps1
 
 Das Release-Skript akzeptiert einen sauberen Git-Stand und ein Ausgabeverzeichnis innerhalb des Projekts. Es baut mit dem Profil `Windows`, kontrolliert die binäre Commit-Kennung und führt die Komponentenprüfung aus. Unter `artifacts/releases` entstehen:
 
-- `HappyColorSplit-0.1.0-preview.3-Windows-x64.zip`: Programm, Laufzeit, Lizenzunterlagen, Startanleitung und Quellcodeverweis;
-- `HappyColorSplit-0.1.0-preview.3-Source.zip`: versionierte Projektdateien desselben Commits, einschließlich Build- und Release-Anleitung;
-- `HappyColorSplit-0.1.0-preview.3-SHA256SUMS.txt`: SHA-256-Prüfsummen beider ZIP-Dateien.
+- `HappyColorSplit-0.1.0-preview.4-Windows-x64.zip`: Programm, Laufzeit, Lizenzunterlagen, Startanleitung und Quellcodeverweis;
+- `HappyColorSplit-0.1.0-preview.4-Source.zip`: versionierte Projektdateien desselben Commits, einschließlich Build- und Release-Anleitung;
+- `HappyColorSplit-0.1.0-preview.4-SHA256SUMS.txt`: SHA-256-Prüfsummen beider ZIP-Dateien.
 
 Die Inhalte des fertigen Windows-ZIPs werden bytegenau mit dem geprüften Verzeichnis verglichen. Vorhandene Release-Dateien werden nicht überschrieben. Für einen weiteren Build ein anderes Verzeichnis über `-OutputDirectory artifacts/releases-test` angeben. `-NoRestore` setzt passend wiederhergestellte Pakete voraus.
 
-Alle drei Dateien gemeinsam an ein GitHub-Release mit Tag `v0.1.0-preview.3` hängen. Der Tag muss denselben Commit bezeichnen. Diese Ausgabe als **Pre-release** kennzeichnen. Weitere Versionen erhalten neue Versionsangaben, Dateien und README-Links. Das Skript lädt selbst nichts auf GitHub hoch und ändert keine Repository-Sichtbarkeit.
+Alle drei Dateien gemeinsam an ein GitHub-Release mit Tag `v0.1.0-preview.4` hängen. Der Tag muss denselben Commit bezeichnen. Diese Ausgabe als **Pre-release** kennzeichnen. Weitere Versionen erhalten neue Versionsangaben, Dateien und README-Links. Das Skript lädt selbst nichts auf GitHub hoch und ändert keine Repository-Sichtbarkeit.
 
 ## Komponentenprüfung und Updates
 

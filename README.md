@@ -1,18 +1,18 @@
 # HappyColorSplit
 
-Windows-Desktop-Anwendung zum Trennen ähnlicher Farben aus PNG- und JPG-Bildern. Jede Farbgruppe wird als eigenes PNG exportiert, in Originalgröße und an der ursprünglichen Position. Standard ist **weiße Farbfläche auf schwarzem Hintergrund**; der lokale Entwicklungsstand bietet außerdem Gruppenfarben und wählbare Hintergründe.
+Windows-Desktop-Anwendung zum Trennen ähnlicher Farben aus PNG- und JPG-Bildern. Jede Farbgruppe wird als eigenes PNG exportiert, in Originalgröße und an der ursprünglichen Position. Standard ist **weiße Farbfläche auf schwarzem Hintergrund**; Flächenfarbe und Hintergrund lassen sich unabhängig voneinander wählen.
 
-Aktueller Entwicklungsstand: **0.1.0-preview.3**. Dies ist eine Vorabversion. Projekt und Quellcode sind im öffentlichen Repository [HappyProjectLab/HappyColorSplit](https://github.com/HappyProjectLab/HappyColorSplit) verfügbar.
+Aktueller Entwicklungsstand: **0.1.0-preview.4**. Dies ist eine Vorabversion. Projekt und Quellcode sind im öffentlichen Repository [HappyProjectLab/HappyColorSplit](https://github.com/HappyProjectLab/HappyColorSplit) verfügbar.
 
 ## Programm herunterladen
 
-### [⬇ HappyColorSplit für Windows herunterladen (ZIP, x64)](https://github.com/HappyProjectLab/HappyColorSplit/releases/download/v0.1.0-preview.3/HappyColorSplit-0.1.0-preview.3-Windows-x64.zip)
+### [⬇ HappyColorSplit für Windows herunterladen (ZIP, x64)](https://github.com/HappyProjectLab/HappyColorSplit/releases/download/v0.1.0-preview.4/HappyColorSplit-0.1.0-preview.4-Windows-x64.zip)
 
 ZIP vollständig entpacken und im Ordner `HappyColorSplit` die Datei **HappyColorSplit.exe** starten. **Die .NET-Laufzeit ist enthalten; eine zusätzliche .NET-Installation ist nicht erforderlich.** Alle Dateien und Unterordner zusammen behalten.
 
 Voraussetzung: Windows 10/11 mit x64-Prozessor. Dies ist eine Vorabversion. Der Download ist öffentlich zugänglich; ein GitHub-Konto ist dafür nicht erforderlich.
 
-[Versionshinweise, Quellcode und SHA-256-Prüfsummen](https://github.com/HappyProjectLab/HappyColorSplit/releases/tag/v0.1.0-preview.3)
+[Versionshinweise, Quellcode und SHA-256-Prüfsummen](https://github.com/HappyProjectLab/HappyColorSplit/releases/tag/v0.1.0-preview.4)
 
 ## Lizenz
 
@@ -64,7 +64,7 @@ dotnet run --project HappyColorSplit.csproj
 
 ## Verwendung
 
-**Lokaler Entwicklungsstand:** Drag-and-drop, die optionale Windows-Einbindung, der Button für den letzten Exportordner sowie Farbexport und Hintergrundauswahl sind ergänzt, aber noch nicht im oben verlinkten Download `0.1.0-preview.3` enthalten.
+**Neu in 0.1.0-preview.4:** Drag-and-drop, optionale Windows-Einbindung, ein Button für den letzten Exportordner und getrennte Auswahlen für Flächenfarbe und Export-Hintergrund.
 
 Ein oder mehrere Bilder lassen sich auf das Programmfenster ziehen. Unterstützt werden `.png`, `.jpg` und `.jpeg`; andere Formate und beschädigte Dateien werden nicht geladen. Bei gemischter Auswahl werden gültige Bilder übernommen und Fehler angezeigt. Während einer Verarbeitung nimmt das Fenster keine weiteren Dateien entgegen.
 
