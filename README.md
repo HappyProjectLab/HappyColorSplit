@@ -87,6 +87,8 @@ Die Stapelverarbeitung lädt jeweils nur ein Bild in voller Auflösung. Fehlerha
 
 Der Export erzeugt einen neuen Unterordner. Dateinamen enthalten laufende Nummer und RGB-Hexwert der Referenzfarbe. Vorhandene Exporte werden nicht überschrieben. Bei Abbruch werden die temporären Dateien des aktuellen Exports entfernt.
 
+**Letzten Export öffnen** ist immer sichtbar und öffnet den zuletzt erfolgreich erstellten Export-Unterordner; beim Stapel-Export den gemeinsamen Stapelordner. Bis zum nächsten erfolgreichen Export bleibt dieses Ziel erhalten, auch nach einem Neustart. Ohne vorhandenen Ordner ist der Button ausgegraut. Der Zielordner für neue Exporte wird weiterhin separat ausgewählt.
+
 ## Farbverarbeitung
 
 Die häufigste noch nicht zugeordnete RGB-Farbe dient als feste Referenzfarbe einer Gruppe. Farben werden anhand ihres euklidischen Abstands im RGB-Farbraum der nächstgelegenen passenden Referenz zugeordnet. Der Regler gibt den maximalen Abstand zur Referenz an (0–150). Es handelt sich um eine einfache RGB-Gruppierung, nicht um eine wahrnehmungsbasierte Farbraumanalyse. Auch die Hintergrundfarbe erhält eine eigene Gruppe.

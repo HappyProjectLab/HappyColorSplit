@@ -21,6 +21,7 @@ public sealed class SettingsService(string? directory = null, string? legacyDire
             settings.Language = settings.Language == "en" ? "en" : "de";
             settings.Tolerance = double.IsFinite(settings.Tolerance) ? Math.Clamp(settings.Tolerance, 0, 150) : 40;
             settings.MinimumAlpha = Math.Clamp(settings.MinimumAlpha, 1, 254);
+            settings.LastExportFolder ??= "";
             return settings;
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException) { return new(); }

@@ -13,6 +13,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private readonly IDetailPreviewService? _detailPreview;
     private readonly ILicenseWindowService? _licenseWindow;
     private readonly IWindowsIntegrationService _windowsIntegration;
+    private readonly IExportFolderService _exportFolderService;
     private readonly ColorSeparationService _service = new();
     private RasterImage? _source;
     private ColorAnalysis? _analysis;
@@ -27,11 +28,13 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private IReadOnlyList<BatchFailure> _failures = [];
 
     public MainViewModel(IFileDialogService dialogs, SettingsService settingsService, IDetailPreviewService? detailPreview = null,
-        ILicenseWindowService? licenseWindow = null, IWindowsIntegrationService? windowsIntegration = null)
+        ILicenseWindowService? licenseWindow = null, IWindowsIntegrationService? windowsIntegration = null,
+        IExportFolderService? exportFolderService = null)
     {
         _dialogs = dialogs; _settingsService = settingsService; _settings = settingsService.Load(); _detailPreview = detailPreview;
         _licenseWindow = licenseWindow;
         _windowsIntegration = windowsIntegration ?? new WindowsIntegrationService();
+        _exportFolderService = exportFolderService ?? new ExportFolderService();
         OpenCommand = new(OpenAsync, () => !IsBusy);
         AnalyzeCommand = new(AnalyzeAsync, () => !IsBusy && _source is not null);
         ExportCommand = new(ExportAsync, () => !IsBusy && _analysis is not null && ExportColorCount > 0);
@@ -45,6 +48,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         LicensesCommand = new(ShowLicensesAsync, () => _licenseWindow is not null);
         EnableWindowsIntegrationCommand = new(() => UpdateWindowsIntegrationAsync(true), () => IsIdle && CanIntegrateWithWindows);
         RemoveWindowsIntegrationCommand = new(() => UpdateWindowsIntegrationAsync(false), () => IsIdle && CanIntegrateWithWindows);
+        OpenLastExportFolderCommand = new(OpenLastExportFolderAsync, () => CanOpenLastExportFolder);
     }
 
     public Texts Text => new(_settings.Language);
@@ -81,6 +85,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public bool IsBusy { get => _busy; private set { Set(ref _busy, value); Changed(nameof(IsIdle)); RefreshCommands(); } }
     public bool IsIdle => !IsBusy;
     public bool CanIntegrateWithWindows => _windowsIntegration.IsAvailable;
+    public string LastExportFolder => _settings.LastExportFolder;
+    public bool CanOpenLastExportFolder => !string.IsNullOrWhiteSpace(LastExportFolder) && Directory.Exists(LastExportFolder);
     public bool HasImage => _source is not null;
     public bool HasMask => Mask is not null;
     public bool HasGroups => Groups.Count > 0;
@@ -131,6 +137,32 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public AsyncCommand LicensesCommand { get; }
     public AsyncCommand EnableWindowsIntegrationCommand { get; }
     public AsyncCommand RemoveWindowsIntegrationCommand { get; }
+    public AsyncCommand OpenLastExportFolderCommand { get; }
+
+    public void RefreshLastExportFolder()
+    {
+        Changed(nameof(CanOpenLastExportFolder));
+        OpenLastExportFolderCommand.Refresh();
+    }
+
+    private Task OpenLastExportFolderAsync()
+    {
+        try
+        {
+            if (CanOpenLastExportFolder) _exportFolderService.Open(LastExportFolder);
+        }
+        catch (Exception error) { StatusMessage("Error", error.Message); }
+        finally { RefreshLastExportFolder(); }
+        return Task.CompletedTask;
+    }
+
+    private void RememberExportFolder(string folder)
+    {
+        _settings.LastExportFolder = folder;
+        Changed(nameof(LastExportFolder));
+        RefreshLastExportFolder();
+        SaveSettings();
+    }
 
     private Task UpdateWindowsIntegrationAsync(bool enable)
     {
@@ -272,6 +304,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         var progress = new Progress<int>(value => Progress = value);
         string folder = await Task.Run(() => _service.Export(result, parent, _filePath, progress, token, selected), token);
         StatusMessage("Exported", selected.Count, folder);
+        RememberExportFolder(folder);
     });
 
     private async Task ExportBatchAsync() => await RunAsync(async token =>
@@ -293,6 +326,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         SetFailures(result.Failures);
         StatusMessage(result.Cancelled ? "BatchCancelled" : "BatchDone", result.ExportedImages,
             result.ExportedMasks, result.Failures.Count, result.Folder);
+        if (result.ExportedImages > 0) RememberExportFolder(result.Folder);
     });
 
     private async Task ShowDetailPreviewAsync() => await RunAsync(async token =>

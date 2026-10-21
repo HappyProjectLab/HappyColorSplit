@@ -2,18 +2,24 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using HappyColorSplit.Services;
 using HappyColorSplit.ViewModels;
 
 namespace HappyColorSplit.Views;
 public partial class MainWindow : Window
 {
+    private readonly DispatcherTimer _folderTimer = new() { Interval = TimeSpan.FromSeconds(3) };
     public MainWindow()
     {
         InitializeComponent();
         DragDrop.SetAllowDrop(this, true);
         AddHandler(DragDrop.DragOverEvent, OnDragOver, RoutingStrategies.Bubble, handledEventsToo: true);
         AddHandler(DragDrop.DropEvent, OnDrop, RoutingStrategies.Bubble, handledEventsToo: true);
+        _folderTimer.Tick += (_, _) => (DataContext as MainViewModel)?.RefreshLastExportFolder();
+        Opened += (_, _) => _folderTimer.Start();
+        Activated += (_, _) => (DataContext as MainViewModel)?.RefreshLastExportFolder();
+        Closed += (_, _) => _folderTimer.Stop();
     }
 
     private static string[] GetDroppedPaths(DragEventArgs args) => args.DataTransfer.TryGetFiles()?

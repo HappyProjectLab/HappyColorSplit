@@ -32,6 +32,7 @@ public sealed class Texts(string language)
         ["Analyze"] = ["Farben erkennen", "Find colors"],
         ["Export"] = ["Ausgewähltes Bild exportieren", "Export selected image"],
         ["ExportBatch"] = ["Alle Bilder exportieren", "Export all images"],
+        ["OpenLastExport"] = ["Letzten Export öffnen", "Open last export"],
         ["ImageList"] = ["Geladene Bilder", "Loaded images"],
         ["ImageListHint"] = ["PNG/JPG auswählen oder hier ins Fenster ziehen. Mehrere Bilder sind möglich. Zum Anzeigen anklicken.", "Select PNG/JPG files or drop them into this window. Multiple images are supported. Click to preview."],
         ["ClearImages"] = ["Liste leeren", "Clear list"],
