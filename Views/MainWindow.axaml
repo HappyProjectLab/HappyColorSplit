@@ -10,6 +10,17 @@
         <TextBlock Text="{Binding Text[Subtitle]}" Classes="muted" FontSize="14" />
       </StackPanel>
       <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+        <Button Content="{Binding Text[WindowsIntegration]}" IsVisible="{Binding CanIntegrateWithWindows}">
+          <Button.Flyout>
+            <Flyout>
+              <StackPanel Spacing="12" MaxWidth="380">
+                <TextBlock Text="{Binding Text[WindowsHelp]}" TextWrapping="Wrap" />
+                <Button Content="{Binding Text[WindowsEnable]}" Command="{Binding EnableWindowsIntegrationCommand}" />
+                <Button Content="{Binding Text[WindowsRemove]}" Command="{Binding RemoveWindowsIntegrationCommand}" />
+              </StackPanel>
+            </Flyout>
+          </Button.Flyout>
+        </Button>
         <Button Content="{Binding Text[Licenses]}" Command="{Binding LicensesCommand}" />
         <TextBlock Text="{Binding Text[Language]}" VerticalAlignment="Center" Classes="muted" />
         <ComboBox ItemsSource="{Binding Languages}" SelectedIndex="{Binding LanguageIndex, Mode=TwoWay}" MinWidth="120" />

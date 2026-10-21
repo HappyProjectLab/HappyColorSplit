@@ -16,7 +16,7 @@ public sealed class FileDialogService(Window window) : IFileDialogService
         var files = await window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = texts["Open"], AllowMultiple = true,
-            FileTypeFilter = [new FilePickerFileType(texts["Images"]) { Patterns = ["*.png", "*.jpg", "*.jpeg"], MimeTypes = ["image/png", "image/jpeg"] }]
+            FileTypeFilter = [new FilePickerFileType(texts["Images"]) { Patterns = SupportedImageFiles.Extensions.Select(ext => "*" + ext).ToArray(), MimeTypes = ["image/png", "image/jpeg"] }]
         });
         return files.Select(file => file.TryGetLocalPath()).OfType<string>().ToArray();
     }

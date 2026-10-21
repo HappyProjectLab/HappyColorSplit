@@ -263,6 +263,7 @@ try
     vm.ClearImagesCommand.Execute(null);
     Check(vm.Images.Count == 0 && !vm.HasImage && !vm.HasMask && !vm.ExportBatchCommand.CanExecute(null), "Clearing list releases images and disables export");
     window.Close();
+    ImageInputRegressionTests.Run(root, Check, Pump);
     if (args.Contains("--capture-baseline") || args.Contains("--verify-baseline"))
     {
         string importDirectory = Path.GetFullPath(Path.Combine("..", "Import"));

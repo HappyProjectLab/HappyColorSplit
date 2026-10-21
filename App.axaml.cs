@@ -21,6 +21,9 @@ public partial class App : Application
             window.Closing += (_, e) => { if (vm.IsBusy) { vm.Cancel(); e.Cancel = true; } };
             window.Closed += (_, _) => vm.Dispose();
             desktop.MainWindow = window;
+            string[] paths = desktop.Args ?? [];
+            if (paths.Length > 0)
+                window.Opened += async (_, _) => await vm.AddImagesAsync(paths);
         }
         base.OnFrameworkInitializationCompleted();
     }

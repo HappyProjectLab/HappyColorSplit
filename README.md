@@ -64,6 +64,12 @@ dotnet run --project HappyColorSplit.csproj
 
 ## Verwendung
 
+**Lokaler Entwicklungsstand:** Drag-and-drop und die optionale Windows-Einbindung sind ergänzt, aber noch nicht im oben verlinkten Download `0.1.0-preview.3` enthalten.
+
+Ein oder mehrere Bilder lassen sich auf das Programmfenster ziehen. Unterstützt werden `.png`, `.jpg` und `.jpeg`; andere Formate und beschädigte Dateien werden nicht geladen. Bei gemischter Auswahl werden gültige Bilder übernommen und Fehler angezeigt. Während einer Verarbeitung nimmt das Fenster keine weiteren Dateien entgegen.
+
+Unter **Windows-Einbindung** lassen sich **Öffnen mit → HappyColorSplit** und **Senden an → HappyColorSplit** für das eigene Benutzerkonto einrichten und wieder entfernen. Das Standardprogramm für Bilder wird dabei nicht geändert; Administratorrechte sind nicht nötig. Details und die englische Anleitung: [Windows-Einbindung](docs/WINDOWS_INTEGRATION.md).
+
 1. Ein oder mehrere PNG-/JPG-Bilder über **Bilder hinzufügen** auswählen (Strg/Shift im Dateidialog). Weitere Auswahlvorgänge ergänzen die Liste; dieselbe Datei wird nicht doppelt aufgenommen.
 2. Farbähnlichkeit und **Mindestdeckkraft** einstellen und **Farben erkennen** wählen. Ein kleiner Ähnlichkeitswert trennt Farben feiner, ein großer Wert fasst mehr Farben zusammen. Bei 0 werden nur identische RGB-Farben zusammengefasst. Die Mindestdeckkraft ist standardmäßig 128/255 (etwa 50 %); schwächere Pixel werden ignoriert. 1 entspricht dem früheren Verhalten. JPG-Dateien sind deckend und werden vom Deckkraftfilter nicht verändert.
 3. Farbgruppen in der Liste auswählen, um die Exportvorschau zu sehen. Die Häkchen bestimmen, welche Farben exportiert werden. **Alle** und **Keine** setzen die Auswahl gemeinsam. Ohne gewählte Farben ist der Einzelexport deaktiviert.

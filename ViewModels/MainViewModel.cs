@@ -12,6 +12,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private readonly AppSettings _settings;
     private readonly IDetailPreviewService? _detailPreview;
     private readonly ILicenseWindowService? _licenseWindow;
+    private readonly IWindowsIntegrationService _windowsIntegration;
     private readonly ColorSeparationService _service = new();
     private RasterImage? _source;
     private ColorAnalysis? _analysis;
@@ -26,10 +27,11 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private IReadOnlyList<BatchFailure> _failures = [];
 
     public MainViewModel(IFileDialogService dialogs, SettingsService settingsService, IDetailPreviewService? detailPreview = null,
-        ILicenseWindowService? licenseWindow = null)
+        ILicenseWindowService? licenseWindow = null, IWindowsIntegrationService? windowsIntegration = null)
     {
         _dialogs = dialogs; _settingsService = settingsService; _settings = settingsService.Load(); _detailPreview = detailPreview;
         _licenseWindow = licenseWindow;
+        _windowsIntegration = windowsIntegration ?? new WindowsIntegrationService();
         OpenCommand = new(OpenAsync, () => !IsBusy);
         AnalyzeCommand = new(AnalyzeAsync, () => !IsBusy && _source is not null);
         ExportCommand = new(ExportAsync, () => !IsBusy && _analysis is not null && ExportColorCount > 0);
@@ -41,6 +43,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         SelectAllColorsCommand = new(() => SelectColors(true), () => !IsBusy && HasGroups);
         DeselectAllColorsCommand = new(() => SelectColors(false), () => !IsBusy && HasGroups);
         LicensesCommand = new(ShowLicensesAsync, () => _licenseWindow is not null);
+        EnableWindowsIntegrationCommand = new(() => UpdateWindowsIntegrationAsync(true), () => IsIdle && CanIntegrateWithWindows);
+        RemoveWindowsIntegrationCommand = new(() => UpdateWindowsIntegrationAsync(false), () => IsIdle && CanIntegrateWithWindows);
     }
 
     public Texts Text => new(_settings.Language);
@@ -76,6 +80,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public int ExportColorCount => Groups.Count(group => group.ExportEnabled);
     public bool IsBusy { get => _busy; private set { Set(ref _busy, value); Changed(nameof(IsIdle)); RefreshCommands(); } }
     public bool IsIdle => !IsBusy;
+    public bool CanIntegrateWithWindows => _windowsIntegration.IsAvailable;
     public bool HasImage => _source is not null;
     public bool HasMask => Mask is not null;
     public bool HasGroups => Groups.Count > 0;
@@ -124,6 +129,19 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public AsyncCommand SelectAllColorsCommand { get; }
     public AsyncCommand DeselectAllColorsCommand { get; }
     public AsyncCommand LicensesCommand { get; }
+    public AsyncCommand EnableWindowsIntegrationCommand { get; }
+    public AsyncCommand RemoveWindowsIntegrationCommand { get; }
+
+    private Task UpdateWindowsIntegrationAsync(bool enable)
+    {
+        try
+        {
+            if (enable) _windowsIntegration.Enable(); else _windowsIntegration.Remove();
+            StatusMessage(enable ? "WindowsEnabled" : "WindowsRemoved");
+        }
+        catch (Exception error) { StatusMessage("Error", error.Message); }
+        return Task.CompletedTask;
+    }
 
     private async Task ShowLicensesAsync()
     {
@@ -135,15 +153,30 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     {
         var paths = await _dialogs.OpenImagesAsync(Text);
         if (paths.Count == 0) return;
+        await AddImagesCoreAsync(paths, token);
+    });
+
+    // Picker, Explorer launch and drop all use the same validation and loading path.
+    public Task AddImagesAsync(IEnumerable<string> paths)
+    {
+        if (IsBusy) return Task.CompletedTask;
+        string[] snapshot = paths.ToArray();
+        return snapshot.Length == 0 ? Task.CompletedTask : RunAsync(token => AddImagesCoreAsync(snapshot, token));
+    }
+
+    private async Task AddImagesCoreAsync(IEnumerable<string> paths, CancellationToken token)
+    {
         var failures = new List<BatchFailure>();
         ImageFileViewModel? firstAdded = null;
         SetFailures([]);
-        foreach (string path in paths)
+        foreach (string candidate in paths)
         {
             token.ThrowIfCancellationRequested();
-            if (Images.Any(image => string.Equals(image.FilePath, path, StringComparison.OrdinalIgnoreCase))) continue;
             try
             {
+                if (!SupportedImageFiles.IsSupported(candidate)) throw new UnsupportedImageFormatException();
+                string path = Path.GetFullPath(candidate);
+                if (Images.Any(image => string.Equals(image.FilePath, path, StringComparison.OrdinalIgnoreCase))) continue;
                 byte[] preview = await Task.Run(() =>
                 {
                     using var image = _service.Load(path);
@@ -156,7 +189,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                 firstAdded ??= item;
             }
             catch (OperationCanceledException) { throw; }
-            catch (Exception error) when (error is not OutOfMemoryException) { failures.Add(new(path, error)); }
+            catch (Exception error) when (error is not OutOfMemoryException) { failures.Add(new(candidate, error)); }
             SetFailures(failures.ToArray());
         }
         if (firstAdded is not null)
@@ -166,7 +199,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
         if (failures.Count > 0) StatusMessage("LoadErrors", Images.Count, failures.Count);
         else StatusMessage("ImagesLoaded", Images.Count);
-    });
+    }
 
     private async Task LoadSelectedAsync(CancellationToken token)
     {
@@ -327,7 +360,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private string ErrorText(Exception error) => error switch
     {
         ImageLimitException => Text["TooLarge"], ColorLimitException => Text["TooMany"],
-        EmptyImageException => Text["Empty"], NoColorsSelectedException => Text["NoColors"], _ => error.Message
+        EmptyImageException => Text["Empty"], NoColorsSelectedException => Text["NoColors"],
+        UnsupportedImageFormatException => Text["UnsupportedImage"], _ => error.Message
     };
     private void SetFailures(IReadOnlyList<BatchFailure> failures)
     {
@@ -338,6 +372,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         OpenCommand.Refresh(); AnalyzeCommand.Refresh(); ExportCommand.Refresh(); CancelCommand.Refresh();
         ExportBatchCommand.Refresh(); ClearImagesCommand.Refresh(); RemoveImageCommand.Refresh();
         DetailPreviewCommand.Refresh(); SelectAllColorsCommand.Refresh(); DeselectAllColorsCommand.Refresh();
+        EnableWindowsIntegrationCommand.Refresh(); RemoveWindowsIntegrationCommand.Refresh();
     }
     private void SaveSettings() { if (!_settingsService.Save(_settings)) StatusMessage("SaveError"); }
     public void Cancel() => _cancellation?.Cancel();

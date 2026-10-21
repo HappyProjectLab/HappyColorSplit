@@ -4,7 +4,7 @@ HappyColorSplit verwendet SkiaSharp 3.119.4 für PNG-/JPEG-Decodierung, Vorschau
 
 ## Eingaben und Farbgruppen
 
-- PNG und JPEG werden nach einer Größenprüfung geladen. Das Limit liegt bei 16 Millionen Pixeln.
+- Alle Ladewege (Dateidialog, Drag-and-drop und Explorer-Startargumente) akzeptieren nur `.png`, `.jpg` und `.jpeg`. Zusätzlich wird das tatsächliche codierte Format auf PNG/JPEG geprüft; umbenannte andere Bildformate werden zurückgewiesen. Nach der Größenprüfung werden maximal 16 Millionen Pixel geladen.
 - Die interne Pixelablage verwendet RGBA mit nicht vormultiplizierter Deckkraft. Gespeicherte RGB-Werte bleiben auch bei geringer Deckkraft für die Erkennung erhalten.
 - Alle acht EXIF-Ausrichtungen einschließlich Spiegelungen werden berücksichtigt. Bei animierten PNG-Dateien wird nur das erste Bild verarbeitet.
 - Pixel unterhalb der Mindestdeckkraft werden ignoriert. Übrige Pixel werden nach ihrem RGB-Abstand zu festen Referenzfarben gruppiert; maximal 256 Gruppen sind möglich.

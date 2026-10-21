@@ -21,6 +21,8 @@ public static class RasterImageCodec
 
     private static RasterImage Decode(SKCodec codec)
     {
+        if (codec.EncodedFormat is not (SKEncodedImageFormat.Png or SKEncodedImageFormat.Jpeg))
+            throw new UnsupportedImageFormatException();
         int width = codec.Info.Width, height = codec.Info.Height;
         if (width <= 0 || height <= 0) throw new InvalidDataException("Invalid image dimensions.");
         if ((long)width * height > ColorSeparationService.MaxPixels) throw new ImageLimitException();
@@ -78,3 +80,5 @@ public static class RasterImageCodec
         return data.ToArray();
     }
 }
+
+public sealed class UnsupportedImageFormatException : Exception;
