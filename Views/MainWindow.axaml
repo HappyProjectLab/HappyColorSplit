@@ -46,16 +46,30 @@
           <TextBlock Text="{Binding Text[AlphaHelp]}" Classes="muted" FontSize="11" TextWrapping="Wrap" />
         </StackPanel>
         <Button Grid.Column="3" Content="{Binding Text[Analyze]}" Command="{Binding AnalyzeCommand}" VerticalAlignment="Center" />
-        <StackPanel Grid.Row="1" Grid.ColumnSpan="4" Orientation="Horizontal" Spacing="18" IsEnabled="{Binding IsIdle}">
-          <CheckBox Content="{Binding Text[ExportInColor]}" IsChecked="{Binding ExportInColor, Mode=TwoWay}" />
-          <TextBlock Text="{Binding Text[ExportBackground]}" VerticalAlignment="Center" />
-          <ComboBox SelectedIndex="{Binding ExportBackgroundIndex, Mode=TwoWay}" MinWidth="155">
-            <ComboBoxItem Content="{Binding Text[BackgroundBlack]}" />
-            <ComboBoxItem Content="{Binding Text[BackgroundGray]}" />
-            <ComboBoxItem Content="{Binding Text[BackgroundWhite]}" />
-            <ComboBoxItem Content="{Binding Text[BackgroundTransparent]}" />
-          </ComboBox>
-        </StackPanel>
+        <Grid Grid.Row="1" Grid.ColumnSpan="4" ColumnDefinitions="*,*" ColumnSpacing="16" IsEnabled="{Binding IsIdle}">
+          <Border Background="#131C29" BorderBrush="#344255" BorderThickness="1" CornerRadius="8" Padding="12,8">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+              <TextBlock Text="{Binding Text[ExportAreasAs]}" VerticalAlignment="Center" />
+              <ComboBox x:Name="ExportAreaSelector" Grid.Column="1" SelectedIndex="{Binding ExportAreaIndex, Mode=TwoWay}" HorizontalAlignment="Stretch" MinWidth="155">
+                <ComboBoxItem Content="{Binding Text[AreaBlack]}" />
+                <ComboBoxItem Content="{Binding Text[AreaWhite]}" />
+                <ComboBoxItem Content="{Binding Text[AreaTransparent]}" />
+                <ComboBoxItem Content="{Binding Text[AreaGroupColor]}" />
+              </ComboBox>
+            </Grid>
+          </Border>
+          <Border Grid.Column="1" Background="#131C29" BorderBrush="#344255" BorderThickness="1" CornerRadius="8" Padding="12,8">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+              <TextBlock Text="{Binding Text[ExportBackground]}" VerticalAlignment="Center" />
+              <ComboBox x:Name="ExportBackgroundSelector" Grid.Column="1" SelectedIndex="{Binding ExportBackgroundIndex, Mode=TwoWay}" HorizontalAlignment="Stretch" MinWidth="155">
+                <ComboBoxItem Content="{Binding Text[BackgroundBlack]}" />
+                <ComboBoxItem Content="{Binding Text[BackgroundGray]}" />
+                <ComboBoxItem Content="{Binding Text[BackgroundWhite]}" />
+                <ComboBoxItem Content="{Binding Text[BackgroundTransparent]}" />
+              </ComboBox>
+            </Grid>
+          </Border>
+        </Grid>
       </Grid>
     </Border>
     <Grid Grid.Row="2" ColumnDefinitions="220,*,270" ColumnSpacing="16">

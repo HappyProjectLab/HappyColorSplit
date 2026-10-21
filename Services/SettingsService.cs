@@ -17,7 +17,15 @@ public sealed class SettingsService(string? directory = null, string? legacyDire
         try
         {
             string source = !File.Exists(_path) && _legacyPath is not null ? _legacyPath : _path;
-            var settings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(source)) ?? new();
+            string json = File.ReadAllText(source);
+            var settings = JsonSerializer.Deserialize<AppSettings>(json) ?? new();
+            using var document = JsonDocument.Parse(json);
+            if (document.RootElement.ValueKind == JsonValueKind.Object
+                && !document.RootElement.TryGetProperty(nameof(AppSettings.ExportArea), out _)
+                && document.RootElement.TryGetProperty("ExportInColor", out var legacyColor)
+                && legacyColor.ValueKind == JsonValueKind.True)
+                settings.ExportArea = ExportArea.GroupColor;
+            if (!Enum.IsDefined(settings.ExportArea)) settings.ExportArea = ExportArea.White;
             settings.Language = settings.Language == "en" ? "en" : "de";
             settings.Tolerance = double.IsFinite(settings.Tolerance) ? Math.Clamp(settings.Tolerance, 0, 150) : 40;
             settings.MinimumAlpha = Math.Clamp(settings.MinimumAlpha, 1, 254);

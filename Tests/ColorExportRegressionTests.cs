@@ -21,7 +21,7 @@ internal static class ColorExportRegressionTests
         source.SaveAsPng(input);
         var service = new ColorSeparationService();
         var analysis = service.Analyze(source, 10, CancellationToken.None, 128);
-        var options = new ExportOptions(UseGroupColor: true);
+        var options = new ExportOptions(Area: ExportArea.GroupColor);
         string export = service.Export(analysis, folder, input, null, CancellationToken.None, options: options);
         foreach (var group in analysis.Groups)
         {
@@ -55,11 +55,11 @@ internal static class ColorExportRegressionTests
         foreach (var group in vm.Groups) group.ExportEnabled = group.Hex == turquoise.Hex;
         vm.SelectedGroup = vm.Groups.Single(g => g.Hex == turquoise.Hex);
         var selected = vm.SelectedGroup;
-        var control = window.GetVisualDescendants().OfType<CheckBox>().Single(b => Equals(b.Content, "Flächen in Gruppenfarbe exportieren"));
-        check(!vm.ExportInColor && control.IsChecked == false, "Default export remains white rather than color");
-        control.IsChecked = true; Dispatcher.UIThread.RunJobs();
-        check(vm.ExportInColor && vm.ExportColorCount == 1 && vm.SelectedGroup == selected && vm.Groups.Count == 3,
-            "Color checkbox preserves analysis and checked groups");
+        var control = window.FindControl<ComboBox>("ExportAreaSelector")!;
+        check(vm.ExportAreaIndex == 1 && control.SelectedIndex == 1, "Default export remains white rather than color");
+        control.SelectedIndex = 3; Dispatcher.UIThread.RunJobs();
+        check(vm.ExportAreaIndex == 3 && vm.ExportColorCount == 1 && vm.SelectedGroup == selected && vm.Groups.Count == 3,
+            "Area selector preserves analysis and checked groups");
         using (var preview = Read(vm.Mask!)) check(preview[1, 0] == new RgbaPixel(30, 180, 220), "Toggling color updates the visible mask immediately");
         vm.ExportCommand.Execute(null); pump(() => !vm.IsBusy);
         using (var actual = RasterImageCodec.Load(Directory.GetFiles(vm.LastExportFolder).Single()))
@@ -70,8 +70,8 @@ internal static class ColorExportRegressionTests
         vm.DetailPreviewCommand.Execute(null); pump(() => !vm.IsBusy);
         using (var preview = detail.Preview!)
         using (var mask = Read(preview.Mask)) check(mask[1, 0] == new RgbaPixel(30, 180, 220), "New detail views use the same color export settings");
-        check(settings.Load().ExportInColor, "Color export preference is saved as JSON");
-        control.IsChecked = false; Dispatcher.UIThread.RunJobs();
+        check(settings.Load().ExportArea == ExportArea.GroupColor, "Color export preference is saved as JSON");
+        control.SelectedIndex = 1; Dispatcher.UIThread.RunJobs();
         using (var preview = Read(vm.Mask!)) check(preview[1, 0] == new RgbaPixel(255, 255, 255), "Switching back to white restores the original mask display");
         window.Close();
     }
