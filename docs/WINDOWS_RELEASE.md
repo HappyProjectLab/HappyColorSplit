@@ -44,11 +44,10 @@ Bei Änderungen an Laufzeit, Abhängigkeiten oder Zielplattform erneut abgleiche
 
 Die Klärung gegebenenfalls erforderlicher Anbieterangaben steht noch aus. Der sichtbare Maintainer-Name allein ersetzt diese Angaben nicht.
 
-GitHubs Private Vulnerability Reporting ist noch nicht aktiviert und steht erst bei öffentlichen Repositorys zur Verfügung. Nach ausdrücklich freigegebener Umstellung aktivieren und prüfen:
+Das Repository wurde am 21. Oktober 2026 vom Projektverantwortlichen öffentlich geschaltet. GitHubs Private Vulnerability Reporting ist aktiviert; die API-Abfrage liefert `enabled: true`. Der Meldeweg ist in [SECURITY.md](../SECURITY.md) auf Deutsch und Englisch beschrieben. Ein GitHub-Konto ist zum Einreichen erforderlich. Den Zustand kann man erneut abfragen:
 
 ```powershell
-gh api --method PUT repos/HappyProjectLab/HappyColorSplit/private-vulnerability-reporting
 gh api repos/HappyProjectLab/HappyColorSplit/private-vulnerability-reporting --jq .enabled
 ```
 
-Die Abfrage muss `true` liefern. Zusätzlich den Meldeweg **Security → Advisories → Report a vulnerability** mit einem geeigneten Konto ohne Maintainer-Rechte prüfen, ohne eine erfundene Meldung abzusenden. Danach den Status in [SECURITY.md](../SECURITY.md) aktualisieren. Normale Fragen und Fehler gehören in GitHub Issues; vertrauliche Details gehören nicht dorthin.
+Die Abfrage muss `true` liefern. Bei Änderungen an dieser Einstellung auch `SECURITY.md` aktualisieren. Keine erfundenen Sicherheitsmeldungen zum Test absenden. Normale Fragen und Fehler gehören in GitHub Issues; vertrauliche Details gehören in das gesonderte Meldeformular.

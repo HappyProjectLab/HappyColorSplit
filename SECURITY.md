@@ -8,13 +8,9 @@ Sicherheitskorrekturen werden zunächst im aktuellen Entwicklungsstand auf `main
 
 ## Sicherheitslücken vertraulich melden
 
-**Derzeit ist kein öffentlich nutzbarer vertraulicher Meldeweg bestätigt.** Eine Sicherheits-E-Mail-Adresse ist nicht eingerichtet. Bei der öffentlichen Freigabe müssen die Verantwortlichen GitHubs **Private Vulnerability Reporting** aktivieren und den Zugang für Meldende prüfen. Bis zur Bestätigung gilt der nachfolgende Hinweis zur noch fehlenden Verfügbarkeit.
+**Vertrauliche Sicherheitsmeldungen über GitHub sind aktiviert.** Bitte den Bereich **Security → Advisories → Report a vulnerability** verwenden: [Sicherheitslücke vertraulich melden](https://github.com/HappyProjectLab/HappyColorSplit/security/advisories/new). Für die Meldung ist ein GitHub-Konto erforderlich. Meldungen über dieses Formular werden nicht als öffentliche Issues angelegt.
 
-GitHub bietet diese Funktion für öffentliche Repositorys an. Sie kann daher erst nach dem Wechsel der Repository-Sichtbarkeit aktiviert werden. Siehe [GitHub-Dokumentation](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/configure-vulnerability-reporting/configure-for-a-repository).
-
-Sobald diese Funktion verfügbar ist, bitte über den Bereich **Security → Report a vulnerability** des [Repositorys](https://github.com/HappyProjectLab/HappyColorSplit) melden: [vertrauliche Sicherheitsmeldung](https://github.com/HappyProjectLab/HappyColorSplit/security/advisories/new). Der Link ist erst nach entsprechender Freischaltung als Meldeweg nutzbar.
-
-Solange dieser Weg fehlt, keine vertraulichen Details in öffentliche Issues, Diskussionen oder Pull Requests schreiben. Wer bereits einen direkten Kontakt zu den Projektverantwortlichen hat, kann darüber zunächst einen geeigneten vertraulichen Austausch vereinbaren. Andernfalls bitte mit technischen Details warten, bis ein vertraulicher Meldeweg bereitsteht. Eine öffentliche Anfrage nach einem Meldeweg darf keine ausnutzbaren Details enthalten.
+Eine separate Sicherheits-E-Mail-Adresse ist nicht eingerichtet. Keine vertraulichen Details, Ausnutzungsanleitungen oder privaten Dateien in öffentliche Issues, Diskussionen oder Pull Requests schreiben. Falls das Formular nicht erreichbar ist, kann öffentlich nach einem Kontaktweg gefragt werden, jedoch ohne vertrauliche oder ausnutzbare Details.
 
 Eine hilfreiche vertrauliche Meldung enthält:
 
@@ -39,8 +35,8 @@ Die Verantwortlichen prüfen Meldungen nach Möglichkeit, klären Auswirkungen u
 
 HappyColorSplit is a public open-source project in early development. The public maintainer name is **HappyProjectLab**. General questions belong in [GitHub Issues](https://github.com/HappyProjectLab/HappyColorSplit/issues); security reports follow the separate process below. Fixes target the current `main` branch; there is no separate maintenance commitment for older versions or guaranteed response time.
 
-**No publicly accessible confidential reporting channel has been confirmed yet.** At public launch, maintainers must enable and verify GitHub Private Vulnerability Reporting. Until availability is confirmed, the instructions below apply. Once enabled, use [Report a vulnerability](https://github.com/HappyProjectLab/HappyColorSplit/security/advisories/new). Until then, do not disclose exploit details or private files in public issues or pull requests. If you already have a direct maintainer contact, arrange a confidential channel first; otherwise wait for one to become available.
+**GitHub Private Vulnerability Reporting is enabled.** Use **Security → Advisories → Report a vulnerability**, or [submit a confidential security report](https://github.com/HappyProjectLab/HappyColorSplit/security/advisories/new). Reporting requires a GitHub account. Reports submitted through this form are not created as public issues.
 
-GitHub provides this feature for public repositories. Enable it after changing repository visibility; see [GitHub's documentation](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/configure-vulnerability-reporting/configure-for-a-repository).
+There is no separate security email address. Do not disclose exploit details or private files in public issues, discussions or pull requests. If the reporting form is unavailable, you may publicly request a contact channel without including sensitive or exploitable details.
 
 Include the affected version, environment, impact and minimal reproduction steps. Prefer synthetic samples and remove personal data and secrets. Coordinate disclosure with maintainers. Reporting a vulnerability does not authorize testing third-party systems.
