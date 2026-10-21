@@ -79,22 +79,14 @@ public sealed class ColorSeparationService
         return RasterImageCodec.EncodePng(preview);
     }
 
-    public byte[] MaskPreview(ColorAnalysis analysis, int group, bool fullResolution = false)
+    public byte[] MaskPreview(ColorAnalysis analysis, int group, bool fullResolution = false, ExportOptions? options = null)
     {
-        // Nearest-neighbor sampling bounds memory and keeps masks strictly black and white.
+        options ??= new();
+        // Nearest-neighbor sampling bounds memory and retains hard mask edges.
         double scale = fullResolution ? 1 : Math.Min(1, Math.Min(1100.0 / analysis.Width, 750.0 / analysis.Height));
         int width = Math.Max(1, (int)(analysis.Width * scale)), height = Math.Max(1, (int)(analysis.Height * scale));
-        using var mask = new SKBitmap(new SKImageInfo(width, height, SKColorType.Gray8, SKAlphaType.Opaque));
-        for (int y = 0; y < height; y++)
-        {
-            var row = mask.GetPixelSpan().Slice(y * mask.RowBytes, width);
-            int sourceY = Math.Min(analysis.Height - 1, (int)(y / scale));
-            for (int x = 0; x < width; x++)
-            {
-                byte value = analysis.Labels[sourceY * analysis.Width + Math.Min(analysis.Width - 1, (int)(x / scale))] == group ? (byte)255 : (byte)0;
-                row[x] = value;
-            }
-        }
+        using var mask = ExportImageRenderer.CreateBitmap(width, height, options);
+        ExportImageRenderer.Fill(mask, analysis, group, options, scale: scale);
         return RasterImageCodec.EncodePng(mask);
     }
 
@@ -116,8 +108,9 @@ public sealed class ColorSeparationService
     }
 
     public string Export(ColorAnalysis analysis, string parent, string sourceName, IProgress<int>? progress, CancellationToken token,
-        IReadOnlySet<int>? selectedGroups = null)
+        IReadOnlySet<int>? selectedGroups = null, ExportOptions? options = null)
     {
+        options ??= new();
         var groups = analysis.Groups.Where(g => selectedGroups is null || selectedGroups.Contains(g.Index)).ToArray();
         if (groups.Length == 0) throw new NoColorsSelectedException();
         string name = Path.GetFileNameWithoutExtension(sourceName);
@@ -127,18 +120,12 @@ public sealed class ColorSeparationService
         Directory.CreateDirectory(staging);
         try
         {
-            using var mask = new SKBitmap(new SKImageInfo(analysis.Width, analysis.Height, SKColorType.Gray8, SKAlphaType.Opaque));
+            using var mask = ExportImageRenderer.CreateBitmap(analysis.Width, analysis.Height, options);
             int completed = 0;
             foreach (var group in groups)
             {
                 token.ThrowIfCancellationRequested();
-                for (int y = 0; y < analysis.Height; y++)
-                {
-                    token.ThrowIfCancellationRequested();
-                    var row = mask.GetPixelSpan().Slice(y * mask.RowBytes, analysis.Width);
-                    for (int x = 0; x < analysis.Width; x++)
-                        row[x] = analysis.Labels[y * analysis.Width + x] == group.Index ? (byte)255 : (byte)0;
-                }
+                ExportImageRenderer.Fill(mask, analysis, group.Index, options, token);
                 File.WriteAllBytes(Path.Combine(staging, $"{name}_{group.Index + 1:D3}_{group.Hex[1..]}.png"), RasterImageCodec.EncodePng(mask));
                 progress?.Report(++completed * 100 / groups.Length);
             }

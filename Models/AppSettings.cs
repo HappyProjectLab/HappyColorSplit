@@ -6,4 +6,5 @@ public sealed class AppSettings
     public double Tolerance { get; set; } = 40;
     public int MinimumAlpha { get; set; } = 128;
     public string LastExportFolder { get; set; } = "";
+    public bool ExportInColor { get; set; }
 }

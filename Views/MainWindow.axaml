@@ -27,7 +27,7 @@
       </StackPanel>
     </Grid>
     <Border Grid.Row="1" Classes="panel">
-      <Grid ColumnDefinitions="Auto,*,*,Auto" ColumnSpacing="20">
+      <Grid ColumnDefinitions="Auto,*,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="20" RowSpacing="10">
         <Button Content="{Binding Text[Open]}" Command="{Binding OpenCommand}" VerticalAlignment="Center" />
         <StackPanel Grid.Column="1" Spacing="5" IsEnabled="{Binding IsIdle}">
           <Grid ColumnDefinitions="*,Auto">
@@ -46,6 +46,9 @@
           <TextBlock Text="{Binding Text[AlphaHelp]}" Classes="muted" FontSize="11" TextWrapping="Wrap" />
         </StackPanel>
         <Button Grid.Column="3" Content="{Binding Text[Analyze]}" Command="{Binding AnalyzeCommand}" VerticalAlignment="Center" />
+        <StackPanel Grid.Row="1" Grid.ColumnSpan="4" Orientation="Horizontal" Spacing="18" IsEnabled="{Binding IsIdle}">
+          <CheckBox Content="{Binding Text[ExportInColor]}" IsChecked="{Binding ExportInColor, Mode=TwoWay}" />
+        </StackPanel>
       </Grid>
     </Border>
     <Grid Grid.Row="2" ColumnDefinitions="220,*,270" ColumnSpacing="16">
@@ -137,7 +140,7 @@
             </ListBox>
           </Grid>
           <StackPanel Grid.Row="2" Spacing="8" Margin="6,0">
-            <TextBlock Text="{Binding Text[OutputHelp]}" Classes="muted" FontSize="11" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding ExportOutputHelp}" Classes="muted" FontSize="11" TextWrapping="Wrap" />
             <TextBlock Text="{Binding Text[BatchHelp]}" Classes="muted" FontSize="11" TextWrapping="Wrap" />
             <TextBlock Text="{Binding Text[SelectionHint]}" ToolTip.Tip="{Binding Text[ColorSelectionHelp]}" Foreground="#7DD3FC" FontSize="11" TextWrapping="Wrap" />
           </StackPanel>

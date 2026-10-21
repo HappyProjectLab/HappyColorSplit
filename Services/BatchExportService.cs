@@ -6,7 +6,7 @@ public sealed class BatchExportService
 {
     public BatchExportResult Export(IReadOnlyList<string> paths, string parent, double tolerance,
         IProgress<BatchProgress>? progress, CancellationToken token, byte minimumAlpha = 1,
-        IReadOnlyDictionary<string, IReadOnlySet<string>>? exportColors = null)
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? exportColors = null, ExportOptions? options = null)
     {
         token.ThrowIfCancellationRequested();
         string folder = Path.Combine(parent, $"HappyColorSplit_Batch_{DateTime.Now:yyyyMMdd_HHmmss}_{Guid.NewGuid().ToString("N")[..8]}");
@@ -30,7 +30,7 @@ public sealed class BatchExportService
                 var analysis = service.Analyze(image, tolerance, token, minimumAlpha);
                 IReadOnlySet<int>? selected = exportColors is not null && exportColors.TryGetValue(paths[i], out var colors)
                     ? analysis.Groups.Where(g => colors.Contains(g.Hex)).Select(g => g.Index).ToHashSet() : null;
-                service.Export(analysis, folder, paths[i], new InlineProgress<int>(Report), token, selected);
+                service.Export(analysis, folder, paths[i], new InlineProgress<int>(Report), token, selected, options);
                 exportedImages++;
                 exportedMasks += selected?.Count ?? analysis.Groups.Count;
             }

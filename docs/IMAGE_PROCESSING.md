@@ -12,7 +12,7 @@ HappyColorSplit verwendet SkiaSharp 3.119.4 für PNG-/JPEG-Decodierung, Vorschau
 
 ## Export
 
-Ausgewählte Gruppen werden als deckende 8-Bit-Graustufen-PNGs mit schwarzen und weißen Pixeln ausgegeben. Bildgröße und Position der Flächen bleiben erhalten. Dateinamen und neue Unterordner trennen die Ausgaben; Abbruch und Fehler werden berücksichtigt.
+Ausgewählte Gruppen werden standardmäßig als deckende 8-Bit-Graustufen-PNGs mit schwarzen und weißen Pixeln ausgegeben. Optional wird die gesamte Fläche in der RGB-Referenzfarbe ihrer Gruppe ausgegeben; Hintergrundpixel bleiben schwarz. Dieser Farbexport verwendet ein RGB-fähiges PNG. Vorschau und Export verwenden denselben Renderer. Bildgröße und Position der Flächen bleiben erhalten. Dateinamen und neue Unterordner trennen die Ausgaben; Abbruch und Fehler werden berücksichtigt.
 
 Die Anwendung führt keine automatische Konturreparatur oder Entfernung kleiner Flächen durch. Hinweise zu möglichen Fehlern und Sicherungskopien stehen in [USAGE_NOTICE_DE.md](USAGE_NOTICE_DE.md).
 

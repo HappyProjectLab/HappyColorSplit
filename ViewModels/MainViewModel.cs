@@ -56,7 +56,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public int LanguageIndex
     {
         get => _settings.Language == "en" ? 1 : 0;
-        set { _settings.Language = value == 1 ? "en" : "de"; Changed(); Changed(nameof(Text)); Changed(nameof(Status)); Changed(nameof(ErrorDetails)); SaveSettings(); }
+        set { _settings.Language = value == 1 ? "en" : "de"; Changed(); Changed(nameof(Text)); Changed(nameof(Status)); Changed(nameof(ErrorDetails)); Changed(nameof(ExportOutputHelp)); SaveSettings(); }
     }
     public double Tolerance
     {
@@ -82,6 +82,18 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
     public int ExportColorCount => Groups.Count(group => group.ExportEnabled);
+    public bool ExportInColor
+    {
+        get => _settings.ExportInColor;
+        set
+        {
+            if (_settings.ExportInColor == value) return;
+            _settings.ExportInColor = value; Changed(); Changed(nameof(ExportOutputHelp));
+            RefreshMask(); SaveSettings();
+        }
+    }
+    public string ExportOutputHelp => Text[ExportInColor ? "ColorOutputHelp" : "OutputHelp"];
+    private ExportOptions CurrentExportOptions => new(ExportInColor);
     public bool IsBusy { get => _busy; private set { Set(ref _busy, value); Changed(nameof(IsIdle)); RefreshCommands(); } }
     public bool IsIdle => !IsBusy;
     public bool CanIntegrateWithWindows => _windowsIntegration.IsAvailable;
@@ -115,12 +127,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         set
         {
             if (!Set(ref _selected, value)) return;
-            if (_analysis is not null && value is not null)
-            {
-                using var stream = new MemoryStream(_service.MaskPreview(_analysis, value.Group.Index));
-                Mask = new Bitmap(stream);
-            }
-            else Mask = null;
+            RefreshMask();
             DetailPreviewCommand.Refresh();
         }
     }
@@ -138,6 +145,13 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public AsyncCommand EnableWindowsIntegrationCommand { get; }
     public AsyncCommand RemoveWindowsIntegrationCommand { get; }
     public AsyncCommand OpenLastExportFolderCommand { get; }
+
+    private void RefreshMask()
+    {
+        if (_analysis is null || SelectedGroup is null) { Mask = null; return; }
+        using var stream = new MemoryStream(_service.MaskPreview(_analysis, SelectedGroup.Group.Index, options: CurrentExportOptions));
+        Mask = new Bitmap(stream);
+    }
 
     public void RefreshLastExportFolder()
     {
@@ -301,8 +315,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         if (parent is null) return;
         var result = _analysis!;
         var selected = Groups.Where(g => g.ExportEnabled).Select(g => g.Group.Index).ToHashSet();
+        var options = CurrentExportOptions;
         var progress = new Progress<int>(value => Progress = value);
-        string folder = await Task.Run(() => _service.Export(result, parent, _filePath, progress, token, selected), token);
+        string folder = await Task.Run(() => _service.Export(result, parent, _filePath, progress, token, selected, options), token);
         StatusMessage("Exported", selected.Count, folder);
         RememberExportFolder(folder);
     });
@@ -315,6 +330,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         string[] paths = Images.Select(image => image.FilePath).ToArray();
         double tolerance = Tolerance;
         byte alpha = (byte)MinimumAlpha;
+        var options = CurrentExportOptions;
         var selections = Images.Where(image => image.ExportColors is not null)
             .ToDictionary(image => image.FilePath, image => (IReadOnlySet<string>)image.ExportColors!.ToHashSet(), StringComparer.OrdinalIgnoreCase);
         var progress = new Progress<BatchProgress>(value =>
@@ -322,7 +338,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             Progress = value.Percent;
             StatusMessage("BatchWorking", value.FileNumber, value.TotalFiles, value.FileName);
         });
-        var result = await Task.Run(() => new BatchExportService().Export(paths, parent, tolerance, progress, token, alpha, selections), token);
+        var result = await Task.Run(() => new BatchExportService().Export(paths, parent, tolerance, progress, token, alpha, selections, options), token);
         SetFailures(result.Failures);
         StatusMessage(result.Cancelled ? "BatchCancelled" : "BatchDone", result.ExportedImages,
             result.ExportedMasks, result.Failures.Count, result.Folder);
@@ -333,11 +349,12 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     {
         var analysis = _analysis!;
         int group = SelectedGroup!.Group.Index;
+        var options = CurrentExportOptions;
         var bytes = await Task.Run(() =>
         {
             byte[] original = _service.OriginalPreview(_source!, analysis.Width, analysis.Height);
             token.ThrowIfCancellationRequested();
-            byte[] mask = _service.MaskPreview(analysis, group, fullResolution: true);
+            byte[] mask = _service.MaskPreview(analysis, group, fullResolution: true, options: options);
             byte[] overlay = _service.OverlayPreview(analysis, group, token);
             return (original, mask, overlay);
         }, token);

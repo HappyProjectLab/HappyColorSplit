@@ -33,6 +33,8 @@ public sealed class Texts(string language)
         ["Export"] = ["Ausgewähltes Bild exportieren", "Export selected image"],
         ["ExportBatch"] = ["Alle Bilder exportieren", "Export all images"],
         ["OpenLastExport"] = ["Letzten Export öffnen", "Open last export"],
+        ["ExportInColor"] = ["Flächen in Gruppenfarbe exportieren", "Export areas in group color"],
+        ["ColorOutputHelp"] = ["Jede Farbgruppe wird in ihrer erkannten Referenzfarbe auf schwarzem Hintergrund gespeichert. Bildgröße und Position bleiben erhalten. Transparente Pixel bleiben schwarz.", "Each color group is saved in its detected reference color on a black background. Image size and position are preserved. Transparent pixels remain black."],
         ["ImageList"] = ["Geladene Bilder", "Loaded images"],
         ["ImageListHint"] = ["PNG/JPG auswählen oder hier ins Fenster ziehen. Mehrere Bilder sind möglich. Zum Anzeigen anklicken.", "Select PNG/JPG files or drop them into this window. Multiple images are supported. Click to preview."],
         ["ClearImages"] = ["Liste leeren", "Clear list"],
