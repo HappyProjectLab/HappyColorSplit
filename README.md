@@ -14,6 +14,30 @@ Voraussetzung: Windows 10/11 mit x64-Prozessor. Dies ist eine Vorabversion. Der 
 
 [Versionshinweise, Quellcode und SHA-256-Prüfsummen](https://github.com/HappyProjectLab/HappyColorSplit/releases/tag/v0.1.0-preview.4)
 
+## Vom Motiv zu einzelnen Farbauszügen
+
+### Vom Motiv zur Schablone
+
+![HappyColorSplit: gestaltete Titelcollage mit Motiven und Schablonen](docs/images/01_Titelcollage.png)
+
+Aus der Vorbereitung meines Latex-Siebdruck-Projekts ist HappyColorSplit entstanden: ein kleines Werkzeug zum Trennen ähnlicher Farben.
+
+### Farben erkennen und auswählen
+
+![Programmoberfläche mit Ausgangsmotiv, Maskenvorschau und ausgewählten Farbgruppen](docs/images/02_Programm.png)
+
+Die echte Programmoberfläche zeigt das Ausgangsmotiv und die Vorschau eines Farbauszugs. Hier sind fünf Farbgruppen für den Export ausgewählt; die zusätzliche Übergangsfarbe bleibt abgewählt.
+
+Die Abbildung zeigt einen früheren Oberflächenstand. Die aktuelle Version bietet zusätzlich die Auswahl von Flächenfarbe und Export-Hintergrund.
+
+### Ein Motiv, fünf Farbauszüge
+
+![Gestaltete Übersicht der Farbauszüge für Schwarz beziehungsweise Kontur, Orange, Türkis, Creme und Pink](docs/images/05_Layercollage.png)
+
+Die gestaltete Collage veranschaulicht die Aufteilung in Schwarz/Kontur, Orange, Türkis, Creme und Pink. In der Standardeinstellung wird jede ausgewählte Farbfläche weiß auf schwarzem Hintergrund gespeichert – als Ausgangspunkt für die weitere Schablonen-Aufbereitung. Flächenfarbe und Hintergrund sind auch anders wählbar.
+
+Die fünf Farbauszüge gehören zu diesem Beispiel. Die Anzahl der Farbgruppen richtet sich nach dem Motiv und der gewählten Farbähnlichkeit.
+
 ## Lizenz
 
 HappyColorSplit ist freie Software unter der **GNU General Public License, Version 3 oder einer späteren Version** (`GPL-3.0-or-later`). Der vollständige maßgebliche Lizenztext steht in [LICENSE](LICENSE) und wird bei jedem Build und jeder Publish-Ausgabe mitgeliefert.
