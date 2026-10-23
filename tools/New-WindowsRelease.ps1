@@ -42,10 +42,27 @@ Die .NET-10-Laufzeit ist enthalten. Keine zusaetzliche .NET-Installation erforde
 Alle Dateien und Unterordner zusammen behalten. Nur die EXE zu kopieren reicht nicht.
 Diese Ausgabe ist eine Vorabversion. Informationen zu Quellcode und Lizenzen: SOURCE.txt
 
+Windows kann die EXE nach Download und Entpacken zunaechst blockieren.
+Nur bei gepruefter Herkunft aus dem offiziellen GitHub-Release fortfahren:
+Bei SmartScreen ggf. Weitere Informationen > Trotzdem ausfuehren waehlen.
+Bei einer Dateiblockierung: Rechtsklick auf HappyColorSplit.exe > Eigenschaften >
+Allgemein > Sicherheit > Zulassen (falls vorhanden), dann Uebernehmen.
+Alternativ die ZIP vor dem Entpacken auf dieselbe Weise zulassen und neu entpacken.
+Nicht bei konkreter Malware-Meldung oder administrativer Sperre umgehen.
+Defender und SmartScreen nicht generell deaktivieren. Zulassen ist keine Sicherheitsgarantie.
+
 EN: Extract the entire ZIP and run HappyColorSplit.exe.
 The .NET 10 runtime is included. No separate .NET installation is required.
 Keep all files and subdirectories together. This is a preview version.
 See SOURCE.txt for source code and licensing information.
+
+Windows may initially block the EXE after downloading and extracting the ZIP.
+Proceed only after verifying its origin from the official GitHub release:
+SmartScreen may offer More info > Run anyway for an unknown app.
+For a downloaded-file block: right-click HappyColorSplit.exe > Properties > General >
+Unblock (if available), then Apply. Alternatively, unblock the ZIP and extract again.
+Do not bypass a malware detection or an administrator's policy.
+Do not disable Defender or SmartScreen globally. Unblocking is not a safety guarantee.
 
 $usageNoticeDe
 

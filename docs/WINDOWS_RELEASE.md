@@ -8,6 +8,20 @@ Das Windows-ZIP vollständig entpacken und `HappyColorSplit/HappyColorSplit.exe`
 
 Der direkte Download-Link steht oben in der [README](../README.md). Er verweist auf die konkrete Vorabversion, nicht auf GitHubs neuestes stabiles Release.
 
+### Defender SmartScreen und Dateiblockierung
+
+Nach Download und Entpacken muss `HappyColorSplit.exe` gegebenenfalls noch ausdrücklich zugelassen werden. Windows kann heruntergeladene Dateien kennzeichnen; Defender SmartScreen kann beim Start einer unbekannten App „Der Computer wurde durch Windows geschützt“ anzeigen.
+
+Nur fortfahren, wenn das Paket aus dem offiziellen [GitHub-Release](https://github.com/HappyProjectLab/HappyColorSplit/releases/tag/v0.1.0-preview.4) stammt und du die Herkunft geprüft hast. Die dort angebotenen SHA-256-Prüfsummen ermöglichen zusätzlich einen Vergleich der heruntergeladenen Dateien.
+
+1. Zeigt SmartScreen eine Warnung wegen einer unbekannten App, **Weitere Informationen** und anschließend **Trotzdem ausführen** wählen, sofern angeboten.
+2. Bei einer blockierten Datei im Explorer mit der rechten Maustaste auf `HappyColorSplit.exe` klicken und **Eigenschaften → Allgemein** öffnen. Falls unten im Bereich **Sicherheit** die Option **Zulassen** erscheint, diese aktivieren und **Übernehmen** wählen. Danach erneut starten.
+3. Alternativ bereits die heruntergeladene ZIP über **Eigenschaften → Allgemein → Sicherheit → Zulassen** freigeben und danach vollständig neu entpacken. Die EXE und alle mitgelieferten Dateien zusammen behalten.
+
+Die Optionen erscheinen nicht auf jedem System. Bei administrativ verwalteten Geräten kann die Freigabe gesperrt sein. Eine konkrete Malware-Erkennung ist von einer SmartScreen-Warnung wegen fehlender Bekanntheit zu unterscheiden; in diesem Fall nicht auf diese Weise fortfahren. Den Virenschutz oder SmartScreen nicht generell abschalten. Das Zulassen einer Datei bestätigt nicht ihre Sicherheit.
+
+**English:** After downloading and extracting the ZIP, Windows may block the executable or display “Windows protected your PC”. If you have verified that the package came from the official release, an unknown-app SmartScreen prompt may offer **More info → Run anyway**. For a downloaded-file block, right-click `HappyColorSplit.exe`, open **Properties → General**, select **Unblock** if available and click **Apply**. Alternatively, unblock the downloaded ZIP before extracting it again. These options may be unavailable on managed devices. Do not use these steps to bypass a malware detection or an administrator's policy, and do not disable antivirus protection or SmartScreen globally. Unblocking a file is not a safety guarantee.
+
 ## Datensicherheit und Haftung
 
 Die Hinweise in [USAGE_NOTICE_DE.md](USAGE_NOTICE_DE.md) und [USAGE_NOTICE.md](USAGE_NOTICE.md) werden unverändert in das Paket kopiert. Das Programm zeigt im Fenster **Lizenzen & Hinweise** die zur Oberflächensprache passende Fassung. `START_HERE.txt` und README enthalten beide Fassungen. Die GPL-Originaltexte bleiben unverändert.

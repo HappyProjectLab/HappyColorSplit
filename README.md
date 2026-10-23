@@ -14,6 +14,17 @@ Voraussetzung: Windows 10/11 mit x64-Prozessor. Dies ist eine Vorabversion. Der 
 
 [Versionshinweise, Quellcode und SHA-256-Prüfsummen](https://github.com/HappyProjectLab/HappyColorSplit/releases/tag/v0.1.0-preview.4)
 
+### Windows blockiert den Start? (Defender SmartScreen)
+
+Nach dem Herunterladen und Entpacken kann Windows die EXE zunächst blockieren oder „Der Computer wurde durch Windows geschützt“ anzeigen. Eine SmartScreen-Warnung wegen einer unbekannten App ist allein noch kein Nachweis für Schadsoftware, aber auch keine Sicherheitsfreigabe.
+
+Wenn du das ZIP aus dem oben verlinkten offiziellen Release geladen und die Herkunft geprüft hast, kannst du den Start gegebenenfalls ausdrücklich zulassen:
+
+- Im SmartScreen-Fenster **Weitere Informationen → Trotzdem ausführen** wählen, sofern Windows diese Möglichkeit anbietet.
+- Bei einer Dateiblockierung: Rechtsklick auf **HappyColorSplit.exe → Eigenschaften → Allgemein → Sicherheit → Zulassen**, falls vorhanden, dann **Übernehmen**. Anschließend erneut starten. Alternativ die heruntergeladene ZIP vor dem Entpacken auf dieselbe Weise zulassen und danach vollständig neu entpacken.
+
+Bei einer konkreten Malware-Meldung oder einer administrativen Sperre diese Schritte nicht als Umgehung verwenden. Defender oder SmartScreen müssen für HappyColorSplit nicht generell deaktiviert werden. Weitere Hinweise stehen in der [Windows-Installationsanleitung](docs/WINDOWS_RELEASE.md#defender-smartscreen-und-dateiblockierung).
+
 ## Vom Motiv zu einzelnen Farbauszügen
 
 ### Vom Motiv zur Schablone
