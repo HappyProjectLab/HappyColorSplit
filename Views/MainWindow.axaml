@@ -74,7 +74,7 @@
     </Border>
     <Grid Grid.Row="2" ColumnDefinitions="220,*,270" ColumnSpacing="16">
       <Border Classes="panel" Padding="12,20">
-        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="12">
+        <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" RowSpacing="12">
           <Grid ColumnDefinitions="*,Auto" Margin="4,0">
             <TextBlock Text="{Binding Text[ImageList]}" FontWeight="SemiBold" />
             <TextBlock Grid.Column="1" Text="{Binding Images.Count}" Foreground="#7DD3FC" />
@@ -93,7 +93,40 @@
               </DataTemplate>
             </ListBox.ItemTemplate>
           </ListBox>
-          <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="6">
+          <Button x:Name="ImageSizeButton" Grid.Row="3" Content="{Binding Text[ImageSize]}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" IsVisible="{Binding HasImage}" IsEnabled="{Binding IsIdle}" ToolTip.Tip="{Binding ImageSizeSummary}">
+            <Button.Flyout>
+              <Flyout Placement="Right">
+                <StackPanel Width="320" Spacing="8" IsEnabled="{Binding IsIdle}">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Text="{Binding Text[ImageSize]}" FontWeight="SemiBold" VerticalAlignment="Center" FontSize="12" />
+                    <Button Grid.Column="1" Content="100 %" Command="{Binding ResetScaleCommand}" FontSize="10" Padding="5,3" ToolTip.Tip="{Binding Text[ResetScale]}" />
+                  </Grid>
+                  <Grid ColumnDefinitions="65,*,Auto" ColumnSpacing="5">
+                    <ComboBox x:Name="ScaleUnitSelector" SelectedIndex="{Binding ScaleUnitIndex, Mode=TwoWay}" MinWidth="0" HorizontalAlignment="Stretch" Padding="6,4">
+                      <ComboBoxItem Content="%" /><ComboBoxItem Content="cm" />
+                    </ComboBox>
+                    <NumericUpDown x:Name="ScaleDpiInput" Grid.Column="1" Value="{Binding ScaleDpi, Mode=TwoWay}" Minimum="1" Maximum="2400" Increment="1" FormatString="0" ShowButtonSpinner="False" MinWidth="0" Padding="5,4" FontSize="12" />
+                    <TextBlock Grid.Column="2" Text="DPI" FontSize="10" VerticalAlignment="Center" Classes="muted" />
+                  </Grid>
+                  <NumericUpDown x:Name="ScalePercentInput" Value="{Binding ScalePercent, Mode=TwoWay}" IsVisible="{Binding IsScalePercent}" Minimum="0.0001" Maximum="1600000000" Increment="1" FormatString="0.####" ShowButtonSpinner="False" MinWidth="0" Padding="5,4" FontSize="12" />
+                  <Grid ColumnDefinitions="*,*" ColumnSpacing="6" IsVisible="{Binding IsScaleCm}">
+                    <StackPanel Spacing="2">
+                      <TextBlock Text="{Binding Text[WidthCm]}" FontSize="10" Classes="muted" />
+                      <NumericUpDown x:Name="ScaleWidthInput" Value="{Binding ScaleWidthCm, Mode=TwoWay}" Minimum="0.0001" Maximum="100000" Increment="0.1" FormatString="0.###" ShowButtonSpinner="False" MinWidth="0" Padding="5,4" FontSize="12" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Spacing="2">
+                      <TextBlock Text="{Binding Text[HeightCm]}" FontSize="10" Classes="muted" />
+                      <NumericUpDown x:Name="ScaleHeightInput" Value="{Binding ScaleHeightCm, Mode=TwoWay}" Minimum="0.0001" Maximum="100000" Increment="0.1" FormatString="0.###" ShowButtonSpinner="False" MinWidth="0" Padding="5,4" FontSize="12" />
+                    </StackPanel>
+                  </Grid>
+                  <TextBlock Text="{Binding Text[AspectLocked]}" FontSize="10" Foreground="#7DD3FC" TextWrapping="Wrap" />
+                  <TextBlock Text="{Binding ImageSizeSummary}" FontSize="10" Classes="muted" TextWrapping="Wrap" />
+                  <TextBlock Text="{Binding Text[ScaleHelp]}" FontSize="11" Classes="muted" TextWrapping="Wrap" />
+                </StackPanel>
+              </Flyout>
+            </Button.Flyout>
+          </Button>
+          <StackPanel Grid.Row="4" Orientation="Horizontal" Spacing="6">
             <Button Content="{Binding Text[RemoveImage]}" Command="{Binding RemoveImageCommand}" FontSize="11" Padding="8,8" />
             <Button Content="{Binding Text[ClearImages]}" Command="{Binding ClearImagesCommand}" FontSize="11" Padding="8,8" />
           </StackPanel>

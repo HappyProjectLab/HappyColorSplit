@@ -1,6 +1,6 @@
 # HappyColorSplit
 
-Windows-Desktop-Anwendung zum Trennen ähnlicher Farben aus PNG- und JPG-Bildern. Jede Farbgruppe wird als eigenes PNG exportiert, in Originalgröße und an der ursprünglichen Position. Standard ist **weiße Farbfläche auf schwarzem Hintergrund**; Flächenfarbe und Hintergrund lassen sich unabhängig voneinander wählen.
+Windows-Desktop-Anwendung zum Trennen ähnlicher Farben aus PNG- und JPG-Bildern. Jede Farbgruppe wird als eigenes PNG exportiert. Standard ist **weiße Farbfläche auf schwarzem Hintergrund in Originalgröße**; Flächenfarbe und Hintergrund lassen sich unabhängig voneinander wählen. Der lokale Entwicklungsstand bietet zusätzlich eine proportionale Skalierung pro Bild.
 
 Aktueller Entwicklungsstand: **0.1.0-preview.4**. Dies ist eine Vorabversion. Projekt und Quellcode sind im öffentlichen Repository [HappyProjectLab/HappyColorSplit](https://github.com/HappyProjectLab/HappyColorSplit) verfügbar.
 
@@ -101,6 +101,8 @@ dotnet run --project HappyColorSplit.csproj
 
 **Neu in 0.1.0-preview.4:** Drag-and-drop, optionale Windows-Einbindung, ein Button für den letzten Exportordner und getrennte Auswahlen für Flächenfarbe und Export-Hintergrund.
 
+**Lokaler Entwicklungsstand:** Die nachfolgend beschriebene individuelle Bildskalierung ist noch nicht im oben verlinkten Download `0.1.0-preview.4` enthalten.
+
 Ein oder mehrere Bilder lassen sich auf das Programmfenster ziehen. Unterstützt werden `.png`, `.jpg` und `.jpeg`; andere Formate und beschädigte Dateien werden nicht geladen. Bei gemischter Auswahl werden gültige Bilder übernommen und Fehler angezeigt. Während einer Verarbeitung nimmt das Fenster keine weiteren Dateien entgegen.
 
 Unter **Windows-Einbindung** lassen sich **Öffnen mit → HappyColorSplit** und **Senden an → HappyColorSplit** für das eigene Benutzerkonto einrichten und wieder entfernen. Das Standardprogramm für Bilder wird dabei nicht geändert; Administratorrechte sind nicht nötig. Details und die englische Anleitung: [Windows-Einbindung](docs/WINDOWS_INTEGRATION.md).
@@ -124,6 +126,18 @@ Der Export erzeugt einen neuen Unterordner. Dateinamen enthalten laufende Nummer
 
 **Letzten Export öffnen** ist immer sichtbar und öffnet den zuletzt erfolgreich erstellten Export-Unterordner; beim Stapel-Export den gemeinsamen Stapelordner. Bis zum nächsten erfolgreichen Export bleibt dieses Ziel erhalten, auch nach einem Neustart. Ohne vorhandenen Ordner ist der Button ausgegraut. Der Zielordner für neue Exporte wird weiterhin separat ausgewählt.
 
+### Eigene Bildgröße pro Import
+
+Ein Bild in der Importliste auswählen und **Bildgröße** öffnen. Jedes Bild besitzt seine eigene Größe, Eingabe-Einheit und DPI-Zahl. Die Werte bleiben beim Bildwechsel innerhalb der Sitzung erhalten; beim Stapel-Export werden sie für jedes Bild einzeln angewendet. Neu importierte Bilder starten bei 100 %. Die Eingabemaske lässt sich durch einen Klick außerhalb schließen; Änderungen gelten sofort.
+
+- **%:** Prozentuale Skalierung gegenüber der Originalpixelgröße eingeben. 200 % verdoppelt Breite und Höhe, 50 % halbiert sie. **100 %** setzt ausschließlich das ausgewählte Bild auf seine Originalpixelgröße zurück und behält dessen DPI bei.
+- **cm:** Breite oder Höhe in Zentimetern eingeben. Die andere Seite wird automatisch angepasst; das Seitenverhältnis ist immer gesperrt. Maße beziehen sich auf die gesamte Bildfläche einschließlich vorhandener Ränder.
+- **DPI:** Einstellbar von 1 bis 2400, zunächst 300. In cm bleibt beim Ändern der DPI die physische Größe erhalten; die Pixelzahl ändert sich. In % bleibt die Pixelzahl erhalten; die Zentimetergröße ändert sich. Eine geänderte DPI-Zahl wird als Vorgabe für weitere Importe gespeichert, verändert aber keine anderen bereits geladenen Bilder. DPI-Angaben der Quelldatei werden nicht automatisch übernommen.
+
+Die Größenanzeige nennt Originalpixel, Exportpixel und die resultierenden Zentimetermaße. Zentimeter werden über `Pixel = cm / 2,54 × DPI` umgerechnet und auf ganze Pixel gerundet; kleine Rundungsabweichungen sind dadurch möglich. Die gewählte Auflösung wird im PNG als physische Pixeldichte gespeichert. Nachfolgende Programme müssen diese Angabe berücksichtigen; andernfalls dort DPI oder Maße beim Import entsprechend einstellen.
+
+Die Farberkennung bleibt auf der Originalgröße. Erst die Ausgabe wird ohne Mischfarben proportional skaliert; beim Verkleinern können sehr feine Details verloren gehen. Vorschau und neue Detailansichten verwenden dieselbe Skalierung, die Vorschau passt sich weiterhin dem Fenster an. Pro Exportbild sind maximal 16 Millionen Pixel möglich. Ungültige Größeneingaben ersetzen den letzten gültigen Wert nicht. Die Originaldatei wird nicht verändert. Bildgrößen gelten für die aktuelle Importliste und werden nicht als Bildprojekt gespeichert.
+
 **Flächen exportieren als** / **Export areas as** bietet **Schwarz**, **Weiß**, **Transparent** und **Gruppenfarbe**. Gruppenfarbe gibt die gesamte ausgewählte Fläche in der erkannten Referenzfarbe ihrer Gruppe aus. Transparent erzeugt stattdessen einen vollständig transparenten Ausschnitt an dieser Stelle. Ähnliche Farbtöne einer Gruppe erhalten dieselbe Referenzfarbe. Die Einstellung gilt für Einzel- und Stapel-Export, wird gespeichert und aktualisiert die Exportvorschau und neu geöffnete Detailansichten direkt. Die Farberkennung und die ausgewählten Exportgruppen bleiben dabei erhalten. Standard bleibt Weiß auf Schwarz. Vorhandene Einstellungen der bisherigen Farbexport-Checkbox werden übernommen.
 
 **Export-Hintergrund** bietet **Schwarz**, **Grau** (`#808080`), **Weiß** oder **Transparent**. Die Einstellung gilt unabhängig von der Flächenauswahl für Vorschau, neue Detailansichten und beide Exportarten; sie wird gespeichert. Transparent bedeutet echte PNG-Transparenz außerhalb der ausgewählten Fläche. Ausgewählte Pixel sind bei Schwarz, Weiß und Gruppenfarbe vollständig deckend; die Flächeneinstellung Transparent setzt sie auf Alpha 0. Beide Auswahlmenüs stehen in getrennten Bereichen. Das Schachbrettraster in der Vorschau dient nur zur Anzeige und wird nicht mitgespeichert. Gleiche Flächen- und Hintergrundfarben sind möglich und können die Fläche unsichtbar machen; Transparent für beide Bereiche erzeugt ein vollständig transparentes PNG.
@@ -134,14 +148,14 @@ Die häufigste noch nicht zugeordnete RGB-Farbe dient als feste Referenzfarbe ei
 
 Vollständig transparente Pixel und Pixel unterhalb der Mindestdeckkraft gehören keiner Gruppe an und verwenden den gewählten Export-Hintergrund. Übrige Pixel werden anhand ihres gespeicherten RGB-Werts zugeordnet und entsprechend der Flächenauswahl schwarz, weiß, transparent oder in der Referenzfarbe ihrer Gruppe ausgegeben. Abgewählte Farbgruppen werden nicht gespeichert; ihre Pixel verwenden in allen anderen Masken den gewählten Hintergrund und werden keiner anderen Farbe zugewiesen. Diese Version führt keine automatische Konturreparatur oder Entfernung kleiner zusammenhängender Flächen durch. EXIF-Ausrichtung wird vor der Verarbeitung angewendet. Bei animierten PNGs wird nur das erste Bild verwendet.
 
-Grenzen der ersten Version: maximal 16 Millionen Bildpixel und 256 Farbgruppen. Bei zu vielen Gruppen die Farbähnlichkeit erhöhen. Große JPGs und viele Gruppen können Zeit und Arbeitsspeicher benötigen; Verarbeitung und Export laufen außerhalb der Oberfläche und können abgebrochen werden.
+Grenzen: maximal 16 Millionen Pixel je Eingabebild und je skaliertem Exportbild sowie 256 Farbgruppen. Bei zu vielen Gruppen die Farbähnlichkeit erhöhen. Große JPGs, starke Skalierung und viele Gruppen können Zeit und Arbeitsspeicher benötigen; Verarbeitung und Export laufen außerhalb der Oberfläche und können abgebrochen werden.
 
 ## Technik und Struktur
 
 - C#, .NET 10, Avalonia 12.1.1 mit AXAML, dunkles Fluent-Theme und Inter.
 - `Views`: Fenster; `ViewModels`: Zustand und Befehle; `Models`: Daten; `Services`: Bildverarbeitung, Dateiauswahl, Einstellungen und Übersetzungen; `Controls`: wiederverwendbare Farbkachel; `Assets`: Programmsymbol.
 - Zentral verwaltete deutsche und englische Texte in `Services/Texts.cs`.
-- Einstellungen: `%LOCALAPPDATA%\HappyColorSplit\settings.json` (Sprache, Farbähnlichkeit, Mindestdeckkraft, Flächenfarbe, Export-Hintergrund und letzter erfolgreicher Exportordner).
+- Einstellungen: `%LOCALAPPDATA%\HappyColorSplit\settings.json` (Sprache, Farbähnlichkeit, Mindestdeckkraft, Flächenfarbe, Export-Hintergrund, letzter erfolgreicher Exportordner sowie Größen-Einheit und DPI-Vorgabe für neue Bilder).
 - Wenn noch keine neuen Einstellungen vorliegen, werden die Einstellungen der bisherigen Anwendung eingelesen. Beim Speichern werden sie im neuen Benutzerdatenordner abgelegt; die bisherige Datei bleibt erhalten.
 - NuGet: Avalonia 12.1.1 und SkiaSharp 3.119.4 für Bilddecodierung, Vorschau und PNG-Export. Bildverarbeitung und Avalonia-Rendering verwenden dieselbe SkiaSharp-Version. Details: [Bildverarbeitung](docs/IMAGE_PROCESSING.md).
 

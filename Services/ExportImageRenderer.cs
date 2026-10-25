@@ -13,7 +13,7 @@ internal static class ExportImageRenderer
         || options.Background == ExportBackground.Transparent;
 
     public static void Fill(SKBitmap target, ColorAnalysis analysis, int groupIndex, ExportOptions options,
-        CancellationToken token = default, double scale = 1)
+        CancellationToken token = default, ImageDimensions? exportSize = null)
     {
         ColorGroup? group = options.Area == ExportArea.GroupColor ? analysis.Groups.Single(g => g.Index == groupIndex) : null;
         byte background = options.Background switch
@@ -32,15 +32,18 @@ internal static class ExportImageRenderer
             ExportArea.GroupColor => new(group!.R, group.G, group.B),
             _ => throw new ArgumentOutOfRangeException(nameof(options))
         };
-        bool rgba = NeedsRgba(options), originalSize = scale == 1;
+        bool rgba = NeedsRgba(options);
+        var size = exportSize ?? new ImageDimensions(analysis.Width, analysis.Height);
+        bool originalSize = target.Width == analysis.Width && target.Height == analysis.Height
+            && size.Width == analysis.Width && size.Height == analysis.Height;
         for (int y = 0; y < target.Height; y++)
         {
             token.ThrowIfCancellationRequested();
-            int sourceY = originalSize ? y : Math.Min(analysis.Height - 1, (int)(y / scale));
+            int sourceY = originalSize ? y : ImageResampling.Source(y, target.Height, size.Height, analysis.Height);
             var row = target.GetPixelSpan().Slice(y * target.RowBytes, target.RowBytes);
             for (int x = 0; x < target.Width; x++)
             {
-                int sourceX = originalSize ? x : Math.Min(analysis.Width - 1, (int)(x / scale));
+                int sourceX = originalSize ? x : ImageResampling.Source(x, target.Width, size.Width, analysis.Width);
                 bool selected = analysis.Labels[sourceY * analysis.Width + sourceX] == groupIndex;
                 if (!rgba) row[x] = selected ? area.R : background;
                 else

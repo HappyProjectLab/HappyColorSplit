@@ -49,6 +49,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         EnableWindowsIntegrationCommand = new(() => UpdateWindowsIntegrationAsync(true), () => IsIdle && CanIntegrateWithWindows);
         RemoveWindowsIntegrationCommand = new(() => UpdateWindowsIntegrationAsync(false), () => IsIdle && CanIntegrateWithWindows);
         OpenLastExportFolderCommand = new(OpenLastExportFolderAsync, () => CanOpenLastExportFolder);
+        ResetScaleCommand = new(() => { ApplyScale(new(100, (int)ScaleDpi)); return Task.CompletedTask; }, () => IsIdle && HasImage);
     }
 
     public Texts Text => new(_settings.Language);
@@ -56,7 +57,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public int LanguageIndex
     {
         get => _settings.Language == "en" ? 1 : 0;
-        set { _settings.Language = value == 1 ? "en" : "de"; Changed(); Changed(nameof(Text)); Changed(nameof(Status)); Changed(nameof(ErrorDetails)); Changed(nameof(ExportOutputHelp)); SaveSettings(); }
+        set { _settings.Language = value == 1 ? "en" : "de"; Changed(); Changed(nameof(Text)); Changed(nameof(Status)); Changed(nameof(ErrorDetails)); Changed(nameof(ExportOutputHelp)); Changed(nameof(ImageSizeSummary)); SaveSettings(); }
     }
     public double Tolerance
     {
@@ -105,6 +106,82 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public string ExportOutputHelp => string.Format(Text["ExportAppearanceHelp"],
         Text["Area" + _settings.ExportArea], Text["Background" + _settings.ExportBackground]);
     private ExportOptions CurrentExportOptions => new(_settings.ExportArea, _settings.ExportBackground);
+    public int ScaleUnitIndex
+    {
+        get => SelectedImage?.ScaleUnit ?? _settings.ScaleUnit;
+        set
+        {
+            if (value is not (0 or 1) || value == ScaleUnitIndex) return;
+            if (SelectedImage is not null) SelectedImage.ScaleUnit = value;
+            _settings.ScaleUnit = value; Changed(); Changed(nameof(IsScalePercent)); Changed(nameof(IsScaleCm)); SaveSettings();
+        }
+    }
+    public bool IsScalePercent => ScaleUnitIndex == 0;
+    public bool IsScaleCm => ScaleUnitIndex == 1;
+    public decimal ScalePercent
+    {
+        get => SelectedImage?.Scale.Percent ?? 100;
+        set => ApplyScale(new(value, (int)ScaleDpi));
+    }
+    public decimal ScaleWidthCm
+    {
+        get => SelectedImage?.Scale.WidthCm(SelectedImage.SourceWidth) ?? 0;
+        set { if (SelectedImage is not null) ApplyScale(new(value * ScaleDpi * 100 / (2.54m * SelectedImage.SourceWidth), (int)ScaleDpi)); }
+    }
+    public decimal ScaleHeightCm
+    {
+        get => SelectedImage?.Scale.HeightCm(SelectedImage.SourceHeight) ?? 0;
+        set { if (SelectedImage is not null) ApplyScale(new(value * ScaleDpi * 100 / (2.54m * SelectedImage.SourceHeight), (int)ScaleDpi)); }
+    }
+    public decimal ScaleDpi
+    {
+        get => SelectedImage?.Scale.Dpi ?? _settings.DefaultExportDpi;
+        set
+        {
+            if (value != decimal.Truncate(value) || value is < 1 or > 2400) { RefreshScaleProperties(); return; }
+            int dpi = (int)value;
+            if (dpi == (int)ScaleDpi || SelectedImage is null) return;
+            decimal percent = IsScaleCm ? ScalePercent * dpi / ScaleDpi : ScalePercent;
+            if (ApplyScale(new(percent, dpi))) { _settings.DefaultExportDpi = dpi; SaveSettings(); }
+        }
+    }
+    public string ImageSizeSummary
+    {
+        get
+        {
+            if (SelectedImage is null) return "";
+            var image = SelectedImage;
+            var size = image.Scale.GetSize(image.SourceWidth, image.SourceHeight);
+            return string.Format(Text["ImageSizeSummary"], image.SourceWidth, image.SourceHeight, size.Width, size.Height,
+                size.Width * 2.54m / image.Scale.Dpi, size.Height * 2.54m / image.Scale.Dpi, image.Scale.Dpi);
+        }
+    }
+    private bool ApplyScale(ImageScale sizing)
+    {
+        if (IsBusy || SelectedImage is null || SelectedImage.Scale == sizing) return false;
+        try
+        {
+            sizing.GetSize(SelectedImage.SourceWidth, SelectedImage.SourceHeight);
+            SelectedImage.Scale = sizing;
+            RefreshScaleProperties();
+            if (_source is not null)
+            {
+                using var stream = new MemoryStream(_service.OriginalPreview(_source, sizing: sizing));
+                Original = new Bitmap(stream);
+            }
+            RefreshMask(); StatusMessage("ScaleChanged"); return true;
+        }
+        catch (ExportSizeLimitException) { StatusMessage("ExportTooLarge"); }
+        catch (ArgumentOutOfRangeException) { StatusMessage("InvalidSize"); }
+        finally { RefreshScaleProperties(); }
+        return false;
+    }
+    private void RefreshScaleProperties()
+    {
+        Changed(nameof(ScaleUnitIndex)); Changed(nameof(IsScalePercent)); Changed(nameof(IsScaleCm));
+        Changed(nameof(ScalePercent)); Changed(nameof(ScaleWidthCm)); Changed(nameof(ScaleHeightCm));
+        Changed(nameof(ScaleDpi)); Changed(nameof(ImageSizeSummary));
+    }
     public bool IsBusy { get => _busy; private set { Set(ref _busy, value); Changed(nameof(IsIdle)); RefreshCommands(); } }
     public bool IsIdle => !IsBusy;
     public bool CanIntegrateWithWindows => _windowsIntegration.IsAvailable;
@@ -156,11 +233,12 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public AsyncCommand EnableWindowsIntegrationCommand { get; }
     public AsyncCommand RemoveWindowsIntegrationCommand { get; }
     public AsyncCommand OpenLastExportFolderCommand { get; }
+    public AsyncCommand ResetScaleCommand { get; }
 
     private void RefreshMask()
     {
         if (_analysis is null || SelectedGroup is null) { Mask = null; return; }
-        using var stream = new MemoryStream(_service.MaskPreview(_analysis, SelectedGroup.Group.Index, options: CurrentExportOptions));
+        using var stream = new MemoryStream(_service.MaskPreview(_analysis, SelectedGroup.Group.Index, options: CurrentExportOptions, sizing: SelectedImage?.Scale));
         Mask = new Bitmap(stream);
     }
 
@@ -234,14 +312,14 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                 if (!SupportedImageFiles.IsSupported(candidate)) throw new UnsupportedImageFormatException();
                 string path = Path.GetFullPath(candidate);
                 if (Images.Any(image => string.Equals(image.FilePath, path, StringComparison.OrdinalIgnoreCase))) continue;
-                byte[] preview = await Task.Run(() =>
+                var preview = await Task.Run(() =>
                 {
                     using var image = _service.Load(path);
-                    return _service.OriginalPreview(image, 200, 140);
+                    return (Bytes: _service.OriginalPreview(image, 200, 140), image.Width, image.Height);
                 }, token);
                 token.ThrowIfCancellationRequested();
-                using var stream = new MemoryStream(preview);
-                var item = new ImageFileViewModel(path, new Bitmap(stream));
+                using var stream = new MemoryStream(preview.Bytes);
+                var item = new ImageFileViewModel(path, new Bitmap(stream), preview.Width, preview.Height, _settings.DefaultExportDpi, _settings.ScaleUnit);
                 Images.Add(item);
                 firstAdded ??= item;
             }
@@ -263,17 +341,21 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         _source?.Dispose(); _source = null; Original = null;
         ClearAnalysis(); Changed(nameof(HasImage));
         _filePath = SelectedImage?.FilePath ?? ""; Changed(nameof(FileName));
+        RefreshScaleProperties();
         if (SelectedImage is null) return;
         var loaded = await Task.Run(() => _service.Load(_filePath), token);
         try
         {
-            var preview = await Task.Run(() => _service.OriginalPreview(loaded), token);
+            SelectedImage.UpdateSourceSize(loaded.Width, loaded.Height);
+            var sizing = SelectedImage.Scale;
+            var preview = await Task.Run(() => _service.OriginalPreview(loaded, sizing: sizing), token);
             token.ThrowIfCancellationRequested();
             using var stream = new MemoryStream(preview);
             var bitmap = new Bitmap(stream);
             _source?.Dispose(); _source = loaded; loaded = null!;
             Original = bitmap;
             ClearAnalysis(); Changed(nameof(HasImage)); Changed(nameof(FileName));
+            RefreshScaleProperties();
             StatusMessage("Loaded");
         }
         finally { loaded?.Dispose(); }
@@ -288,6 +370,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         _source?.Dispose(); _source = null; Original = null;
         _filePath = ""; ClearAnalysis(); SetFailures([]);
         Changed(nameof(HasImage)); Changed(nameof(FileName)); RefreshCommands(); StatusMessage("Ready");
+        RefreshScaleProperties();
         return Task.CompletedTask;
     }
 
@@ -327,8 +410,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         var result = _analysis!;
         var selected = Groups.Where(g => g.ExportEnabled).Select(g => g.Group.Index).ToHashSet();
         var options = CurrentExportOptions;
+        var sizing = SelectedImage!.Scale;
         var progress = new Progress<int>(value => Progress = value);
-        string folder = await Task.Run(() => _service.Export(result, parent, _filePath, progress, token, selected, options), token);
+        string folder = await Task.Run(() => _service.Export(result, parent, _filePath, progress, token, selected, options, sizing), token);
         StatusMessage("Exported", selected.Count, folder);
         RememberExportFolder(folder);
     });
@@ -342,6 +426,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         double tolerance = Tolerance;
         byte alpha = (byte)MinimumAlpha;
         var options = CurrentExportOptions;
+        var imageScales = Images.ToDictionary(image => image.FilePath, image => image.Scale, StringComparer.OrdinalIgnoreCase);
         var selections = Images.Where(image => image.ExportColors is not null)
             .ToDictionary(image => image.FilePath, image => (IReadOnlySet<string>)image.ExportColors!.ToHashSet(), StringComparer.OrdinalIgnoreCase);
         var progress = new Progress<BatchProgress>(value =>
@@ -349,7 +434,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             Progress = value.Percent;
             StatusMessage("BatchWorking", value.FileNumber, value.TotalFiles, value.FileName);
         });
-        var result = await Task.Run(() => new BatchExportService().Export(paths, parent, tolerance, progress, token, alpha, selections, options), token);
+        var result = await Task.Run(() => new BatchExportService().Export(paths, parent, tolerance, progress, token, alpha, selections, options, imageScales), token);
         SetFailures(result.Failures);
         StatusMessage(result.Cancelled ? "BatchCancelled" : "BatchDone", result.ExportedImages,
             result.ExportedMasks, result.Failures.Count, result.Folder);
@@ -361,12 +446,14 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         var analysis = _analysis!;
         int group = SelectedGroup!.Group.Index;
         var options = CurrentExportOptions;
+        var sizing = SelectedImage!.Scale;
+        var size = sizing.GetSize(analysis.Width, analysis.Height);
         var bytes = await Task.Run(() =>
         {
-            byte[] original = _service.OriginalPreview(_source!, analysis.Width, analysis.Height);
+            byte[] original = _service.OriginalPreview(_source!, size.Width, size.Height, sizing);
             token.ThrowIfCancellationRequested();
-            byte[] mask = _service.MaskPreview(analysis, group, fullResolution: true, options: options);
-            byte[] overlay = _service.OverlayPreview(analysis, group, token);
+            byte[] mask = _service.MaskPreview(analysis, group, fullResolution: true, options: options, sizing: sizing);
+            byte[] overlay = _service.OverlayPreview(analysis, group, token, sizing);
             return (original, mask, overlay);
         }, token);
         token.ThrowIfCancellationRequested();
@@ -405,6 +492,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
         catch (OperationCanceledException) { StatusMessage("Cancelled"); }
         catch (ImageLimitException) { StatusMessage("TooLarge"); }
+        catch (ExportSizeLimitException) { StatusMessage("ExportTooLarge"); }
         catch (ColorLimitException) { StatusMessage("TooMany"); }
         catch (EmptyImageException) { StatusMessage("Empty"); }
         catch (NoColorsSelectedException) { StatusMessage("NoColors"); }
@@ -423,7 +511,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     {
         ImageLimitException => Text["TooLarge"], ColorLimitException => Text["TooMany"],
         EmptyImageException => Text["Empty"], NoColorsSelectedException => Text["NoColors"],
-        UnsupportedImageFormatException => Text["UnsupportedImage"], _ => error.Message
+        UnsupportedImageFormatException => Text["UnsupportedImage"], ExportSizeLimitException => Text["ExportTooLarge"], _ => error.Message
     };
     private void SetFailures(IReadOnlyList<BatchFailure> failures)
     {
@@ -435,6 +523,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         ExportBatchCommand.Refresh(); ClearImagesCommand.Refresh(); RemoveImageCommand.Refresh();
         DetailPreviewCommand.Refresh(); SelectAllColorsCommand.Refresh(); DeselectAllColorsCommand.Refresh();
         EnableWindowsIntegrationCommand.Refresh(); RemoveWindowsIntegrationCommand.Refresh();
+        ResetScaleCommand.Refresh();
     }
     private void SaveSettings() { if (!_settingsService.Save(_settings)) StatusMessage("SaveError"); }
     public void Cancel() => _cancellation?.Cancel();

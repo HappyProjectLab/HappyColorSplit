@@ -31,6 +31,8 @@ public sealed class SettingsService(string? directory = null, string? legacyDire
             settings.MinimumAlpha = Math.Clamp(settings.MinimumAlpha, 1, 254);
             settings.LastExportFolder ??= "";
             if (!Enum.IsDefined(settings.ExportBackground)) settings.ExportBackground = ExportBackground.Black;
+            settings.DefaultExportDpi = Math.Clamp(settings.DefaultExportDpi, 1, 2400);
+            settings.ScaleUnit = settings.ScaleUnit == 1 ? 1 : 0;
             return settings;
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException) { return new(); }
