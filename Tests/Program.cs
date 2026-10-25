@@ -276,6 +276,7 @@ try
     LaserNestingRegressionTests.Run(Check);
     LaserRulerRegressionTests.Run(Check);
     LaserDistanceRegressionTests.Run(root, Check);
+    LaserOptimizationRegressionTests.Run(Check);
     if (args.Contains("--capture-baseline") || args.Contains("--verify-baseline"))
     {
         string importDirectory = Path.GetFullPath(Path.Combine("..", "Import"));

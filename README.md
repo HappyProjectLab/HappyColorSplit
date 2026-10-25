@@ -161,6 +161,8 @@ Links und oberhalb der angeordneten Arbeitsfläche helfen Zentimetermaßstäbe m
 
 Nach Änderungen an Auswahl, Bildgröße, Materialien oder Arbeitsfläche muss erneut angeordnet werden; veraltete Seiten sind für den Export gesperrt. Die Anordnung verwendet eine Rechteck-Packheuristik mit Gruppierung, keine Garantie auf die weltweit dichteste Belegung. Zu große zusammenhängende Teile werden gemeldet und nicht verkleinert, zerschnitten oder entfernt. Details zu Gruppierung, Abständen und Ausgabe: [Laser-Arbeitsbereich](docs/LASER_WORKSPACE.md).
 
+Auf die erste Anordnung folgt automatisch ein zweiter Optimierungslauf. Jede Materialfarbe behält das bessere Ergebnis: weniger Seiten oder bei gleicher Seitenzahl weniger belegte Begrenzungsfläche. Abstände, Bildmaße und Gruppierung bleiben erhalten.
+
 ## Farbverarbeitung
 
 Die häufigste noch nicht zugeordnete RGB-Farbe dient als feste Referenzfarbe einer Gruppe. Farben werden anhand ihres euklidischen Abstands im RGB-Farbraum der nächstgelegenen passenden Referenz zugeordnet. Der Regler gibt den maximalen Abstand zur Referenz an (0–150). Es handelt sich um eine einfache RGB-Gruppierung, nicht um eine wahrnehmungsbasierte Farbraumanalyse. Auch die Hintergrundfarbe erhält eine eigene Gruppe.

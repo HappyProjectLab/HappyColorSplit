@@ -37,6 +37,7 @@ public sealed class Texts(string language)
         ["LaserTooComplex"] = ["Die Anordnung ist zu umfangreich: maximal 5.000 Teile, 1 Million Maskenzeilen und 200 Seiten. Bitte weniger Bilder/Farben wählen oder die Grafik vereinfachen; es werden keine Teile automatisch entfernt.", "The layout is too complex: at most 5,000 parts, 1 million mask runs and 200 pages. Select fewer images/colors or simplify the artwork; parts are never silently removed."],
         ["LaserPartTooLarge"] = ["Ein Teil aus „{0}“ ({1:0.###} × {2:0.###} cm) passt auch gedreht nicht auf die Arbeitsfläche. Bitte Arbeitsfläche oder Bildgröße anpassen.", "A part from ‘{0}’ ({1:0.###} × {2:0.###} cm) does not fit the workspace even when rotated. Adjust the workspace or image size."],
         ["LaserArranging"] = ["Laser-Anordnung wird erstellt … {0} %", "Creating laser layout … {0}%"],
+        ["LaserOptimizing"] = ["Zweiter Anordnungslauf: Belegung optimieren … {0} %", "Second layout pass: optimizing sheet usage … {0}%"],
         ["LaserArranged"] = ["{0} Teile auf {1} Laser-Seiten angeordnet. Materialfarben und Gruppierung prüfen, dann exportieren.", "{0} parts arranged on {1} laser pages. Check materials and grouping, then export."],
         ["LaserExportPage"] = ["Seite exportieren", "Export page"],
         ["LaserExportAll"] = ["Alle Seiten exportieren", "Export all pages"],

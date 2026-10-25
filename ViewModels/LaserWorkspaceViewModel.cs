@@ -133,7 +133,7 @@ public sealed class LaserWorkspaceViewModel : ObservableObject, IDisposable
         Invalidate();
         var inputs = _owner.GetLaserSources(); var settings = _settings.Snapshot();
         double tolerance = _owner.Tolerance; byte alpha = (byte)_owner.MinimumAlpha;
-        var progress = new Progress<int>(p => { _owner.SetLaserProgress(p); _owner.SetLaserStatus("LaserArranging", p); });
+        var progress = new Progress<int>(p => { _owner.SetLaserProgress(p); _owner.SetLaserStatus(p >= 80 ? "LaserOptimizing" : "LaserArranging", p); });
         var layout = await Task.Run(() => new LaserLayoutService().Arrange(inputs, tolerance, alpha, settings, progress, token), token);
         var thumbnails = await Task.Run(() => layout.Pages.Select(page =>
             new LaserPageRenderer().Render(page, new(ExportArea.GroupColor, ExportBackground.Transparent), token, 190, 130)).ToArray(), token);

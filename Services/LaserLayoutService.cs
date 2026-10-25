@@ -30,7 +30,58 @@ public sealed class LaserLayoutService
         return Pack(parts, settings, progress, token);
     }
 
-    public LaserLayout Pack(IReadOnlyList<LaserPart> parts, LaserSettings settings, IProgress<int>? progress, CancellationToken token)
+    public LaserLayout Pack(IReadOnlyList<LaserPart> parts, LaserSettings settings, IProgress<int>? progress, CancellationToken token, bool optimize = true)
+    {
+        token.ThrowIfCancellationRequested(); settings = settings.Snapshot();
+        if (!optimize) return PackPass(parts, settings, progress, token, false);
+        LaserLayout? initial = null;
+        try { initial = PackPass(parts, settings, new ProgressSegment(progress, 60), token, false); }
+        catch (LaserComplexityException) { /* The other strategy may fit within the page limit. */ }
+        token.ThrowIfCancellationRequested();
+        LaserLayout alternative;
+        try { alternative = PackPass(parts, settings, new ProgressSegment(progress, 80), token, true); }
+        catch (LaserComplexityException) when (initial is not null) { progress?.Report(100); return initial; }
+        if (initial is null) return alternative;
+
+        var selected = new List<LaserPage>();
+        // Choose independently per material: an improvement for one stock colour must not worsen another.
+        for (int material = 0; material < settings.Materials.Count; material++)
+        {
+            token.ThrowIfCancellationRequested();
+            var first = initial.Pages.Where(p => p.Placements[0].Part.MaterialIndex == material).ToArray();
+            var second = alternative.Pages.Where(p => p.Placements[0].Part.MaterialIndex == material).ToArray();
+            selected.AddRange(Quality(second).CompareTo(Quality(first)) < 0 ? second : first);
+        }
+        var chunks = new Dictionary<(int Material, int Chunk), int>();
+        var pages = selected.Select((page, index) => page with
+        {
+            Index = index + 1,
+            Placements = page.Placements.Select(p =>
+            {
+                var key = (p.Part.MaterialIndex, p.SourceChunk);
+                if (!chunks.TryGetValue(key, out int chunk)) chunks.Add(key, chunk = chunks.Count + 1);
+                return p with { SourceChunk = chunk };
+            }).ToArray()
+        }).ToArray();
+        return new(pages, parts.Count);
+    }
+
+    private static (int Pages, long Area, long Height) Quality(IReadOnlyList<LaserPage> pages)
+    {
+        long area = 0, height = 0;
+        foreach (var page in pages)
+        {
+            int w = page.Placements.Max(p => p.X + p.Width) - page.Settings.MarginPixels;
+            int h = page.Placements.Max(p => p.Y + p.Height) - page.Settings.MarginPixels;
+            area += (long)w * h; height += h;
+        }
+        return (pages.Count, area, height);
+    }
+
+    private sealed class ProgressSegment(IProgress<int>? target, int start) : IProgress<int>
+    { public void Report(int value) => target?.Report(start + (value - 60) / 2); }
+
+    private LaserLayout PackPass(IReadOnlyList<LaserPart> parts, LaserSettings settings, IProgress<int>? progress, CancellationToken token, bool alternate)
     {
         var fullSize = settings.GetSize(); int margin = settings.MarginPixels;
         var size = new ImageDimensions(fullSize.Width - 2 * margin, fullSize.Height - 2 * margin);
@@ -54,15 +105,17 @@ public sealed class LaserLayoutService
                 var regions = new List<Block>();
                 foreach (var region in source.GroupBy(p => p.Region).OrderBy(g => g.Key))
                 {
-                    var bins = Place(region.OrderByDescending(p => (long)p.Width * p.Height).ThenBy(p => p.Id)
-                        .Select(p => (p, p.Width, p.Height)), size, gap, token);
+                    var ordered = alternate
+                        ? region.OrderByDescending(p => Math.Max(p.Width, p.Height)).ThenByDescending(p => Math.Min(p.Width, p.Height)).ThenBy(p => p.Id)
+                        : region.OrderByDescending(p => (long)p.Width * p.Height).ThenBy(p => p.Id);
+                    var bins = Place(ordered.Select(p => (p, p.Width, p.Height)), size, gap, token, alternate);
                     foreach (var bin in bins)
                     {
                         var positions = bin.Items.Select(s => new LaserPlacement(s.Item, s.X, s.Y, s.Rotated ? 1 : 0)).ToArray();
                         regions.Add(Bounds(positions));
                     }
                 }
-                var sourceBins = Place(regions.Select(b => (b, b.Width, b.Height)), size, gap, token)
+                var sourceBins = Place(OrderBlocks(regions, alternate).Select(b => (b, b.Width, b.Height)), size, gap, token, alternate)
                     .Select(bin => bin.Items.SelectMany(s => Transform(s.Item, s.X, s.Y, s.Rotated)).ToList()).ToList();
                 new LaserCavityNesting(settings.CavityGapPixels, gap, token).Compact(sourceBins);
                 foreach (var positions in sourceBins.Where(bin => bin.Count > 0))
@@ -71,7 +124,7 @@ public sealed class LaserLayoutService
                     sourceBlocks.Add(Bounds(positions.Select(p => p with { SourceChunk = chunk }).ToArray()));
                 }
             }
-            var pageBins = Place(sourceBlocks.Select(b => (b, b.Width, b.Height)), size, gap, token);
+            var pageBins = Place(OrderBlocks(sourceBlocks, alternate).Select(b => (b, b.Width, b.Height)), size, gap, token, alternate);
             for (int i = 0; i < pageBins.Count; i++)
             {
                 var positions = pageBins[i].Items.SelectMany(s => Transform(s.Item, s.X + margin, s.Y + margin, s.Rotated)).ToArray();
@@ -85,18 +138,25 @@ public sealed class LaserLayoutService
 
     private static bool Fits(int w, int h, int width, int height) => w > 0 && h > 0
         && ((w <= width && h <= height) || (h <= width && w <= height));
-    private static Block Bounds(IReadOnlyList<LaserPlacement> parts) => new(parts.Max(p => p.X + p.Width), parts.Max(p => p.Y + p.Height), parts);
+    private static IEnumerable<Block> OrderBlocks(IEnumerable<Block> blocks, bool alternate) => alternate
+        ? blocks.OrderByDescending(b => (long)b.Width * b.Height).ThenByDescending(b => Math.Max(b.Width, b.Height)) : blocks;
+    private static Block Bounds(IReadOnlyList<LaserPlacement> parts)
+    {
+        int x = parts.Min(p => p.X), y = parts.Min(p => p.Y);
+        return new(parts.Max(p => p.X + p.Width) - x, parts.Max(p => p.Y + p.Height) - y,
+            parts.Select(p => p with { X = p.X - x, Y = p.Y - y }).ToArray());
+    }
     private static IEnumerable<LaserPlacement> Transform(Block block, int x, int y, bool rotated) => block.Parts.Select(p => rotated
         ? p with { X = x + block.Height - p.Y - p.Height, Y = y + p.X, Turns = (p.Turns + 1) % 4 }
         : p with { X = p.X + x, Y = p.Y + y });
 
-    private static List<Bin<T>> Place<T>(IEnumerable<(T Item, int Width, int Height)> items, ImageDimensions size, int gap, CancellationToken token)
+    private static List<Bin<T>> Place<T>(IEnumerable<(T Item, int Width, int Height)> items, ImageDimensions size, int gap, CancellationToken token, bool alternate)
     {
         var bins = new List<Bin<T>>();
         foreach (var item in items)
         {
             token.ThrowIfCancellationRequested();
-            int bestBin = -1; LaserRect best = default; bool turn = false; long score = long.MaxValue;
+            int bestBin = -1; LaserRect best = default; bool turn = false; long score = long.MaxValue; int secondaryScore = int.MaxValue;
             void Search(int binIndex)
             {
                 foreach (var free in bins[binIndex].Free)
@@ -105,9 +165,12 @@ public sealed class LaserLayoutService
                     int w = (rotation == 0 ? item.Width : item.Height) + gap;
                     int h = (rotation == 0 ? item.Height : item.Width) + gap;
                     if (w > free.Width || h > free.Height) continue;
-                    long rank = ((long)Math.Min(free.Width - w, free.Height - h) << 32) + Math.Max(free.Width - w, free.Height - h);
-                    if (rank < score || (rank == score && (free.Y < best.Y || (free.Y == best.Y && free.X < best.X))))
-                    { score = rank; bestBin = binIndex; best = new(free.X, free.Y, w, h); turn = rotation == 1; }
+                    int shortSide = Math.Min(free.Width - w, free.Height - h);
+                    long rank = alternate ? (long)free.Width * free.Height - (long)w * h : shortSide;
+                    int secondary = alternate ? shortSide : Math.Max(free.Width - w, free.Height - h);
+                    if (rank < score || (rank == score && (secondary < secondaryScore
+                        || (secondary == secondaryScore && (free.Y < best.Y || (free.Y == best.Y && free.X < best.X))))))
+                    { score = rank; secondaryScore = secondary; bestBin = binIndex; best = new(free.X, free.Y, w, h); turn = rotation == 1; }
                 }
             }
             for (int b = 0; b < bins.Count; b++) Search(b);
