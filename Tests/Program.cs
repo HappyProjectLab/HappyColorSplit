@@ -273,6 +273,7 @@ try
     BatchSelectionRegressionTests.Run(root, Check, Pump);
     MergedExportRegressionTests.Run(root, Check, Pump);
     LaserRegressionTests.Run(root, Check, Pump);
+    LaserNestingRegressionTests.Run(Check);
     if (args.Contains("--capture-baseline") || args.Contains("--verify-baseline"))
     {
         string importDirectory = Path.GetFullPath(Path.Combine("..", "Import"));

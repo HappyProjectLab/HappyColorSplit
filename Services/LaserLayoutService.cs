@@ -61,9 +61,11 @@ public sealed class LaserLayoutService
                         regions.Add(Bounds(positions));
                     }
                 }
-                foreach (var bin in Place(regions.Select(b => (b, b.Width, b.Height)), size, gap, token))
+                var sourceBins = Place(regions.Select(b => (b, b.Width, b.Height)), size, gap, token)
+                    .Select(bin => bin.Items.SelectMany(s => Transform(s.Item, s.X, s.Y, s.Rotated)).ToList()).ToList();
+                new LaserCavityNesting(gap, token).Compact(sourceBins);
+                foreach (var positions in sourceBins.Where(bin => bin.Count > 0))
                 {
-                    var positions = bin.Items.SelectMany(s => Transform(s.Item, s.X, s.Y, s.Rotated)).ToArray();
                     int chunk = ++chunkId;
                     sourceBlocks.Add(Bounds(positions.Select(p => p with { SourceChunk = chunk }).ToArray()));
                 }
