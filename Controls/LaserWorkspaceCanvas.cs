@@ -6,7 +6,7 @@ using HappyColorSplit.Models;
 
 namespace HappyColorSplit.Controls;
 
-public sealed class LaserWorkspaceCanvas : Control
+public sealed partial class LaserWorkspaceCanvas : Control
 {
     public static readonly StyledProperty<IImage?> PreviewProperty = AvaloniaProperty.Register<LaserWorkspaceCanvas, IImage?>(nameof(Preview));
     public static readonly StyledProperty<LaserPage?> PageProperty = AvaloniaProperty.Register<LaserWorkspaceCanvas, LaserPage?>(nameof(Page));
@@ -31,6 +31,10 @@ public sealed class LaserWorkspaceCanvas : Control
         for (decimal tick = 0; tick <= cm; tick += .5m) yield return (tick, (double)(tick / cm));
     }
 
+    public static Rect UsableBounds(Rect sheet, ImageDimensions pixels, int margin)
+        => new(sheet.X + sheet.Width * margin / pixels.Width, sheet.Y + sheet.Height * margin / pixels.Height,
+            sheet.Width * (pixels.Width - 2L * margin) / pixels.Width, sheet.Height * (pixels.Height - 2L * margin) / pixels.Height);
+
     public override void Render(DrawingContext context)
     {
         base.Render(context);
@@ -44,6 +48,17 @@ public sealed class LaserWorkspaceCanvas : Control
         var pen = new Pen(ink, 1);
         context.FillRectangle(ruler, new Rect(sheet.X, sheet.Y - 27, sheet.Width, 27));
         context.FillRectangle(ruler, new Rect(sheet.X - 43, sheet.Y, 43, sheet.Height));
+        if (page.Settings.MarginPixels > 0)
+        {
+            var usable = UsableBounds(sheet, page.Size, page.Settings.MarginPixels);
+            var disabled = new SolidColorBrush(Color.Parse("#4A4E56"));
+            // Extend the same reserved bands into both rulers; the origin stays at the physical sheet edge.
+            context.FillRectangle(disabled, new Rect(sheet.X, sheet.Y - 27, usable.X - sheet.X, sheet.Height + 27));
+            context.FillRectangle(disabled, new Rect(usable.Right, sheet.Y - 27, sheet.Right - usable.Right, sheet.Height + 27));
+            context.FillRectangle(disabled, new Rect(sheet.X - 43, sheet.Y, sheet.Width + 43, usable.Y - sheet.Y));
+            context.FillRectangle(disabled, new Rect(sheet.X - 43, usable.Bottom, sheet.Width + 43, sheet.Bottom - usable.Bottom));
+            context.DrawRectangle(null, new Pen(new SolidColorBrush(Color.Parse("#92969E")), 1), usable);
+        }
         context.DrawRectangle(null, pen, sheet);
         Label(context, "cm", sheet.X - 32, sheet.Y - 23, ink);
         DrawTicks(context, page.Size.Width, page.Settings.Dpi, sheet, true, pen, ink);

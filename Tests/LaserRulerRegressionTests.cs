@@ -19,6 +19,14 @@ internal static class LaserRulerRegressionTests
             check(sheet.Left >= 50 && sheet.Top >= 32 && sheet.Right <= size.Width && sheet.Bottom <= size.Height
                 && Math.Abs(sheet.Width / sheet.Height - 1.5) < 1e-10,
                 "Both rulers retain their own gutter while the sheet keeps its aspect ratio when resized");
+            var usable = LaserWorkspaceCanvas.UsableBounds(sheet, new(300, 200), 20);
+            check(Math.Abs(usable.Left - sheet.Left - sheet.Width / 15) < 1e-10
+                && Math.Abs(usable.Top - sheet.Top - sheet.Height / 10) < 1e-10
+                && Math.Abs(sheet.Right - usable.Right - sheet.Width / 15) < 1e-10
+                && Math.Abs(sheet.Bottom - usable.Bottom - sheet.Height / 10) < 1e-10,
+                "Reserved grey bands keep the same physical width on all four edges and align with the rulers at every window size");
+            check(LaserWorkspaceCanvas.UsableBounds(sheet, new(300, 200), 0) == sheet,
+                "A zero edge margin does not grey out any of the usable sheet");
         }
     }
 }

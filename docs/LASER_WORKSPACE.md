@@ -17,6 +17,8 @@ Oben **Laser** wählen. Unter **Laser-Einstellungen** stehen:
 
 Links und oberhalb der Arbeitsfläche stehen Zentimetermaßstäbe mit Markierungen alle 0,5 cm. Ganze Zentimeter haben längere Striche. Bei genügend Platz werden auch halbe Zentimeter beschriftet; Zahlen werden bei kleinen Fenstern beziehungsweise großen Platten ausgedünnt, damit sie sich nicht überlagern. Der Nullpunkt liegt links oben. Maßstäbe und Arbeitsfläche werden beim Fensterwechsel gemeinsam eingepasst; die Beschriftung behält ihre lesbare Bildschirmgröße. Die Skala richtet sich nach den tatsächlichen Seitenpixeln und der Laser-DPI. Maßstäbe werden ausschließlich in der Vorschau angezeigt und nicht in die PNG-Dateien gezeichnet.
 
+Der reservierte Rand der angezeigten Seite wird an allen vier Seiten grau hinterlegt. Die entsprechenden Abschnitte der oberen und linken Maßstäbe sind ebenfalls ausgegraut; die nutzbare Fläche ist innen abgegrenzt. Bei 0 cm Rand entfällt diese Markierung. Der Maßstab beginnt weiterhin am tatsächlichen Plattenrand. Wie die Maßstäbe wird die graue Markierung nicht exportiert.
+
 ## Materialzuordnung und Teilerkennung
 
 Die feste Referenzfarbe jeder angehakten Bildgruppe wird in CIE Lab (D65) umgerechnet und dem kleinsten Delta-E-76-Abstand in der verfügbaren Materialliste zugeordnet. Bei gleichem Abstand gewinnt die zuerst eingetragene Materialfarbe. Das ist eine rechnerische Zuordnung der RGB-Referenzwerte, keine Messung realer Materialien.
@@ -70,6 +72,8 @@ Switch from **Color layers** to **Laser**. Find colors for all imported images a
 Choose pages in the right-hand list. Preview group outlines are not exported. Export one page, all pages, or one merged PNG per page using the usual foreground/background choices. Group color uses the assigned material color. Resolution metadata preserves print size when respected by the importing application. `Laser_Layout.json` records source filenames, grouping, positions and rotations without absolute input paths.
 
 Centimetre rulers above and to the left of the sheet mark every half centimetre, with longer ticks at whole centimetres. Numbers are thinned when space is limited. The origin is at the top left; ticks follow the actual pixel dimensions and output DPI. Rulers resize with the sheet while their labels keep a readable screen size. They are preview aids and are never included in exported PNGs.
+
+The reserved margin of the displayed page is greyed out on all four sheet edges and on the corresponding sections of both rulers. An inner boundary marks the usable area. A zero margin removes the shading; the ruler origin remains at the physical sheet edge. Margin shading is never exported.
 
 A second layout pass runs automatically using different part/block ordering and free-space scoring. It reuses the extracted parts and fills cavities again. Each material independently keeps the better complete result: fewer pages first, then a smaller total occupied bounding area, then a smaller total occupied height. Ties retain the initial layout. No material may worsen to benefit another. Sizes, distances, source/region identities and quarter-turn rules remain in force. If one strategy hits a complexity limit, the other valid result may still be used. Cancellation never publishes a partial optimization; globally optimal nesting is not guaranteed.
 
