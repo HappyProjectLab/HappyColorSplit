@@ -20,6 +20,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private CancellationTokenSource? _cancellation;
     private Bitmap? _original, _mask;
     private bool _busy;
+    private bool _showCombinedPreview, _updatingColorSelection;
     private string _filePath = "", _statusKey = "Ready";
     private object[] _statusArgs = [];
     private int _progress;
@@ -39,10 +40,11 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         AnalyzeCommand = new(AnalyzeAsync, () => !IsBusy && Images.Count > 0);
         ExportCommand = new(ExportAsync, () => !IsBusy && _analysis is not null && ExportColorCount > 0);
         ExportBatchCommand = new(ExportBatchAsync, () => !IsBusy && HasBatchSelection);
+        ExportCombinedBatchCommand = new(() => ExportBatchAsync(true), () => !IsBusy && HasBatchSelection);
         ClearImagesCommand = new(ClearImagesAsync, () => !IsBusy && Images.Count > 0);
         RemoveImageCommand = new(RemoveImageAsync, () => !IsBusy && SelectedImage is not null);
         CancelCommand = new(() => { Cancel(); return Task.CompletedTask; }, () => IsBusy);
-        DetailPreviewCommand = new(ShowDetailPreviewAsync, () => !IsBusy && _analysis is not null && SelectedGroup is not null && _detailPreview is not null);
+        DetailPreviewCommand = new(ShowDetailPreviewAsync, () => !IsBusy && _analysis is not null && HasMask && _detailPreview is not null);
         SelectAllColorsCommand = new(() => SelectColors(true), () => !IsBusy && HasGroups);
         DeselectAllColorsCommand = new(() => SelectColors(false), () => !IsBusy && HasGroups);
         LicensesCommand = new(ShowLicensesAsync, () => _licenseWindow is not null);
@@ -83,6 +85,11 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
     public int ExportColorCount => Groups.Count(group => group.ExportEnabled);
+    public bool ShowCombinedPreview
+    {
+        get => _showCombinedPreview;
+        set { if (Set(ref _showCombinedPreview, value)) { RefreshMask(); DetailPreviewCommand.Refresh(); } }
+    }
     public bool HasBatchSelection => Images.Any(image => image.ColorsDetected && image.ExportColors is { Count: > 0 });
     public int ExportAreaIndex
     {
@@ -224,6 +231,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public AsyncCommand AnalyzeCommand { get; }
     public AsyncCommand ExportCommand { get; }
     public AsyncCommand ExportBatchCommand { get; }
+    public AsyncCommand ExportCombinedBatchCommand { get; }
     public AsyncCommand ClearImagesCommand { get; }
     public AsyncCommand RemoveImageCommand { get; }
     public AsyncCommand CancelCommand { get; }
@@ -238,8 +246,11 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     private void RefreshMask()
     {
-        if (_analysis is null || SelectedGroup is null) { Mask = null; return; }
-        using var stream = new MemoryStream(_service.MaskPreview(_analysis, SelectedGroup.Group.Index, options: CurrentExportOptions, sizing: SelectedImage?.Scale));
+        if (_analysis is null || (ShowCombinedPreview ? ExportColorCount == 0 : SelectedGroup is null)) { Mask = null; return; }
+        byte[] bytes = ShowCombinedPreview
+            ? _service.CombinedPreview(_analysis, Groups.Where(g => g.ExportEnabled).Select(g => g.Group.Index).ToHashSet(), CurrentExportOptions, SelectedImage?.Scale)
+            : _service.MaskPreview(_analysis, SelectedGroup!.Group.Index, options: CurrentExportOptions, sizing: SelectedImage?.Scale);
+        using var stream = new MemoryStream(bytes);
         Mask = new Bitmap(stream);
     }
 
@@ -469,7 +480,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         RememberExportFolder(folder);
     });
 
-    private async Task ExportBatchAsync() => await RunAsync(async token =>
+    private Task ExportBatchAsync() => ExportBatchAsync(false);
+
+    private async Task ExportBatchAsync(bool combineGroups) => await RunAsync(async token =>
     {
         string? parent = await _dialogs.SelectOutputAsync(Text);
         if (parent is null) return;
@@ -487,7 +500,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             Progress = value.Percent;
             StatusMessage("BatchWorking", value.FileNumber, value.TotalFiles, value.FileName);
         });
-        var result = await Task.Run(() => new BatchExportService().Export(paths, parent, tolerance, progress, token, alpha, selections, options, imageScales), token);
+        var result = await Task.Run(() => new BatchExportService().Export(paths, parent, tolerance, progress, token, alpha, selections, options, imageScales, combineGroups), token);
         SetFailures(result.Failures);
         StatusMessage(result.Cancelled ? "BatchCancelled" : "BatchDone", result.ExportedImages,
             result.ExportedMasks, result.Failures.Count, result.Folder, result.SkippedImages);
@@ -497,7 +510,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private async Task ShowDetailPreviewAsync() => await RunAsync(async token =>
     {
         var analysis = _analysis!;
-        int group = SelectedGroup!.Group.Index;
+        bool combined = ShowCombinedPreview;
+        int group = SelectedGroup?.Group.Index ?? -1;
+        var selected = Groups.Where(g => g.ExportEnabled).Select(g => g.Group.Index).ToHashSet();
         var options = CurrentExportOptions;
         var sizing = SelectedImage!.Scale;
         var size = sizing.GetSize(analysis.Width, analysis.Height);
@@ -505,25 +520,33 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         {
             byte[] original = _service.OriginalPreview(_source!, size.Width, size.Height, sizing);
             token.ThrowIfCancellationRequested();
-            byte[] mask = _service.MaskPreview(analysis, group, fullResolution: true, options: options, sizing: sizing);
-            byte[] overlay = _service.OverlayPreview(analysis, group, token, sizing);
+            byte[] mask = combined ? _service.CombinedPreview(analysis, selected, options, sizing, fullResolution: true)
+                : _service.MaskPreview(analysis, group, fullResolution: true, options: options, sizing: sizing);
+            byte[] overlay = combined ? _service.OverlayPreview(analysis, selected, token, sizing)
+                : _service.OverlayPreview(analysis, group, token, sizing);
             return (original, mask, overlay);
         }, token);
         token.ThrowIfCancellationRequested();
-        _detailPreview!.Show(new(bytes.original, bytes.mask, bytes.overlay, Text, $"{FileName} · {SelectedGroup!.Hex}"));
+        _detailPreview!.Show(new(bytes.original, bytes.mask, bytes.overlay, Text, $"{FileName} · {(combined ? Text["CombinedPreview"] : SelectedGroup!.Hex)}"));
     });
 
     private Task SelectColors(bool enabled)
     {
-        foreach (var group in Groups) group.ExportEnabled = enabled;
+        _updatingColorSelection = true;
+        try { foreach (var group in Groups) group.ExportEnabled = enabled; }
+        finally { _updatingColorSelection = false; }
+        ExportSelectionChanged(null, new(nameof(ColorGroupViewModel.ExportEnabled)));
         return Task.CompletedTask;
     }
 
     private void ExportSelectionChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs args)
     {
         if (args.PropertyName != nameof(ColorGroupViewModel.ExportEnabled)) return;
+        if (_updatingColorSelection) return;
         if (SelectedImage is not null) SelectedImage.ExportColors = Groups.Where(g => g.ExportEnabled).Select(g => g.Hex).ToHashSet();
-        Changed(nameof(ExportColorCount)); Changed(nameof(HasBatchSelection)); ExportCommand.Refresh(); ExportBatchCommand.Refresh();
+        Changed(nameof(ExportColorCount)); Changed(nameof(HasBatchSelection)); ExportCommand.Refresh(); ExportBatchCommand.Refresh(); ExportCombinedBatchCommand.Refresh();
+        if (ShowCombinedPreview) RefreshMask();
+        DetailPreviewCommand.Refresh();
     }
 
     private void InvalidateSelections()
@@ -574,6 +597,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     {
         OpenCommand.Refresh(); AnalyzeCommand.Refresh(); ExportCommand.Refresh(); CancelCommand.Refresh();
         ExportBatchCommand.Refresh(); ClearImagesCommand.Refresh(); RemoveImageCommand.Refresh();
+        ExportCombinedBatchCommand.Refresh();
         DetailPreviewCommand.Refresh(); SelectAllColorsCommand.Refresh(); DeselectAllColorsCommand.Refresh();
         EnableWindowsIntegrationCommand.Refresh(); RemoveWindowsIntegrationCommand.Refresh();
         ResetScaleCommand.Refresh();

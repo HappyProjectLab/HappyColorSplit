@@ -150,7 +150,10 @@
         <Border Grid.Row="1" Classes="panel">
           <Grid RowDefinitions="Auto,*" RowSpacing="12">
             <Grid ColumnDefinitions="*,Auto">
-              <TextBlock Text="{Binding Text[Mask]}" FontWeight="SemiBold" VerticalAlignment="Center" />
+              <StackPanel Orientation="Horizontal" Spacing="10">
+                <TextBlock Text="{Binding Text[Mask]}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <CheckBox Content="{Binding Text[CombinedPreview]}" IsChecked="{Binding ShowCombinedPreview, Mode=TwoWay}" IsEnabled="{Binding IsIdle}" ToolTip.Tip="{Binding Text[CombinedHelp]}" FontSize="11" MinHeight="0" />
+              </StackPanel>
               <Button Grid.Column="1" Content="{Binding Text[DetailPreview]}" Command="{Binding DetailPreviewCommand}" FontSize="11" Padding="10,5" />
             </Grid>
             <Border Grid.Row="1" Background="{StaticResource TransparencyBackground}" CornerRadius="8" ClipToBounds="True">
@@ -203,13 +206,14 @@
         </Grid>
       </Border>
     </Grid>
-    <Grid Grid.Row="3" ColumnDefinitions="*,Auto,Auto,Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="10">
+    <Grid Grid.Row="3" ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="10">
       <TextBlock Text="{Binding Status}" TextWrapping="Wrap" VerticalAlignment="Center" Classes="muted" MaxHeight="64" />
       <Button Grid.Column="1" Content="{Binding Text[OpenLastExport]}" Command="{Binding OpenLastExportFolderCommand}" IsEnabled="{Binding CanOpenLastExportFolder}" ToolTip.Tip="{Binding LastExportFolder}" />
       <Button Grid.Column="2" Content="{Binding Text[Cancel]}" Command="{Binding CancelCommand}" IsVisible="{Binding IsBusy}" />
       <Button Grid.Column="3" Content="{Binding Text[Export]}" Command="{Binding ExportCommand}" />
       <Button Grid.Column="4" Content="{Binding Text[ExportBatch]}" Command="{Binding ExportBatchCommand}" Background="#89D6FA" Foreground="#0B2333" FontWeight="SemiBold" />
-      <ProgressBar Grid.Row="1" Grid.ColumnSpan="5" IsVisible="{Binding IsBusy}" Value="{Binding Progress}" IsIndeterminate="{Binding IsIndeterminate}" Height="4" />
+      <Button Grid.Column="5" Content="{Binding Text[ExportCombined]}" Command="{Binding ExportCombinedBatchCommand}" ToolTip.Tip="{Binding Text[CombinedHelp]}" />
+      <ProgressBar Grid.Row="1" Grid.ColumnSpan="6" IsVisible="{Binding IsBusy}" Value="{Binding Progress}" IsIndeterminate="{Binding IsIndeterminate}" Height="4" />
     </Grid>
     <Expander Grid.Row="4" Header="{Binding Text[ErrorDetails]}" IsVisible="{Binding HasErrors}" HorizontalAlignment="Stretch">
       <TextBox Text="{Binding ErrorDetails, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" MaxHeight="100" />

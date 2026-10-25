@@ -32,6 +32,10 @@ Schwarze oder weiße Flächen auf deckendem Hintergrund verwenden weiterhin 8-Bi
 
 Vorschau und Export verwenden denselben Renderer. Das Raster in der Oberfläche kennzeichnet transparente Bereiche und wird nicht in das PNG gezeichnet. Neue Detailfenster übernehmen die aktuellen Ausgabeoptionen als Momentaufnahme. Gewählte Zielgröße und relative Positionen der Flächen bleiben erhalten. Dateinamen und neue Unterordner trennen die Ausgaben; Abbruch und Fehler werden berücksichtigt.
 
+Beim kombinierten Export ist die gemeinsame Maske die Vereinigung aller Pixel, deren Gruppenindex zu den angehakten Gruppen gehört. Dies entspricht dem Zusammenfügen schwarzer, deckender Flächen auf transparentem Hintergrund; deckende Einzelmasken-Hintergründe werden nicht übereinander gezeichnet. Erst die gemeinsame Zugehörigkeitsmaske wird auf das individuelle Zielraster skaliert und mit der gewählten Flächen- und Hintergrunddarstellung ausgegeben. Bei Gruppenfarbe wird an jedem ausgewählten Pixel die ursprüngliche Gruppenreferenzfarbe verwendet. Das Ergebnis ist genau eine `_merged.png` pro exportiertem Bild. Leere Auswahlen erzeugen keine versehentlichen Vollbild- oder Alle-Farben-Exporte.
+
+Die umschaltbare gemeinsame Vorschau verwendet denselben Renderer. Detailmaske und grüne Überlagerung berücksichtigen dann dieselbe Vereinigung. Die Exporte bleiben atomar pro Bild: Bei Abbruch werden unvollständige Dateien entfernt; bereits abgeschlossene Bildexporte bleiben erhalten.
+
 Die Anwendung führt keine automatische Konturreparatur oder Entfernung kleiner Flächen durch. Hinweise zu möglichen Fehlern und Sicherungskopien stehen in [USAGE_NOTICE_DE.md](USAGE_NOTICE_DE.md).
 
 ## Prüfung und Abhängigkeiten

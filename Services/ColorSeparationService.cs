@@ -111,6 +111,9 @@ public sealed class ColorSeparationService
     }
 
     public byte[] OverlayPreview(ColorAnalysis analysis, int group, CancellationToken token, ImageScale? sizing = null)
+        => OverlayPreview(analysis, new HashSet<int> { group }, token, sizing);
+
+    public byte[] OverlayPreview(ColorAnalysis analysis, IReadOnlySet<int> groups, CancellationToken token, ImageScale? sizing = null)
     {
         var size = sizing?.GetSize(analysis.Width, analysis.Height) ?? new(analysis.Width, analysis.Height);
         using var overlay = new RasterImage(size.Width, size.Height);
@@ -122,7 +125,7 @@ public sealed class ColorSeparationService
             for (int x = 0; x < size.Width; x++)
             {
                 int sourceX = ImageResampling.Source(x, size.Width, size.Width, analysis.Width);
-                if (analysis.Labels[sourceY * analysis.Width + sourceX] != group) continue;
+                if (!groups.Contains(analysis.Labels[sourceY * analysis.Width + sourceX])) continue;
                 int offset = x * 4;
                 row[offset] = 80; row[offset + 1] = 255; row[offset + 2] = 120; row[offset + 3] = 255;
             }
@@ -131,7 +134,7 @@ public sealed class ColorSeparationService
     }
 
     public string Export(ColorAnalysis analysis, string parent, string sourceName, IProgress<int>? progress, CancellationToken token,
-        IReadOnlySet<int>? selectedGroups = null, ExportOptions? options = null, ImageScale? sizing = null)
+        IReadOnlySet<int>? selectedGroups = null, ExportOptions? options = null, ImageScale? sizing = null, bool combineGroups = false)
     {
         token.ThrowIfCancellationRequested();
         options ??= new();
@@ -146,14 +149,23 @@ public sealed class ColorSeparationService
         try
         {
             using var mask = ExportImageRenderer.CreateBitmap(size.Width, size.Height, options);
+            void Save(string fileName)
+            {
+                byte[] png = RasterImageCodec.EncodePng(mask);
+                if (sizing is not null) png = PngResolution.WithDpi(png, sizing.Dpi);
+                File.WriteAllBytes(Path.Combine(staging, fileName), png);
+            }
             int completed = 0;
-            foreach (var group in groups)
+            if (combineGroups)
+            {
+                ExportImageRenderer.FillCombined(mask, analysis, groups.Select(g => g.Index).ToHashSet(), options, token, size);
+                Save($"{name}_merged.png"); progress?.Report(100);
+            }
+            else foreach (var group in groups)
             {
                 token.ThrowIfCancellationRequested();
                 ExportImageRenderer.Fill(mask, analysis, group.Index, options, token, size);
-                byte[] png = RasterImageCodec.EncodePng(mask);
-                if (sizing is not null) png = PngResolution.WithDpi(png, sizing.Dpi);
-                File.WriteAllBytes(Path.Combine(staging, $"{name}_{group.Index + 1:D3}_{group.Hex[1..]}.png"), png);
+                Save($"{name}_{group.Index + 1:D3}_{group.Hex[1..]}.png");
                 progress?.Report(++completed * 100 / groups.Length);
             }
             token.ThrowIfCancellationRequested();
@@ -165,6 +177,18 @@ public sealed class ColorSeparationService
             // This directory is uniquely created by this invocation; never remove the destination.
             if (Directory.Exists(staging)) Directory.Delete(staging, true);
         }
+    }
+
+    public byte[] CombinedPreview(ColorAnalysis analysis, IReadOnlySet<int> groups, ExportOptions? options = null,
+        ImageScale? sizing = null, bool fullResolution = false)
+    {
+        if (!analysis.Groups.Any(g => groups.Contains(g.Index))) throw new NoColorsSelectedException();
+        options ??= new();
+        var size = sizing?.GetSize(analysis.Width, analysis.Height) ?? new(analysis.Width, analysis.Height);
+        double scale = fullResolution ? 1 : Math.Min(1, Math.Min(1100.0 / size.Width, 750.0 / size.Height));
+        using var mask = ExportImageRenderer.CreateBitmap(Math.Max(1, (int)(size.Width * scale)), Math.Max(1, (int)(size.Height * scale)), options);
+        ExportImageRenderer.FillCombined(mask, analysis, groups, options, exportSize: size);
+        return RasterImageCodec.EncodePng(mask);
     }
 
 }

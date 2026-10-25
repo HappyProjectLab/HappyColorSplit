@@ -271,6 +271,7 @@ try
     BackgroundExportRegressionTests.Run(root, Check, Pump);
     ScalingRegressionTests.Run(root, Check, Pump);
     BatchSelectionRegressionTests.Run(root, Check, Pump);
+    MergedExportRegressionTests.Run(root, Check, Pump);
     if (args.Contains("--capture-baseline") || args.Contains("--verify-baseline"))
     {
         string importDirectory = Path.GetFullPath(Path.Combine("..", "Import"));

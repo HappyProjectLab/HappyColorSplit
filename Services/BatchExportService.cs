@@ -7,10 +7,10 @@ public sealed class BatchExportService
     public BatchExportResult Export(IReadOnlyList<string> paths, string parent, double tolerance,
         IProgress<BatchProgress>? progress, CancellationToken token, byte minimumAlpha = 1,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? exportColors = null, ExportOptions? options = null,
-        IReadOnlyDictionary<string, ImageScale>? imageScales = null)
+        IReadOnlyDictionary<string, ImageScale>? imageScales = null, bool combineGroups = false)
     {
         token.ThrowIfCancellationRequested();
-        string folder = Path.Combine(parent, $"HappyColorSplit_Batch_{DateTime.Now:yyyyMMdd_HHmmss}_{Guid.NewGuid().ToString("N")[..8]}");
+        string folder = Path.Combine(parent, $"HappyColorSplit_{(combineGroups ? "Merged" : "Batch")}_{DateTime.Now:yyyyMMdd_HHmmss}_{Guid.NewGuid().ToString("N")[..8]}");
         Directory.CreateDirectory(folder);
         var failures = new List<BatchFailure>();
         int exportedImages = 0, exportedMasks = 0, skippedImages = 0;
@@ -36,9 +36,9 @@ public sealed class BatchExportService
                 IReadOnlySet<int>? selected = exportColors is not null && exportColors.TryGetValue(paths[i], out var colors)
                     ? analysis.Groups.Where(g => colors.Contains(g.Hex)).Select(g => g.Index).ToHashSet() : null;
                 var sizing = imageScales is not null && imageScales.TryGetValue(paths[i], out var scale) ? scale : null;
-                service.Export(analysis, folder, paths[i], new InlineProgress<int>(Report), token, selected, options, sizing);
+                service.Export(analysis, folder, paths[i], new InlineProgress<int>(Report), token, selected, options, sizing, combineGroups);
                 exportedImages++;
-                exportedMasks += selected?.Count ?? analysis.Groups.Count;
+                exportedMasks += combineGroups ? 1 : selected?.Count ?? analysis.Groups.Count;
             }
             catch (OperationCanceledException) { cancelled = true; break; }
             catch (Exception error) when (error is not OutOfMemoryException)
