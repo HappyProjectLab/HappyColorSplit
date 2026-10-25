@@ -10,4 +10,5 @@ public sealed class AppSettings
     public ExportBackground ExportBackground { get; set; } = ExportBackground.Black;
     public int DefaultExportDpi { get; set; } = 300;
     public int ScaleUnit { get; set; }
+    public LaserSettings Laser { get; set; } = new();
 }

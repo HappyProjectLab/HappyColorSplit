@@ -40,6 +40,8 @@ Die Anwendung führt keine automatische Konturreparatur oder Entfernung kleiner 
 
 ## Prüfung und Abhängigkeiten
 
+Der lokale Laser-Modus verwendet die skalierten Materialmasken für eine achtfach zusammenhängende Teilerkennung. Masken werden als Zeilenläufe gespeichert; die Gruppierung nach Quelldatei und räumlichem Bereich wird beim rechteckigen, mehrstufigen Packen beibehalten. Die Packgeometrie arbeitet vollständig auf dem Laser-Ausgaberaster mit einem aufgerundeten Abstand von mindestens 0,5 cm. Vierteldrehungen werden vorwärts und invers ohne Spiegelung abgebildet. Vorschau-Rahmen werden getrennt von den exportierten Masken gezeichnet. Details und Grenzen: [Laser-Arbeitsbereich](LASER_WORKSPACE.md).
+
 Die synthetischen Funktionsprüfungen kontrollieren tatsächliche Exportpixel, Deckkraft, Gruppierung, Ausrichtung, animierte PNGs, Stapelverarbeitung, Abbruch und den Ablauf der Oberfläche. Optionale lokale Bildvergleiche werden außerhalb des Repositorys gehalten.
 
 Die Komponenten- und Lizenzzuordnung steht in [THIRD_PARTY_COMPONENTS_DE.md](THIRD_PARTY_COMPONENTS_DE.md). Original-Lizenztexte werden unverändert mitgeliefert.

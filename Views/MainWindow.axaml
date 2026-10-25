@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="using:HappyColorSplit.Controls"
+        xmlns:views="using:HappyColorSplit.Views"
         x:Class="HappyColorSplit.Views.MainWindow"
         Title="HappyColorSplit" Width="1380" Height="870" MinWidth="1120" MinHeight="740"
         Background="#111824" Icon="/Assets/HappyColorSplit.ico">
@@ -10,6 +11,10 @@
         <TextBlock Text="{Binding Text[Subtitle]}" Classes="muted" FontSize="14" />
       </StackPanel>
       <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+        <ComboBox x:Name="WorkspaceSelector" SelectedIndex="{Binding WorkspaceIndex, Mode=TwoWay}" IsEnabled="{Binding IsIdle}" MinWidth="135">
+          <ComboBoxItem Content="{Binding Text[ColorWorkspace]}" />
+          <ComboBoxItem Content="{Binding Text[LaserWorkspace]}" />
+        </ComboBox>
         <Button Content="{Binding Text[WindowsIntegration]}" IsVisible="{Binding CanIntegrateWithWindows}">
           <Button.Flyout>
             <Flyout>
@@ -132,7 +137,7 @@
           </StackPanel>
         </Grid>
       </Border>
-      <Grid Grid.Column="1" RowDefinitions="*,*" RowSpacing="16">
+      <Grid Grid.Column="1" RowDefinitions="*,*" RowSpacing="16" IsVisible="{Binding !IsLaserMode}">
         <Border Classes="panel">
           <Grid RowDefinitions="Auto,*" RowSpacing="12">
             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
@@ -165,7 +170,13 @@
           </Grid>
         </Border>
       </Grid>
-      <Border Grid.Column="2" Classes="panel" Padding="14,20">
+      <Border Grid.Column="1" Classes="panel" IsVisible="{Binding IsLaserMode}">
+        <views:LaserWorkspaceView DataContext="{Binding Laser}" />
+      </Border>
+      <Border Grid.Column="2" Classes="panel" Padding="14,20" IsVisible="{Binding IsLaserMode}">
+        <views:LaserPagesView DataContext="{Binding Laser}" />
+      </Border>
+      <Border Grid.Column="2" Classes="panel" Padding="14,20" IsVisible="{Binding !IsLaserMode}">
         <Grid RowDefinitions="Auto,*,Auto" RowSpacing="14">
           <StackPanel Spacing="8" Margin="6,0">
             <TextBlock Text="{Binding Text[Colors]}" FontWeight="SemiBold" />
@@ -210,9 +221,12 @@
       <TextBlock Text="{Binding Status}" TextWrapping="Wrap" VerticalAlignment="Center" Classes="muted" MaxHeight="64" />
       <Button Grid.Column="1" Content="{Binding Text[OpenLastExport]}" Command="{Binding OpenLastExportFolderCommand}" IsEnabled="{Binding CanOpenLastExportFolder}" ToolTip.Tip="{Binding LastExportFolder}" />
       <Button Grid.Column="2" Content="{Binding Text[Cancel]}" Command="{Binding CancelCommand}" IsVisible="{Binding IsBusy}" />
-      <Button Grid.Column="3" Content="{Binding Text[Export]}" Command="{Binding ExportCommand}" />
-      <Button Grid.Column="4" Content="{Binding Text[ExportBatch]}" Command="{Binding ExportBatchCommand}" Background="#89D6FA" Foreground="#0B2333" FontWeight="SemiBold" />
-      <Button Grid.Column="5" Content="{Binding Text[ExportCombined]}" Command="{Binding ExportCombinedBatchCommand}" ToolTip.Tip="{Binding Text[CombinedHelp]}" />
+      <Button Grid.Column="3" Content="{Binding Text[Export]}" Command="{Binding ExportCommand}" IsVisible="{Binding !IsLaserMode}" />
+      <Button Grid.Column="4" Content="{Binding Text[ExportBatch]}" Command="{Binding ExportBatchCommand}" IsVisible="{Binding !IsLaserMode}" Background="#89D6FA" Foreground="#0B2333" FontWeight="SemiBold" />
+      <Button Grid.Column="5" Content="{Binding Text[ExportCombined]}" Command="{Binding ExportCombinedBatchCommand}" IsVisible="{Binding !IsLaserMode}" ToolTip.Tip="{Binding Text[CombinedHelp]}" />
+      <Button Grid.Column="3" Content="{Binding Text[LaserExportPage]}" Command="{Binding Laser.ExportPageCommand}" IsVisible="{Binding IsLaserMode}" />
+      <Button Grid.Column="4" Content="{Binding Text[LaserExportAll]}" Command="{Binding Laser.ExportAllCommand}" IsVisible="{Binding IsLaserMode}" Background="#89D6FA" Foreground="#0B2333" FontWeight="SemiBold" />
+      <Button Grid.Column="5" Content="{Binding Text[ExportCombined]}" Command="{Binding Laser.ExportMergedCommand}" IsVisible="{Binding IsLaserMode}" ToolTip.Tip="{Binding Text[LaserMergedHelp]}" />
       <ProgressBar Grid.Row="1" Grid.ColumnSpan="6" IsVisible="{Binding IsBusy}" Value="{Binding Progress}" IsIndeterminate="{Binding IsIndeterminate}" Height="4" />
     </Grid>
     <Expander Grid.Row="4" Header="{Binding Text[ErrorDetails]}" IsVisible="{Binding HasErrors}" HorizontalAlignment="Stretch">

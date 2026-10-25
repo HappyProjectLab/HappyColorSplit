@@ -101,7 +101,7 @@ dotnet run --project HappyColorSplit.csproj
 
 **Neu in 0.1.0-preview.4:** Drag-and-drop, optionale Windows-Einbindung, ein Button für den letzten Exportordner und getrennte Auswahlen für Flächenfarbe und Export-Hintergrund.
 
-**Lokaler Entwicklungsstand:** Die nachfolgend beschriebene individuelle Bildskalierung, die gemeinsame Farberkennung mit strikter Farbauswahl pro Bild und der kombinierte Export sind noch nicht im oben verlinkten Download `0.1.0-preview.4` enthalten.
+**Lokaler Entwicklungsstand:** Die nachfolgend beschriebene individuelle Bildskalierung, die gemeinsame Farberkennung mit strikter Farbauswahl pro Bild, der kombinierte Export und der Laser-Modus sind noch nicht im oben verlinkten Download `0.1.0-preview.4` enthalten.
 
 Ein oder mehrere Bilder lassen sich auf das Programmfenster ziehen. Unterstützt werden `.png`, `.jpg` und `.jpeg`; andere Formate und beschädigte Dateien werden nicht geladen. Bei gemischter Auswahl werden gültige Bilder übernommen und Fehler angezeigt. Während einer Verarbeitung nimmt das Fenster keine weiteren Dateien entgegen.
 
@@ -145,6 +145,19 @@ Die Farberkennung bleibt auf der Originalgröße. Erst die Ausgabe wird ohne Mis
 **Flächen exportieren als** / **Export areas as** bietet **Schwarz**, **Weiß**, **Transparent** und **Gruppenfarbe**. Gruppenfarbe gibt die gesamte ausgewählte Fläche in der erkannten Referenzfarbe ihrer Gruppe aus. Transparent erzeugt stattdessen einen vollständig transparenten Ausschnitt an dieser Stelle. Ähnliche Farbtöne einer Gruppe erhalten dieselbe Referenzfarbe. Die Einstellung gilt für Einzel- und Stapel-Export, wird gespeichert und aktualisiert die Exportvorschau und neu geöffnete Detailansichten direkt. Die Farberkennung und die ausgewählten Exportgruppen bleiben dabei erhalten. Standard bleibt Weiß auf Schwarz. Vorhandene Einstellungen der bisherigen Farbexport-Checkbox werden übernommen.
 
 **Export-Hintergrund** bietet **Schwarz**, **Grau** (`#808080`), **Weiß** oder **Transparent**. Die Einstellung gilt unabhängig von der Flächenauswahl für Vorschau, neue Detailansichten und beide Exportarten; sie wird gespeichert. Transparent bedeutet echte PNG-Transparenz außerhalb der ausgewählten Fläche. Ausgewählte Pixel sind bei Schwarz, Weiß und Gruppenfarbe vollständig deckend; die Flächeneinstellung Transparent setzt sie auf Alpha 0. Beide Auswahlmenüs stehen in getrennten Bereichen. Das Schachbrettraster in der Vorschau dient nur zur Anzeige und wird nicht mitgespeichert. Gleiche Flächen- und Hintergrundfarben sind möglich und können die Fläche unsichtbar machen; Transparent für beide Bereiche erzeugt ein vollständig transparentes PNG.
+
+## Laser / Applikationen
+
+Oben zwischen **Farbauszüge** und **Laser** wechseln. Der Laser-Arbeitsbereich nutzt die Fläche der bisherigen Original- und Exportvorschau; rechts erscheint eine Liste der angelegten Materialseiten.
+
+1. Bilder laden, gegebenenfalls pro Bild **Bildgröße** einstellen und **Farben erkennen** ausführen. Im Bereich **Farbauszüge** pro Bild ausschließlich die auszuschneidenden Farbgruppen anhaken; eine unerwünschte Hintergrundgruppe abwählen.
+2. In **Laser → Laser-Einstellungen** die Arbeitsfläche in Zentimetern und die PNG-Auflösung festlegen. Standard: 30 × 20 cm bei 300 DPI.
+3. Vorhandene Materialien mit optionalem Namen und einer Farbe als `#RRGGBB` zur Liste hinzufügen. Die ausgewählten Bildfarben werden automatisch der ähnlichsten Materialfarbe zugeordnet.
+4. **Anordnen** erstellt die Seiten. Zusammenhängende Materialflächen bilden Teile; nahe Teile werden Bereichen zugeordnet. Die Anordnung hält Quelldateien und deren Bereiche als Gruppen zusammen, übernimmt die individuellen Bildmaße und dreht ausschließlich in Vierteldrehungen. Zwischen den Begrenzungsrechtecken der Teile liegen mindestens **0,5 cm**; Spiegelungen und Überlappungen sind ausgeschlossen.
+5. Jede Materialfarbe erhält eigene Seiten. Reicht eine Seite nicht aus, werden weitere angelegt. Seiten rechts anklicken. **Dateien und Bereiche** zeigt die Zuordnung; **Gruppenrahmen anzeigen** blendet Vorschau-Markierungen ein, die nicht exportiert werden.
+6. **Seite exportieren**, **Alle Seiten exportieren** oder **Kombiniert exportieren** speichert die platzierten Teile mit den üblichen Einstellungen für Flächenfarbe und Hintergrund. Bei Gruppenfarbe wird die zugeordnete Materialfarbe verwendet. Jede Seite ist bereits einfarbig nach Material; der kombinierte Export speichert ihre gemeinsame Maske mit `_merged.png`.
+
+Nach Änderungen an Auswahl, Bildgröße, Materialien oder Arbeitsfläche muss erneut angeordnet werden; veraltete Seiten sind für den Export gesperrt. Die Anordnung verwendet eine Rechteck-Packheuristik mit Gruppierung, keine Garantie auf die weltweit dichteste Belegung. Zu große zusammenhängende Teile werden gemeldet und nicht verkleinert, zerschnitten oder entfernt. Details zu Gruppierung, Abständen und Ausgabe: [Laser-Arbeitsbereich](docs/LASER_WORKSPACE.md).
 
 ## Farbverarbeitung
 

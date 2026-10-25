@@ -5,7 +5,7 @@ using HappyColorSplit.Services;
 
 namespace HappyColorSplit.ViewModels;
 
-public sealed class MainViewModel : ObservableObject, IDisposable
+public sealed partial class MainViewModel : ObservableObject, IDisposable
 {
     private readonly IFileDialogService _dialogs;
     private readonly SettingsService _settingsService;
@@ -52,6 +52,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         RemoveWindowsIntegrationCommand = new(() => UpdateWindowsIntegrationAsync(false), () => IsIdle && CanIntegrateWithWindows);
         OpenLastExportFolderCommand = new(OpenLastExportFolderAsync, () => CanOpenLastExportFolder);
         ResetScaleCommand = new(() => { ApplyScale(new(100, (int)ScaleDpi)); return Task.CompletedTask; }, () => IsIdle && HasImage);
+        Laser = new(this, _settings.Laser);
     }
 
     public Texts Text => new(_settings.Language);
@@ -59,7 +60,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public int LanguageIndex
     {
         get => _settings.Language == "en" ? 1 : 0;
-        set { _settings.Language = value == 1 ? "en" : "de"; Changed(); Changed(nameof(Text)); Changed(nameof(Status)); Changed(nameof(ErrorDetails)); Changed(nameof(ExportOutputHelp)); Changed(nameof(ImageSizeSummary)); SaveSettings(); }
+        set { _settings.Language = value == 1 ? "en" : "de"; Changed(); Changed(nameof(Text)); Changed(nameof(Status)); Changed(nameof(ErrorDetails)); Changed(nameof(ExportOutputHelp)); Changed(nameof(ImageSizeSummary)); Laser.ChangeLanguage(); SaveSettings(); }
     }
     public double Tolerance
     {
@@ -98,7 +99,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         {
             if (!Enum.IsDefined((ExportArea)value) || ExportAreaIndex == value) return;
             _settings.ExportArea = (ExportArea)value; Changed(); Changed(nameof(ExportOutputHelp));
-            RefreshMask(); SaveSettings();
+            RefreshMask(); Laser.RefreshAppearance(); SaveSettings();
         }
     }
     public int ExportBackgroundIndex
@@ -108,7 +109,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         {
             if (!Enum.IsDefined((ExportBackground)value) || ExportBackgroundIndex == value) return;
             _settings.ExportBackground = (ExportBackground)value;
-            Changed(); Changed(nameof(ExportOutputHelp)); RefreshMask(); SaveSettings();
+            Changed(); Changed(nameof(ExportOutputHelp)); RefreshMask(); Laser.RefreshAppearance(); SaveSettings();
         }
     }
     public string ExportOutputHelp => string.Format(Text["ExportAppearanceHelp"],
@@ -171,6 +172,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         {
             sizing.GetSize(SelectedImage.SourceWidth, SelectedImage.SourceHeight);
             SelectedImage.Scale = sizing;
+            Laser.Invalidate();
             RefreshScaleProperties();
             if (_source is not null)
             {
@@ -333,6 +335,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                 using var stream = new MemoryStream(preview.Bytes);
                 var item = new ImageFileViewModel(path, new Bitmap(stream), preview.Width, preview.Height, _settings.DefaultExportDpi, _settings.ScaleUnit);
                 Images.Add(item);
+                Laser.Invalidate();
                 firstAdded ??= item;
             }
             catch (OperationCanceledException) { throw; }
@@ -384,6 +387,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         Set(ref _selectedImage, null, nameof(SelectedImage));
         var oldImages = Images.ToArray();
         Images.Clear();
+        Laser.ClearLayout();
         foreach (var image in oldImages) image.Dispose();
         _source?.Dispose(); _source = null; Original = null;
         _filePath = ""; ClearAnalysis(); SetFailures([]);
@@ -397,6 +401,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         var removed = SelectedImage!;
         int index = Images.IndexOf(removed);
         Images.Remove(removed);
+        Laser.Invalidate();
         Set(ref _selectedImage, Images.Count == 0 ? null : Images[Math.Min(index, Images.Count - 1)], nameof(SelectedImage));
         removed.Dispose();
         await LoadSelectedAsync(token);
@@ -405,6 +410,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     private async Task AnalyzeAsync() => await RunAsync(async token =>
     {
+        Laser.Invalidate();
         var failures = new List<BatchFailure>(); SetFailures([]);
         int completed = 0;
         for (int i = 0; i < Images.Count; i++)
@@ -543,14 +549,21 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     {
         if (args.PropertyName != nameof(ColorGroupViewModel.ExportEnabled)) return;
         if (_updatingColorSelection) return;
-        if (SelectedImage is not null) SelectedImage.ExportColors = Groups.Where(g => g.ExportEnabled).Select(g => g.Hex).ToHashSet();
+        if (SelectedImage is not null)
+        {
+            var colors = Groups.Where(g => g.ExportEnabled).Select(g => g.Hex).ToHashSet();
+            if (SelectedImage.ExportColors is null || !SelectedImage.ExportColors.SetEquals(colors)) Laser.Invalidate();
+            SelectedImage.ExportColors = colors;
+        }
         Changed(nameof(ExportColorCount)); Changed(nameof(HasBatchSelection)); ExportCommand.Refresh(); ExportBatchCommand.Refresh(); ExportCombinedBatchCommand.Refresh();
         if (ShowCombinedPreview) RefreshMask();
         DetailPreviewCommand.Refresh();
+        Laser.RefreshCommands();
     }
 
     private void InvalidateSelections()
     {
+        Laser.Invalidate();
         foreach (var image in Images) { image.ExportColors = null; image.ColorsDetected = false; }
         ClearAnalysis();
     }
@@ -572,6 +585,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         catch (ColorLimitException) { StatusMessage("TooMany"); }
         catch (EmptyImageException) { StatusMessage("Empty"); }
         catch (NoColorsSelectedException) { StatusMessage("NoColors"); }
+        catch (LaserSettingsException) { StatusMessage("LaserInvalidSettings"); }
+        catch (LaserNoPartsException) { StatusMessage("LaserNoParts"); }
+        catch (LaserComplexityException) { StatusMessage("LaserTooComplex"); }
+        catch (LaserPartTooLargeException error) { StatusMessage("LaserPartTooLarge", error.SourceName, error.WidthCm, error.HeightCm); }
         catch (Exception e) { StatusMessage("Error", e.Message); }
         finally { _cancellation = null; IsBusy = false; }
     }
@@ -601,12 +618,14 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         DetailPreviewCommand.Refresh(); SelectAllColorsCommand.Refresh(); DeselectAllColorsCommand.Refresh();
         EnableWindowsIntegrationCommand.Refresh(); RemoveWindowsIntegrationCommand.Refresh();
         ResetScaleCommand.Refresh();
+        Laser.RefreshCommands();
     }
     private void SaveSettings() { if (!_settingsService.Save(_settings)) StatusMessage("SaveError"); }
     public void Cancel() => _cancellation?.Cancel();
     public void Dispose()
     {
         Cancel(); SaveSettings();
+        Laser.Dispose();
         Set(ref _selectedImage, null, nameof(SelectedImage));
         _source?.Dispose(); _source = null; Original = null; Mask = null;
         foreach (var image in Images) image.Dispose();

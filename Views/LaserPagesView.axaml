@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="HappyColorSplit.Views.LaserPagesView">
+  <Grid RowDefinitions="Auto,Auto,*" RowSpacing="12">
+    <Grid ColumnDefinitions="*,Auto">
+      <TextBlock Text="{Binding Text[LaserPages]}" FontWeight="SemiBold" />
+      <TextBlock Grid.Column="1" Text="{Binding Pages.Count}" Foreground="#7DD3FC" />
+    </Grid>
+    <TextBlock Grid.Row="1" Text="{Binding Text[LaserPageHint]}" FontSize="11" Classes="muted" TextWrapping="Wrap" />
+    <ListBox Grid.Row="2" ItemsSource="{Binding Pages}" SelectedItem="{Binding SelectedPage, Mode=TwoWay}" IsEnabled="{Binding IsIdle}" Background="Transparent">
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <StackPanel Spacing="5" Margin="0,5">
+            <Border Background="#10151F" Height="100" CornerRadius="6" ClipToBounds="True">
+              <Viewbox Stretch="Uniform" Margin="4">
+                <Border Width="{Binding Page.Size.Width}" Height="{Binding Page.Size.Height}" Background="{StaticResource TransparencyBackground}">
+                  <Image Source="{Binding Thumbnail}" Stretch="Fill" />
+                </Border>
+              </Viewbox>
+            </Border>
+            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="12" TextTrimming="CharacterEllipsis" />
+            <TextBlock Text="{Binding Info}" FontSize="10" Classes="muted" TextWrapping="Wrap" />
+          </StackPanel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </Grid>
+</UserControl>
