@@ -60,16 +60,30 @@
         </Button.Flyout>
       </Button>
       <Button Content="{Binding Text[LaserArrange]}" Command="{Binding ArrangeCommand}" Background="#89D6FA" Foreground="#0B2333" />
-      <Button Content="{Binding Text[LaserGroups]}" IsEnabled="{Binding HasPages}" FontSize="11" Padding="10,10">
+      <Button Content="{Binding Text[LaserEdit]}" IsEnabled="{Binding HasPages}" FontSize="11" Padding="10,10">
         <Button.Flyout>
-          <Flyout><ScrollViewer MaxHeight="350" Width="320"><TextBlock Text="{Binding SelectedPage.Groups}" TextWrapping="Wrap" FontSize="12" /></ScrollViewer></Flyout>
+          <Flyout>
+            <StackPanel Width="320" Spacing="10">
+              <ComboBox SelectedIndex="{Binding MoveModeIndex, Mode=TwoWay}" IsEnabled="{Binding CanEdit}" HorizontalAlignment="Stretch">
+                <ComboBoxItem Content="{Binding Text[LaserMovePart]}" />
+                <ComboBoxItem Content="{Binding Text[LaserMoveRegion]}" />
+              </ComboBox>
+              <TextBlock Text="{Binding Text[LaserMoveHelp]}" TextWrapping="Wrap" FontSize="12" />
+              <Separator />
+              <TextBlock Text="{Binding Text[LaserGroups]}" FontWeight="SemiBold" />
+              <ScrollViewer MaxHeight="230"><TextBlock Text="{Binding SelectedPage.Groups}" TextWrapping="Wrap" FontSize="12" /></ScrollViewer>
+            </StackPanel>
+          </Flyout>
         </Button.Flyout>
       </Button>
+      <Button Content="{Binding Text[LaserUndoMove]}" Command="{Binding UndoMoveCommand}" FontSize="11" Padding="10,10" />
     </StackPanel>
     <TextBlock Grid.Row="1" Text="{Binding PageInfo}" TextWrapping="Wrap" FontSize="12" Classes="muted" />
     <Border Grid.Row="2" Background="#10151F" CornerRadius="8" ClipToBounds="True">
       <Grid>
         <controls:LaserWorkspaceCanvas Preview="{Binding Preview}" Page="{Binding SelectedPage.Page}"
+                                      CanEdit="{Binding CanEdit}" MoveMode="{Binding MoveModeIndex}" MoveRequested="OnMoveRequested"
+                                      ToolTip.Tip="{Binding Text[LaserMoveHelp]}"
                                       SheetBackground="{StaticResource TransparencyBackground}" IsVisible="{Binding HasPages}"
                                       RenderOptions.BitmapInterpolationMode="None" />
         <TextBlock Text="{Binding Text[LaserIntro]}" IsVisible="{Binding !HasPages}" TextWrapping="Wrap" MaxWidth="350" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Margin="15" />

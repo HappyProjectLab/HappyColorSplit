@@ -17,18 +17,23 @@ public sealed class LaserMaterialViewModel(LaserMaterial material)
 public sealed class LaserPageViewModel(LaserPage page, Bitmap thumbnail, Texts texts) : ObservableObject, IDisposable
 {
     private Texts _texts = texts;
-    public LaserPage Page { get; } = page;
-    public Bitmap Thumbnail { get; } = thumbnail;
+    public LaserPage Page { get; private set; } = page;
+    public Bitmap Thumbnail { get; private set; } = thumbnail;
     public string Title => string.Format(_texts["LaserPageTitle"], Page.Material.Name, Page.MaterialPage);
     public string Info => string.Format(_texts["LaserPageInfo"], Page.Settings.WidthCm, Page.Settings.HeightCm, Page.Placements.Count);
     public string Groups => string.Join(Environment.NewLine, Page.Placements.GroupBy(p => p.Part.SourceIndex).OrderBy(g => g.Key)
         .Select(g => string.Format(_texts["LaserSourceInfo"], g.Key, g.First().Part.SourceName,
             string.Join(", ", g.Select(p => p.Part.Region).Distinct().Order()), g.Count())));
     public void SetTexts(Texts value) { _texts = value; Changed(nameof(Title)); Changed(nameof(Info)); Changed(nameof(Groups)); }
+    public void Update(LaserPage value, Bitmap thumbnail)
+    {
+        var old = Thumbnail; Page = value; Thumbnail = thumbnail;
+        Changed(nameof(Page)); Changed(nameof(Thumbnail)); Changed(nameof(Groups)); Changed(nameof(Info)); old.Dispose();
+    }
     public void Dispose() => Thumbnail.Dispose();
 }
 
-public sealed class LaserWorkspaceViewModel : ObservableObject, IDisposable
+public sealed partial class LaserWorkspaceViewModel : ObservableObject, IDisposable
 {
     private readonly MainViewModel _owner;
     private readonly LaserSettings _settings;
@@ -47,6 +52,7 @@ public sealed class LaserWorkspaceViewModel : ObservableObject, IDisposable
         ExportPageCommand = new(() => owner.RunLaserAsync(token => ExportAsync(token, false, false)), () => CanExport && SelectedPage is not null);
         ExportAllCommand = new(() => owner.RunLaserAsync(token => ExportAsync(token, true, false)), () => CanExport);
         ExportMergedCommand = new(() => owner.RunLaserAsync(token => ExportAsync(token, true, true)), () => CanExport);
+        UndoMoveCommand = new(() => owner.RunLaserAsync(UndoMoveAsync), () => CanEdit && _moves.Count > 0);
     }
     public Texts Text => _owner.Text;
     public bool IsIdle => _owner.IsIdle;
@@ -169,12 +175,13 @@ public sealed class LaserWorkspaceViewModel : ObservableObject, IDisposable
         _owner.SetLaserStatus("Exported", pages.Length, result); _owner.RememberLaserFolder(result);
     }
     public void Invalidate()
-    { _current = false; Changed(nameof(IsCurrent)); Changed(nameof(IsStale)); RefreshCommands(); }
+    { _current = false; _moves.Clear(); Changed(nameof(IsCurrent)); Changed(nameof(IsStale)); RefreshCommands(); }
     public void RefreshAppearance()
     { if (SelectedPage is not null && IsIdle && _owner.IsLaserMode) _ = _owner.RunLaserAsync(UpdatePreviewAsync); }
     public void RefreshCommands()
     {
         Changed(nameof(IsIdle));
+        Changed(nameof(CanEdit)); UndoMoveCommand.Refresh();
         AddMaterialCommand.Refresh(); RemoveMaterialCommand.Refresh(); ArrangeCommand.Refresh();
         ExportPageCommand.Refresh(); ExportAllCommand.Refresh(); ExportMergedCommand.Refresh();
     }
@@ -183,7 +190,7 @@ public sealed class LaserWorkspaceViewModel : ObservableObject, IDisposable
     public void ClearLayout()
     {
         Preview = null; Set(ref _selectedPage, null, nameof(SelectedPage));
-        foreach (var page in Pages) page.Dispose(); Pages.Clear(); _current = false;
+        foreach (var page in Pages) page.Dispose(); Pages.Clear(); _current = false; _moves.Clear();
         Changed(nameof(HasPages)); Changed(nameof(PageInfo)); Changed(nameof(IsCurrent)); Changed(nameof(IsStale)); RefreshCommands();
     }
     public void Dispose()

@@ -63,6 +63,7 @@ public sealed partial class LaserWorkspaceCanvas : Control
         Label(context, "cm", sheet.X - 32, sheet.Y - 23, ink);
         DrawTicks(context, page.Size.Width, page.Settings.Dpi, sheet, true, pen, ink);
         DrawTicks(context, page.Size.Height, page.Settings.Dpi, sheet, false, pen, ink);
+        DrawInteraction(context, sheet, page);
     }
 
     private static void DrawTicks(DrawingContext context, int pixels, int dpi, Rect sheet, bool horizontal, Pen pen, IBrush ink)
