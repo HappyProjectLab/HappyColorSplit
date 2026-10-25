@@ -53,6 +53,8 @@ public sealed partial class LaserWorkspaceViewModel : ObservableObject, IDisposa
         ExportAllCommand = new(() => owner.RunLaserAsync(token => ExportAsync(token, true, false)), () => CanExport);
         ExportMergedCommand = new(() => owner.RunLaserAsync(token => ExportAsync(token, true, true)), () => CanExport);
         UndoMoveCommand = new(() => owner.RunLaserAsync(UndoMoveAsync), () => CanEdit && _moves.Count > 0);
+        RotateClockwiseCommand = new(() => RotateSelectionAsync(1), () => CanRotate);
+        RotateCounterclockwiseCommand = new(() => RotateSelectionAsync(-1), () => CanRotate);
     }
     public Texts Text => _owner.Text;
     public bool IsIdle => _owner.IsIdle;
@@ -183,6 +185,7 @@ public sealed partial class LaserWorkspaceViewModel : ObservableObject, IDisposa
     {
         Changed(nameof(IsIdle));
         Changed(nameof(CanEdit)); UndoMoveCommand.Refresh();
+        RotateClockwiseCommand.Refresh(); RotateCounterclockwiseCommand.Refresh();
         AddMaterialCommand.Refresh(); RemoveMaterialCommand.Refresh(); ArrangeCommand.Refresh();
         ExportPageCommand.Refresh(); ExportAllCommand.Refresh(); ExportMergedCommand.Refresh();
     }

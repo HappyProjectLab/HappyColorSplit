@@ -9,4 +9,6 @@ public partial class LaserWorkspaceView : UserControl
     { if (DataContext is LaserWorkspaceViewModel vm) await vm.MoveSelectionAsync(e.Request); }
     private async void OnLassoRequested(object? sender, LaserLassoEventArgs e)
     { if (DataContext is LaserWorkspaceViewModel vm) await vm.SelectPolygonAsync(e.Request); }
+    private async void OnRotationRequested(object? sender, LaserRotationEventArgs e)
+    { if (DataContext is LaserWorkspaceViewModel vm) await vm.RotateSelectionAsync(e.QuarterTurns); }
 }

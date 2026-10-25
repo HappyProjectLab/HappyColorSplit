@@ -46,16 +46,40 @@ public sealed partial class LaserManualPlacementService
         token.ThrowIfCancellationRequested(); var page = request.Page;
         var selected = SelectMany(page, request.Parts).Select(p => p.Part).ToHashSet();
         if (selected.Count == 0) return new(page, LaserMoveFailure.Selection);
-        if (request.DeltaX == 0 && request.DeltaY == 0) return new(page, LaserMoveFailure.None);
-        int margin = page.Settings.MarginPixels;
-        foreach (var p in page.Placements.Where(p => selected.Contains(p.Part)))
+        int turns = (request.QuarterTurns % 4 + 4) % 4;
+        if (request.DeltaX == 0 && request.DeltaY == 0 && turns == 0) return new(page, LaserMoveFailure.None);
+        var chosen = page.Placements.Where(p => selected.Contains(p.Part)).ToArray();
+        int left = chosen.Min(p => p.X), top = chosen.Min(p => p.Y);
+        int width = chosen.Max(p => p.X + p.Width) - left, height = chosen.Max(p => p.Y + p.Height) - top;
+        // A consistent pixel-grid pivot avoids half-pixel drift after repeated rotations of odd-sized groups.
+        int orientation = chosen[0].Turns;
+        int ox = (orientation % 2 == 0 ? width : height) % 2, oy = (orientation % 2 == 0 ? height : width) % 2;
+        var offset = orientation switch { 0 => (ox, oy), 1 => (-oy, ox), 2 => (-ox, -oy), _ => (oy, -ox) };
+        long pivotX = (2L * left + width + offset.Item1) / 2, pivotY = (2L * top + height + offset.Item2) / 2;
+        var anchor = turns switch
         {
-            long x = (long)p.X + request.DeltaX, y = (long)p.Y + request.DeltaY;
-            if (x < margin || y < margin || x + p.Width > page.Size.Width - margin || y + p.Height > page.Size.Height - margin)
+            0 => ((long)left, (long)top), 1 => (pivotX + pivotY - top - height, pivotY + left - pivotX),
+            2 => (2 * pivotX - left - width, 2 * pivotY - top - height),
+            _ => (pivotX + top - pivotY, pivotY + pivotX - left - width)
+        };
+        long anchorX = anchor.Item1 + request.DeltaX, anchorY = anchor.Item2 + request.DeltaY;
+        int margin = page.Settings.MarginPixels;
+        var transformed = new Dictionary<LaserPart, LaserPlacement>();
+        foreach (var p in chosen)
+        {
+            int rx = p.X - left, ry = p.Y - top;
+            var (dx, dy) = turns switch
+            {
+                0 => (rx, ry), 1 => (height - ry - p.Height, rx),
+                2 => (width - rx - p.Width, height - ry - p.Height), _ => (ry, width - rx - p.Width)
+            };
+            int w = turns % 2 == 0 ? p.Width : p.Height, h = turns % 2 == 0 ? p.Height : p.Width;
+            long x = anchorX + dx, y = anchorY + dy;
+            if (x < margin || y < margin || x + w > page.Size.Width - margin || y + h > page.Size.Height - margin)
                 return new(page, LaserMoveFailure.Edge);
+            transformed.Add(p.Part, p with { X = (int)x, Y = (int)y, Turns = (p.Turns + turns) % 4 });
         }
-        var moved = page.Placements.Select(p => selected.Contains(p.Part)
-            ? p with { X = p.X + request.DeltaX, Y = p.Y + request.DeltaY } : p).ToArray();
+        var moved = page.Placements.Select(p => transformed.GetValueOrDefault(p.Part, p)).ToArray();
         if (selected.Count == page.Placements.Count) return new(page with { Placements = moved }, LaserMoveFailure.None);
         for (int i = 0; i < moved.Length; i++)
         {

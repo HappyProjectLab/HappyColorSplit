@@ -11,6 +11,8 @@ public sealed class LaserMoveEventArgs(LaserTransformRequest request) : EventArg
 { public LaserTransformRequest Request { get; } = request; }
 public sealed class LaserLassoEventArgs(LaserLassoRequest request) : EventArgs
 { public LaserLassoRequest Request { get; } = request; }
+public sealed class LaserRotationEventArgs(int quarterTurns) : EventArgs
+{ public int QuarterTurns { get; } = quarterTurns; }
 
 public sealed partial class LaserWorkspaceCanvas
 {
@@ -20,6 +22,7 @@ public sealed partial class LaserWorkspaceCanvas
     public LaserSelection? Selection { get => GetValue(SelectionProperty); set => SetValue(SelectionProperty, value); }
     public event EventHandler<LaserMoveEventArgs>? MoveRequested;
     public event EventHandler<LaserLassoEventArgs>? LassoRequested;
+    public event EventHandler<LaserRotationEventArgs>? RotationRequested;
     private static readonly Cursor DragCursor = new(StandardCursorType.SizeAll);
     private static readonly Cursor LassoCursor = new(StandardCursorType.Cross);
     private readonly LaserManualPlacementService _editor = new();
@@ -56,7 +59,7 @@ public sealed partial class LaserWorkspaceCanvas
         if (right && hit is null) return;
         if (!_lasso)
         {
-            if (right || !_selected.Any(p => p.Part == hit!.Part))
+            if (right || Selection?.IsMultiSelection != true || !_selected.Any(p => p.Part == hit!.Part))
             {
                 var parts = _editor.Select(page, hit!.Part.SourceIndex, hit.Part.Id, right);
                 SetCurrentValue(SelectionProperty, new LaserSelection(page, Keys(parts)));
@@ -122,6 +125,11 @@ public sealed partial class LaserWorkspaceCanvas
         {
             if (_pointer is not null) EndGesture(); else SetCurrentValue(SelectionProperty, null);
             e.Handled = true;
+        }
+        else if (e.Key == Key.R && _pointer is null && CanEdit && _selected.Count > 0
+            && !e.KeyModifiers.HasFlag(KeyModifiers.Control) && !e.KeyModifiers.HasFlag(KeyModifiers.Alt))
+        {
+            RotationRequested?.Invoke(this, new(e.KeyModifiers.HasFlag(KeyModifiers.Shift) ? -1 : 1)); e.Handled = true;
         }
     }
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)

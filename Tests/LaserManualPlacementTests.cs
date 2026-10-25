@@ -150,6 +150,12 @@ internal static class LaserManualPlacementTests
             check(group.Placements.Where(p => p.Part.Region == part.Part.Region).All(p => p.X == original.Placements.Single(q => q.Part == p.Part).X + 30)
                 && group.Placements.Where(p => p.Part.Region != part.Part.Region).All(p => p == original.Placements.Single(q => q.Part == p.Part)),
                 "The right mouse button moves the source region on this page and leaves other regions in place");
+            var groupPart = group.Placements.Single(p => p.Part.Id == 1);
+            Drag(window, canvas, groupPart, 5, 0); pump(() => !vm.IsBusy);
+            check(laser.SelectedPage.Page.Placements.Single(p => p.Part.Id == 1).X == groupPart.X + 5
+                && laser.SelectedPage.Page.Placements.Single(p => p.Part.Id == 2) == group.Placements.Single(p => p.Part.Id == 2),
+                "A left drag after a right-button group selection returns to individual-part movement");
+            laser.UndoMoveCommand.Execute(null); pump(() => !vm.IsBusy);
             var selectedRegion = laser.Selection;
             Lasso(window, canvas, [new(.1, .1), new(70, .1), new(70, 50), new(.1, 50), new(.1, .1)], escape: true); pump(() => !vm.IsBusy);
             check(ReferenceEquals(laser.Selection, selectedRegion) && ReferenceEquals(laser.SelectedPage.Page, group),
@@ -164,8 +170,29 @@ internal static class LaserManualPlacementTests
                 "Dragging an already selected part moves the entire persistent multi-selection and keeps it selected");
             laser.UndoMoveCommand.Execute(null); pump(() => !vm.IsBusy);
             check(ReferenceEquals(laser.SelectedPage.Page, group), "Undo restores the page after a multi-selection move");
+            var rotate = window.GetVisualDescendants().OfType<Button>().Single(b => Equals(b.Content, "↻"));
+            check(rotate.Command == laser.RotateClockwiseCommand && rotate.Command.CanExecute(null), "The visible rotation button operates on the persistent selection");
+            rotate.Command!.Execute(null); pump(() => !vm.IsBusy);
+            check(ReferenceEquals(laser.SelectedPage.Page, group) && vm.Status == vm.Text["LaserMoveEdge"],
+                "A group rotation that would cross the sheet margin is rejected without altering the page");
+            var prepare = laser.MoveSelectionAsync(new(group, laser.Selection!.Parts, 0, 15)); pump(() => prepare.IsCompleted);
+            var prepared = laser.SelectedPage.Page;
+            rotate.Command.Execute(null); pump(() => !vm.IsBusy);
+            var rotated = laser.SelectedPage.Page;
+            check(!ReferenceEquals(rotated, prepared) && rotated.Placements.All(p => p.Turns == (prepared.Placements.Single(q => q.Part == p.Part).Turns + 1) % 4)
+                && laser.Selection?.Parts.Count == 3, "The rotation button rotates all lasso-selected parts and keeps the selection");
+            laser.ExportAllCommand.Execute(null); pump(() => !vm.IsBusy);
+            using (var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(vm.LastExportFolder, "Laser_Layout.json"))))
+                check(manifest.RootElement[0].GetProperty("Elements").EnumerateArray().All(element =>
+                    element.GetProperty("RotationDegrees").GetInt32() == rotated.Placements.Single(p => p.Part.Id == element.GetProperty("Part").GetInt32()).Turns * 90),
+                    "Export records the manually rotated selection's actual orientations");
+            window.KeyPress(Key.R, RawInputModifiers.Shift, PhysicalKey.R, null); pump(() => !vm.IsBusy);
+            check(laser.SelectedPage.Page.Placements.SequenceEqual(prepared.Placements), "Shift + R rotates the selection back counterclockwise through real keyboard input");
+            for (int i = 0; i < 3; i++) { laser.UndoMoveCommand.Execute(null); pump(() => !vm.IsBusy); }
+            check(ReferenceEquals(laser.SelectedPage.Page, group), "Undo restores rotation and preparatory movement in the correct order");
             window.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.Escape, null); Dispatcher.UIThread.RunJobs();
             check(laser.Selection is null && canvas.Selection is null, "Escape when idle clears the persistent selection");
+            check(!laser.RotateClockwiseCommand.CanExecute(null), "Rotation is disabled without selected parts");
             var stale = laser.MoveAsync(new(original, part.Part.SourceIndex, part.Part.Id, false, 0, 5)); pump(() => stale.IsCompleted);
             check(ReferenceEquals(laser.SelectedPage.Page, group), "A delayed mouse request for an obsolete page cannot overwrite a newer edit");
             laser.MarginCm = .2m; Dispatcher.UIThread.RunJobs();

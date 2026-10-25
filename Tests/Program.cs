@@ -280,6 +280,7 @@ try
     LaserMarginPreviewTests.Run(Check);
     LaserManualPlacementTests.Run(root, Check, Pump);
     LaserSelectionRegressionTests.Run(Check);
+    LaserRotationRegressionTests.Run(Check);
     if (args.Contains("--capture-baseline") || args.Contains("--verify-baseline"))
     {
         string importDirectory = Path.GetFullPath(Path.Combine("..", "Import"));
