@@ -28,11 +28,13 @@ public sealed class LaserExportService
             var manifest = pages.Select(page => new
             {
                 Page = page.Index, page.MaterialPage, Material = page.Material.Name, page.Material.Hex,
-                page.Settings.WidthCm, page.Settings.HeightCm, page.Settings.Dpi, MinimumGapCm = LaserSettings.GapCm,
+                page.Settings.WidthCm, page.Settings.HeightCm, page.Settings.Dpi,
+                page.Settings.MarginCm, page.Settings.CavityGapCm, page.Settings.ElementGapCm,
+                MinimumGapCm = Math.Min(page.Settings.CavityGapCm, page.Settings.ElementGapCm),
                 PixelWidth = page.Size.Width, PixelHeight = page.Size.Height,
                 Elements = page.Placements.Select(p => new
                 {
-                    File = p.Part.SourceName, Source = p.Part.SourceIndex, p.SourceChunk, p.Part.Region, Part = p.Part.Id,
+                    File = p.Part.SourceName, Source = p.Part.SourceIndex, p.SourceChunk, p.Part.Region, Part = p.Part.Id, p.NestedInPartId,
                     XCm = p.X * 2.54m / page.Settings.Dpi, YCm = p.Y * 2.54m / page.Settings.Dpi,
                     WidthCm = p.Width * 2.54m / page.Settings.Dpi, HeightCm = p.Height * 2.54m / page.Settings.Dpi,
                     RotationDegrees = p.Turns * 90

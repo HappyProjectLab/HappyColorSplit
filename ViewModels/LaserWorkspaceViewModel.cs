@@ -58,6 +58,9 @@ public sealed class LaserWorkspaceViewModel : ObservableObject, IDisposable
     private bool CanExport => IsIdle && IsCurrent && HasPages;
     public decimal WidthCm { get => _settings.WidthCm; set => ChangeSettings(() => _settings.WidthCm = value); }
     public decimal HeightCm { get => _settings.HeightCm; set => ChangeSettings(() => _settings.HeightCm = value); }
+    public decimal MarginCm { get => _settings.MarginCm; set => ChangeSettings(() => _settings.MarginCm = value); }
+    public decimal CavityGapCm { get => _settings.CavityGapCm; set => ChangeSettings(() => _settings.CavityGapCm = value); }
+    public decimal ElementGapCm { get => _settings.ElementGapCm; set => ChangeSettings(() => _settings.ElementGapCm = value); }
     public decimal Dpi
     {
         get => _settings.Dpi;
@@ -96,15 +99,16 @@ public sealed class LaserWorkspaceViewModel : ObservableObject, IDisposable
     private void ChangeSettings(Action change)
     {
         if (!IsIdle) return;
-        var old = (_settings.WidthCm, _settings.HeightCm, _settings.Dpi);
+        var old = (_settings.WidthCm, _settings.HeightCm, _settings.Dpi, _settings.MarginCm, _settings.CavityGapCm, _settings.ElementGapCm);
         try
         {
             change(); _settings.GetSize();
-            if (old != (_settings.WidthCm, _settings.HeightCm, _settings.Dpi)) { Invalidate(); _owner.SaveLaserSettings(); }
+            if (old != (_settings.WidthCm, _settings.HeightCm, _settings.Dpi, _settings.MarginCm, _settings.CavityGapCm, _settings.ElementGapCm)) { Invalidate(); _owner.SaveLaserSettings(); }
         }
         catch (LaserSettingsException)
-        { (_settings.WidthCm, _settings.HeightCm, _settings.Dpi) = old; _owner.SetLaserStatus("LaserInvalidSettings"); }
+        { (_settings.WidthCm, _settings.HeightCm, _settings.Dpi, _settings.MarginCm, _settings.CavityGapCm, _settings.ElementGapCm) = old; _owner.SetLaserStatus("LaserInvalidSettings"); }
         Changed(nameof(WidthCm)); Changed(nameof(HeightCm)); Changed(nameof(Dpi));
+        Changed(nameof(MarginCm)); Changed(nameof(CavityGapCm)); Changed(nameof(ElementGapCm));
     }
     private Task AddMaterialAsync()
     {

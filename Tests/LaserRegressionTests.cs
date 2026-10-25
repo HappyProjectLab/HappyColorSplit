@@ -142,6 +142,9 @@ internal static class LaserRegressionTests
         Validate(new(laser.Pages.Select(p => p.Page).ToArray(), 4), 4, check);
         laser.ExportAllCommand.Execute(null); pump(() => !vm.IsBusy);
         check(Directory.GetFiles(vm.LastExportFolder, "*.png").Length == 2 && vm.LastExportFolder.Contains("HappyColorSplit_Laser_"), "Usual export-folder command tracks the generated laser export");
+        laser.CavityGapCm = .4m;
+        check(laser.IsStale && !laser.ExportAllCommand.CanExecute(null), "Changing a laser clearance invalidates geometry and disables stale exports");
+        laser.CavityGapCm = .5m; laser.ArrangeCommand.Execute(null); pump(() => !vm.IsBusy);
         laser.SelectedPage = laser.Pages[1]; pump(() => !vm.IsBusy);
         Dispatcher.UIThread.RunJobs();
         check(rulerCanvas.Page == laser.Pages[1].Page && ReferenceEquals(rulerCanvas.Preview, laser.Preview),
@@ -201,7 +204,7 @@ internal static class LaserRegressionTests
         check(placements.Length == count && placements.Select(p => (p.Part.SourceIndex, p.Part.Id)).Distinct().Count() == count, "Packing retains each source part exactly once");
         foreach (var page in layout.Pages)
         {
-            int gap = (int)decimal.Ceiling(LaserSettings.GapCm * page.Settings.Dpi / 2.54m);
+            int gap = page.Settings.ElementGapPixels;
             check(page.Placements.Select(p => p.Part.MaterialIndex).Distinct().Count() == 1, "Each page contains only one material color");
             foreach (var p in page.Placements)
                 check(p.X >= 0 && p.Y >= 0 && p.X + p.Width <= page.Size.Width && p.Y + p.Height <= page.Size.Height && p.Turns is >= 0 and <= 3,

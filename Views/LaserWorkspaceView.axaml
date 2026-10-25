@@ -23,6 +23,15 @@
                     <NumericUpDown Value="{Binding Dpi, Mode=TwoWay}" Minimum="1" Maximum="2400" FormatString="0" ShowButtonSpinner="False" MinWidth="0" />
                   </StackPanel>
                 </Grid>
+                <TextBlock Text="{Binding Text[LaserDistances]}" FontWeight="SemiBold" />
+                <Grid ColumnDefinitions="*,100" RowDefinitions="Auto,Auto,Auto" RowSpacing="6" ColumnSpacing="8">
+                  <TextBlock Text="{Binding Text[LaserMargin]}" VerticalAlignment="Center" />
+                  <NumericUpDown Grid.Column="1" Value="{Binding MarginCm, Mode=TwoWay}" Minimum="0" Maximum="500" Increment="0.1" FormatString="0.##" ShowButtonSpinner="False" MinWidth="0" />
+                  <TextBlock Grid.Row="1" Text="{Binding Text[LaserCavityGap]}" VerticalAlignment="Center" />
+                  <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding CavityGapCm, Mode=TwoWay}" Minimum="0" Maximum="500" Increment="0.1" FormatString="0.##" ShowButtonSpinner="False" MinWidth="0" />
+                  <TextBlock Grid.Row="2" Text="{Binding Text[LaserElementGap]}" VerticalAlignment="Center" />
+                  <NumericUpDown Grid.Row="2" Grid.Column="1" Value="{Binding ElementGapCm, Mode=TwoWay}" Minimum="0" Maximum="500" Increment="0.1" FormatString="0.##" ShowButtonSpinner="False" MinWidth="0" />
+                </Grid>
                 <TextBlock Text="{Binding Text[LaserSpacing]}" Foreground="#7DD3FC" FontSize="11" TextWrapping="Wrap" />
                 <TextBlock Text="{Binding Text[LaserMaterials]}" FontWeight="SemiBold" />
                 <TextBox Text="{Binding MaterialName, Mode=TwoWay}" PlaceholderText="{Binding Text[LaserMaterialName]}" MaxLength="80" />

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace HappyColorSplit.Models;
 
 public sealed record LaserMaterial(string Name, string Hex)
@@ -18,16 +20,25 @@ public sealed class LaserSettings
     public decimal HeightCm { get; set; } = 20;
     public int Dpi { get; set; } = 300;
     public List<LaserMaterial> Materials { get; set; } = [];
-    public const decimal GapCm = 0.5m;
+    public decimal MarginCm { get; set; }
+    public decimal CavityGapCm { get; set; } = 0.5m;
+    public decimal ElementGapCm { get; set; } = 0.5m;
+    public const decimal RegionDistanceCm = 0.5m;
+    [JsonIgnore] public int MarginPixels => ToPixels(MarginCm);
+    [JsonIgnore] public int CavityGapPixels => ToPixels(CavityGapCm);
+    [JsonIgnore] public int ElementGapPixels => ToPixels(ElementGapCm);
+    private int ToPixels(decimal cm) => (int)decimal.Ceiling(cm * Dpi / 2.54m);
 
     public ImageDimensions GetSize()
     {
-        if (WidthCm is <= 0 or > 500 || HeightCm is <= 0 or > 500 || Dpi is < 1 or > 2400) throw new LaserSettingsException();
+        if (WidthCm is <= 0 or > 500 || HeightCm is <= 0 or > 500 || Dpi is < 1 or > 2400
+            || MarginCm is < 0 or > 500 || CavityGapCm is < 0 or > 500 || ElementGapCm is < 0 or > 500) throw new LaserSettingsException();
         decimal w = decimal.Floor(WidthCm * Dpi / 2.54m), h = decimal.Floor(HeightCm * Dpi / 2.54m);
-        if (w < 1 || h < 1 || w * h > ImageScale.MaxPixels) throw new LaserSettingsException();
+        if (w < 1 || h < 1 || w * h > ImageScale.MaxPixels || 2L * MarginPixels >= w || 2L * MarginPixels >= h) throw new LaserSettingsException();
         return new((int)w, (int)h);
     }
-    public LaserSettings Snapshot() => new() { WidthCm = WidthCm, HeightCm = HeightCm, Dpi = Dpi, Materials = Materials.ToList() };
+    public LaserSettings Snapshot() => new() { WidthCm = WidthCm, HeightCm = HeightCm, Dpi = Dpi,
+        MarginCm = MarginCm, CavityGapCm = CavityGapCm, ElementGapCm = ElementGapCm, Materials = Materials.ToList() };
 }
 
 public sealed record LaserSource(int Index, string FilePath, ImageScale Scale, IReadOnlySet<string> Colors);
@@ -49,7 +60,7 @@ public sealed class LaserPart(int id, int sourceIndex, string sourceName, int ma
     public int Region { get; set; }
 }
 
-public sealed record LaserPlacement(LaserPart Part, int X, int Y, int Turns, int SourceChunk = 0)
+public sealed record LaserPlacement(LaserPart Part, int X, int Y, int Turns, int SourceChunk = 0, int? NestedInPartId = null)
 {
     public int Width => Turns % 2 == 0 ? Part.Width : Part.Height;
     public int Height => Turns % 2 == 0 ? Part.Height : Part.Width;

@@ -84,7 +84,7 @@ public sealed class LaserExtractionService
         for (int i = 0; i < parts.Count; i++)
         {
             token.ThrowIfCancellationRequested();
-            double gap = (double)LaserSettings.GapCm * parts[i].NativeDpi / 2.54;
+            double gap = (double)LaserSettings.RegionDistanceCm * parts[i].NativeDpi / 2.54;
             for (int j = 0; j < i; j++)
             {
                 var a = parts[i].NativeBounds; var b = parts[j].NativeBounds;

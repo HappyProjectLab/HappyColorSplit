@@ -94,7 +94,7 @@ internal static class LaserNestingRegressionTests
             "Nesting neither drops nor duplicates parts");
         foreach (var page in layout.Pages)
         {
-            int gap = (int)decimal.Ceiling(LaserSettings.GapCm * page.Settings.Dpi / 2.54m);
+            int gap = Math.Min(page.Settings.CavityGapPixels, page.Settings.ElementGapPixels);
             var masks = new List<List<LaserRun>>();
             foreach (var placement in page.Placements)
             {

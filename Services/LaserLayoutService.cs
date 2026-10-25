@@ -32,12 +32,13 @@ public sealed class LaserLayoutService
 
     public LaserLayout Pack(IReadOnlyList<LaserPart> parts, LaserSettings settings, IProgress<int>? progress, CancellationToken token)
     {
-        var size = settings.GetSize();
+        var fullSize = settings.GetSize(); int margin = settings.MarginPixels;
+        var size = new ImageDimensions(fullSize.Width - 2 * margin, fullSize.Height - 2 * margin);
         if (parts.Count == 0) throw new LaserNoPartsException();
         if (settings.Materials.Count == 0 || settings.Materials.Any(m => !LaserMaterial.TryRgb(m.Hex, out _))
             || parts.Any(p => p.MaterialIndex < 0 || p.MaterialIndex >= settings.Materials.Count)) throw new LaserSettingsException();
         if (parts.Count > LaserExtractionService.MaxParts) throw new LaserComplexityException();
-        int gap = (int)decimal.Ceiling(LaserSettings.GapCm * settings.Dpi / 2.54m);
+        int gap = settings.ElementGapPixels;
         foreach (var part in parts)
         {
             if (!Fits(part.Width, part.Height, size.Width, size.Height))
@@ -63,7 +64,7 @@ public sealed class LaserLayoutService
                 }
                 var sourceBins = Place(regions.Select(b => (b, b.Width, b.Height)), size, gap, token)
                     .Select(bin => bin.Items.SelectMany(s => Transform(s.Item, s.X, s.Y, s.Rotated)).ToList()).ToList();
-                new LaserCavityNesting(gap, token).Compact(sourceBins);
+                new LaserCavityNesting(settings.CavityGapPixels, gap, token).Compact(sourceBins);
                 foreach (var positions in sourceBins.Where(bin => bin.Count > 0))
                 {
                     int chunk = ++chunkId;
@@ -73,8 +74,8 @@ public sealed class LaserLayoutService
             var pageBins = Place(sourceBlocks.Select(b => (b, b.Width, b.Height)), size, gap, token);
             for (int i = 0; i < pageBins.Count; i++)
             {
-                var positions = pageBins[i].Items.SelectMany(s => Transform(s.Item, s.X, s.Y, s.Rotated)).ToArray();
-                pages.Add(new(pages.Count + 1, i + 1, settings.Materials[material], settings.Snapshot(), size, positions));
+                var positions = pageBins[i].Items.SelectMany(s => Transform(s.Item, s.X + margin, s.Y + margin, s.Rotated)).ToArray();
+                pages.Add(new(pages.Count + 1, i + 1, settings.Materials[material], settings.Snapshot(), fullSize, positions));
                 if (pages.Count > MaxPages) throw new LaserComplexityException();
             }
             progress?.Report(60 + (material + 1) * 40 / settings.Materials.Count);

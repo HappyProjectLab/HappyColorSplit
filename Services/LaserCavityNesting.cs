@@ -5,7 +5,7 @@ namespace HappyColorSplit.Services;
 // A conservative raster search supplements the rectangular packer inside each source-file block.
 // Entire cells touched by material, plus a rounded-up square clearance, are reserved. A candidate's
 // whole rectangle must fit in the remaining cells, so even diagonal contours retain the minimum gap.
-internal sealed class LaserCavityNesting(int gap, CancellationToken token)
+internal sealed class LaserCavityNesting(int cavityGap, int elementGap, CancellationToken token)
 {
     private long _searchBudget = 8_000_000;
     private readonly HashSet<LaserPart> _moved = [];
@@ -19,7 +19,7 @@ internal sealed class LaserCavityNesting(int gap, CancellationToken token)
             {
                 token.ThrowIfCancellationRequested();
                 if (_searchBudget <= 0) return;
-                if (_moved.Contains(host.Part) || host.Width <= 2L * gap || host.Height <= 2L * gap
+                if (_moved.Contains(host.Part) || host.Width <= 2L * cavityGap || host.Height <= 2L * cavityGap
                     || host.Part.Runs.Sum(r => (long)r.Length) == (long)host.Part.NativeBounds.Width * host.Part.NativeBounds.Height) continue;
                 var candidates = bins.SelectMany((bin, index) => index < target ? [] : bin.Select(p => (Placement: p, Bin: index)))
                     .Where(c => c.Placement.Part != host.Part && !_moved.Contains(c.Placement.Part)
@@ -29,7 +29,7 @@ internal sealed class LaserCavityNesting(int gap, CancellationToken token)
                     .ThenByDescending(c => c.Bin).ThenByDescending(c => (long)c.Placement.Width * c.Placement.Height)
                     .ThenBy(c => c.Placement.Part.Id).ToArray();
                 if (candidates.Length == 0) continue;
-                var grid = new ClearanceGrid(host, gap, token);
+                var grid = new ClearanceGrid(host, cavityGap, elementGap, token);
                 foreach (var placed in bins[target]) grid.Reserve(placed);
                 grid.Inflate();
                 foreach (var candidate in candidates)
@@ -54,22 +54,28 @@ internal sealed class LaserCavityNesting(int gap, CancellationToken token)
         private readonly LaserPlacement _host;
         private readonly CancellationToken _token;
         private readonly int _step, _halo, _width, _height, _originX, _originY;
-        private readonly bool[] _material;
+        private readonly int _cavityRadius, _elementRadius;
+        private readonly bool[] _material, _hostMaterial;
         private readonly int[] _prefix;
-        public ClearanceGrid(LaserPlacement host, int gap, CancellationToken token)
+        public ClearanceGrid(LaserPlacement host, int cavityGap, int elementGap, CancellationToken token)
         {
             _host = host; _token = token;
-            _step = Math.Max(1, (Math.Max(host.Width, host.Height) + 511) / 512);
-            _halo = (gap + _step - 1) / _step;
+            int largestGap = Math.Max(cavityGap, elementGap);
+            _step = Math.Max(1, Math.Max((Math.Max(host.Width, host.Height) + 511) / 512, (largestGap + 255) / 256));
+            _cavityRadius = (cavityGap + _step - 1) / _step;
+            _elementRadius = (elementGap + _step - 1) / _step;
+            _halo = Math.Max(_cavityRadius, _elementRadius);
             _originX = host.X - _halo * _step; _originY = host.Y - _halo * _step;
             _width = (host.Width + _step - 1) / _step + 2 * _halo;
             _height = (host.Height + _step - 1) / _step + 2 * _halo;
-            _material = new bool[_width * _height]; _prefix = new int[(_width + 1) * (_height + 1)];
+            _material = new bool[_width * _height]; _hostMaterial = new bool[_width * _height];
+            _prefix = new int[(_width + 1) * (_height + 1)];
         }
 
         public void Reserve(LaserPlacement placement)
         {
             var part = placement.Part;
+            var mask = part == _host.Part ? _hostMaterial : _material;
             if (placement.X + placement.Width <= _originX || placement.Y + placement.Height <= _originY
                 || placement.X >= _originX + _width * _step || placement.Y >= _originY + _height * _step) return;
             foreach (var run in part.Runs)
@@ -90,22 +96,28 @@ internal sealed class LaserCavityNesting(int gap, CancellationToken token)
                 int rightCell = Math.Min(_width - 1, Floor(rect.X + placement.X + rect.Width - 1 - _originX, _step));
                 int bottomCell = Math.Min(_height - 1, Floor(rect.Y + placement.Y + rect.Height - 1 - _originY, _step));
                 for (int cy = topCell; cy <= bottomCell; cy++)
-                    for (int cx = leftCell; cx <= rightCell; cx++) _material[cy * _width + cx] = true;
+                    for (int cx = leftCell; cx <= rightCell; cx++) mask[cy * _width + cx] = true;
             }
         }
 
         public void Inflate()
         {
             // Summed-area tables avoid a per-pixel loop over the potentially large clearance radius.
-            BuildPrefix((x, y) => _material[y * _width + x]);
             var blocked = new bool[_material.Length];
+            AddClearance(_hostMaterial, _cavityRadius, blocked);
+            AddClearance(_material, _elementRadius, blocked);
+            BuildPrefix((x, y) => blocked[y * _width + x]);
+        }
+
+        private void AddClearance(bool[] material, int radius, bool[] blocked)
+        {
+            BuildPrefix((x, y) => material[y * _width + x]);
             for (int y = 0; y < _height; y++)
             {
                 _token.ThrowIfCancellationRequested();
-                for (int x = 0; x < _width; x++) blocked[y * _width + x] = Sum(Math.Max(0, x - _halo), Math.Max(0, y - _halo),
-                    Math.Min(_width, x + _halo + 1), Math.Min(_height, y + _halo + 1)) > 0;
+                for (int x = 0; x < _width; x++) blocked[y * _width + x] |= Sum(Math.Max(0, x - radius), Math.Max(0, y - radius),
+                    Math.Min(_width, x + radius + 1), Math.Min(_height, y + radius + 1)) > 0;
             }
-            BuildPrefix((x, y) => blocked[y * _width + x]);
         }
 
         public bool Find(LaserPlacement candidate, ref long budget, out LaserPlacement nested)
@@ -123,7 +135,7 @@ internal sealed class LaserCavityNesting(int gap, CancellationToken token)
                     {
                         if (--budget < 0) { nested = candidate; return false; }
                         if (Sum(x + _halo, y + _halo, x + _halo + cellsW, y + _halo + cellsH) != 0) continue;
-                        nested = candidate with { X = _host.X + x * _step, Y = _host.Y + y * _step, Turns = turns };
+                        nested = candidate with { X = _host.X + x * _step, Y = _host.Y + y * _step, Turns = turns, NestedInPartId = _host.Part.Id };
                         return true;
                     }
                 }
