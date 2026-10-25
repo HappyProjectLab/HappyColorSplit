@@ -135,10 +135,17 @@ internal static class LaserRegressionTests
         check(arrange.Command == laser.ArrangeCommand, "Laser workspace controls bind to their own view model");
         arrange.Command!.Execute(null); pump(() => !vm.IsBusy);
         check(laser.IsCurrent && laser.Pages.Count == 2 && laser.Preview is not null && laser.ExportAllCommand.CanExecute(null), "Arrangement creates separate pages per material and enables laser exports");
+        Dispatcher.UIThread.RunJobs();
+        var rulerCanvas = window.GetVisualDescendants().OfType<HappyColorSplit.Controls.LaserWorkspaceCanvas>().Single();
+        check(rulerCanvas.Page == laser.SelectedPage!.Page && ReferenceEquals(rulerCanvas.Preview, laser.Preview),
+            "Real workspace rulers and preview bind to the selected material page");
         Validate(new(laser.Pages.Select(p => p.Page).ToArray(), 4), 4, check);
         laser.ExportAllCommand.Execute(null); pump(() => !vm.IsBusy);
         check(Directory.GetFiles(vm.LastExportFolder, "*.png").Length == 2 && vm.LastExportFolder.Contains("HappyColorSplit_Laser_"), "Usual export-folder command tracks the generated laser export");
         laser.SelectedPage = laser.Pages[1]; pump(() => !vm.IsBusy);
+        Dispatcher.UIThread.RunJobs();
+        check(rulerCanvas.Page == laser.Pages[1].Page && ReferenceEquals(rulerCanvas.Preview, laser.Preview),
+            "Changing the selected laser page updates the ruler's dimensions and bitmap together");
         laser.ExportPageCommand.Execute(null); pump(() => !vm.IsBusy);
         check(Directory.GetFiles(vm.LastExportFolder, "*.png").Length == 1, "Export page writes only the selected material page");
         laser.ExportMergedCommand.Execute(null); pump(() => !vm.IsBusy);
@@ -159,6 +166,9 @@ internal static class LaserRegressionTests
         check(laser.WidthCm == savedWidth, "Oversized sheet settings retain the last valid workspace");
         vm.LanguageIndex = 0; Dispatcher.UIThread.RunJobs();
         check(window.GetVisualDescendants().OfType<Button>().Any(b => Equals(b.Content, "Anordnen")), "Laser mode supports German and English labels");
+        check(laser.PageInfo.Contains("Seite"), "The selected laser page caption changes to German together with the page list");
+        vm.LanguageIndex = 1;
+        check(laser.PageInfo.Contains("Page ") && laser.PageInfo.Contains("Parts:"), "The selected laser page caption changes back to English without reselection");
         vm.ClearImagesCommand.Execute(null);
         check(!laser.HasPages && laser.Preview is null && !laser.ExportAllCommand.CanExecute(null), "Clearing imported images also clears the old laser workspace");
         window.Close();

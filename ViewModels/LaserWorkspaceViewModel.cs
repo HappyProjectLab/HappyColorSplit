@@ -175,7 +175,7 @@ public sealed class LaserWorkspaceViewModel : ObservableObject, IDisposable
         ExportPageCommand.Refresh(); ExportAllCommand.Refresh(); ExportMergedCommand.Refresh();
     }
     public void ChangeLanguage()
-    { Changed(nameof(Text)); Changed(nameof(PageInfo)); foreach (var page in Pages) page.SetTexts(Text); }
+    { Changed(nameof(Text)); foreach (var page in Pages) page.SetTexts(Text); Changed(nameof(PageInfo)); }
     public void ClearLayout()
     {
         Preview = null; Set(ref _selectedPage, null, nameof(SelectedPage));

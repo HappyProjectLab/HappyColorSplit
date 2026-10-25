@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:HappyColorSplit.Controls"
              x:Class="HappyColorSplit.Views.LaserWorkspaceView">
   <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="12">
     <StackPanel Orientation="Horizontal" Spacing="8">
@@ -59,11 +60,9 @@
     <TextBlock Grid.Row="1" Text="{Binding PageInfo}" TextWrapping="Wrap" FontSize="12" Classes="muted" />
     <Border Grid.Row="2" Background="#10151F" CornerRadius="8" ClipToBounds="True">
       <Grid>
-        <Viewbox Stretch="Uniform" Margin="8" IsVisible="{Binding HasPages}">
-          <Border Width="{Binding SelectedPage.Page.Size.Width}" Height="{Binding SelectedPage.Page.Size.Height}" Background="{StaticResource TransparencyBackground}" BorderBrush="#708090" BorderThickness="2">
-            <Image Source="{Binding Preview}" Stretch="Fill" RenderOptions.BitmapInterpolationMode="None" />
-          </Border>
-        </Viewbox>
+        <controls:LaserWorkspaceCanvas Preview="{Binding Preview}" Page="{Binding SelectedPage.Page}"
+                                      SheetBackground="{StaticResource TransparencyBackground}" IsVisible="{Binding HasPages}"
+                                      RenderOptions.BitmapInterpolationMode="None" />
         <TextBlock Text="{Binding Text[LaserIntro]}" IsVisible="{Binding !HasPages}" TextWrapping="Wrap" MaxWidth="350" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Margin="15" />
       </Grid>
     </Border>
