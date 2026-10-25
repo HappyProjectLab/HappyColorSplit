@@ -64,6 +64,7 @@
         <Button.Flyout>
           <Flyout>
             <StackPanel Width="320" Spacing="10">
+              <TextBlock Text="{Binding SelectionInfo}" FontWeight="SemiBold" />
               <TextBlock Text="{Binding Text[LaserMoveHelp]}" TextWrapping="Wrap" FontSize="12" />
               <Separator />
               <TextBlock Text="{Binding Text[LaserGroups]}" FontWeight="SemiBold" />
@@ -78,7 +79,8 @@
     <Border Grid.Row="2" Background="#10151F" CornerRadius="8" ClipToBounds="True">
       <Grid>
         <controls:LaserWorkspaceCanvas Preview="{Binding Preview}" Page="{Binding SelectedPage.Page}"
-                                      CanEdit="{Binding CanEdit}" MoveRequested="OnMoveRequested"
+                                      CanEdit="{Binding CanEdit}" Selection="{Binding Selection, Mode=TwoWay}"
+                                      MoveRequested="OnMoveRequested" LassoRequested="OnLassoRequested"
                                       ToolTip.Tip="{Binding Text[LaserMoveHelp]}"
                                       SheetBackground="{StaticResource TransparencyBackground}" IsVisible="{Binding HasPages}"
                                       RenderOptions.BitmapInterpolationMode="None" />

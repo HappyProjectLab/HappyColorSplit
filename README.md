@@ -154,6 +154,8 @@ Links und oberhalb der angeordneten Arbeitsfläche helfen Zentimetermaßstäbe m
 
 Der reservierte Rand wird auf der Arbeitsfläche und an den Maßstäben grau angezeigt. Nach dem Anordnen zieht die linke Maustaste Einzelteile, die rechte Maustaste ganze Bereiche. Rand und Abstände werden beim Loslassen geprüft. **Rückgängig** stellt die vorherige Position wieder her; Export und Vorschau übernehmen gültige Änderungen. Erneutes Anordnen ersetzt manuelle Änderungen.
 
+Mit links auf freier Fläche eine Umrandung ziehen, um mehrere Teile auszuwählen (mit **Shift + links** auch über einem Teil beginnen). Die markierte Auswahl anschließend an einem ihrer Teile gemeinsam ziehen. **Esc** bricht die Geste ab beziehungsweise hebt die Auswahl auf.
+
 1. Bilder laden, gegebenenfalls pro Bild **Bildgröße** einstellen und **Farben erkennen** ausführen. Im Bereich **Farbauszüge** pro Bild ausschließlich die auszuschneidenden Farbgruppen anhaken; eine unerwünschte Hintergrundgruppe abwählen.
 2. In **Laser → Laser-Einstellungen** die Arbeitsfläche in Zentimetern und die PNG-Auflösung festlegen. Standard: 30 × 20 cm bei 300 DPI.
 3. Vorhandene Materialien mit optionalem Namen und einer Farbe als `#RRGGBB` zur Liste hinzufügen. Die ausgewählten Bildfarben werden automatisch der ähnlichsten Materialfarbe zugeordnet.

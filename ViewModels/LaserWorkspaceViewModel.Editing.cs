@@ -7,16 +7,50 @@ namespace HappyColorSplit.ViewModels;
 public sealed partial class LaserWorkspaceViewModel
 {
     private readonly List<(LaserPageViewModel Target, LaserPage Before)> _moves = [];
+    private LaserSelection? _selection;
     public bool CanEdit => IsIdle && IsCurrent && HasPages;
+    public LaserSelection? Selection
+    {
+        get => _selection;
+        set
+        {
+            if (value is null) { SetSelection(null); return; }
+            if (!CanEdit || !ReferenceEquals(value.Page, SelectedPage?.Page)) return;
+            var parts = new LaserManualPlacementService().SelectMany(value.Page, value.Parts);
+            SetSelection(parts.Count == 0 ? null : new(value.Page, Keys(parts)));
+        }
+    }
+    public string SelectionInfo => string.Format(Text["LaserSelectionInfo"], _selection?.Parts.Count ?? 0);
+    private static LaserPartKey[] Keys(IReadOnlyList<LaserPlacement> parts) => parts.Select(p => new LaserPartKey(p.Part.SourceIndex, p.Part.Id)).ToArray();
+    private void SetSelection(LaserSelection? value)
+    {
+        if (ReferenceEquals(_selection?.Page, value?.Page) && (_selection is null || (_selection.Parts.SequenceEqual(value!.Parts)))) return;
+        Set(ref _selection, value, nameof(Selection)); Changed(nameof(SelectionInfo));
+    }
     public AsyncCommand UndoMoveCommand { get; }
 
     public Task MoveAsync(LaserMoveRequest request)
+        => MoveSelectionAsync(new(request.Page, Keys(new LaserManualPlacementService().Select(request.Page, request.SourceIndex, request.PartId, request.WholeRegion)), request.DeltaX, request.DeltaY));
+
+    public Task SelectPolygonAsync(LaserLassoRequest request)
+    {
+        if (!CanEdit || !ReferenceEquals(SelectedPage?.Page, request.Page)) return Task.CompletedTask;
+        return _owner.RunLaserAsync(async token =>
+        {
+            var parts = await Task.Run(() => new LaserManualPlacementService().SelectPolygon(request, token), token);
+            token.ThrowIfCancellationRequested();
+            SetSelection(parts.Count == 0 ? null : new(request.Page, Keys(parts)));
+            _owner.SetLaserStatus("LaserSelectionInfo", parts.Count);
+        });
+    }
+
+    public Task MoveSelectionAsync(LaserTransformRequest request)
     {
         if (!CanEdit || SelectedPage is null || !ReferenceEquals(SelectedPage.Page, request.Page)) return Task.CompletedTask;
         return _owner.RunLaserAsync(async token =>
         {
             var target = SelectedPage;
-            var result = await Task.Run(() => new LaserManualPlacementService().Move(request, token), token);
+            var result = await Task.Run(() => new LaserManualPlacementService().Transform(request, token), token);
             if (!result.Success)
             {
                 _owner.SetLaserStatus(result.Failure switch
@@ -43,6 +77,7 @@ public sealed partial class LaserWorkspaceViewModel
 
     private async Task ApplyEditedPageAsync(LaserPageViewModel target, LaserPage page, CancellationToken token)
     {
+        var selected = ReferenceEquals(_selection?.Page, target.Page) ? _selection.Parts : null;
         var options = _owner.LaserAppearance; bool groups = ShowGroups;
         var images = await Task.Run(() =>
         {
@@ -58,6 +93,7 @@ public sealed partial class LaserWorkspaceViewModel
             token.ThrowIfCancellationRequested();
             target.Update(page, thumbnail); thumbnail = null;
             Set(ref _selectedPage, target, nameof(SelectedPage)); Preview = preview; preview = null;
+            SetSelection(selected is null ? null : new(page, selected));
             Changed(nameof(PageInfo));
         }
         finally { thumbnail?.Dispose(); preview?.Dispose(); }

@@ -86,6 +86,7 @@ public sealed partial class LaserWorkspaceViewModel : ObservableObject, IDisposa
         set
         {
             if (!IsIdle || !Set(ref _selectedPage, value)) return;
+            SetSelection(null);
             Changed(nameof(PageInfo)); RefreshCommands();
             _ = _owner.RunLaserAsync(UpdatePreviewAsync);
         }
@@ -175,7 +176,7 @@ public sealed partial class LaserWorkspaceViewModel : ObservableObject, IDisposa
         _owner.SetLaserStatus("Exported", pages.Length, result); _owner.RememberLaserFolder(result);
     }
     public void Invalidate()
-    { _current = false; _moves.Clear(); Changed(nameof(IsCurrent)); Changed(nameof(IsStale)); RefreshCommands(); }
+    { _current = false; _moves.Clear(); SetSelection(null); Changed(nameof(IsCurrent)); Changed(nameof(IsStale)); RefreshCommands(); }
     public void RefreshAppearance()
     { if (SelectedPage is not null && IsIdle && _owner.IsLaserMode) _ = _owner.RunLaserAsync(UpdatePreviewAsync); }
     public void RefreshCommands()
@@ -186,11 +187,11 @@ public sealed partial class LaserWorkspaceViewModel : ObservableObject, IDisposa
         ExportPageCommand.Refresh(); ExportAllCommand.Refresh(); ExportMergedCommand.Refresh();
     }
     public void ChangeLanguage()
-    { Changed(nameof(Text)); foreach (var page in Pages) page.SetTexts(Text); Changed(nameof(PageInfo)); }
+    { Changed(nameof(Text)); foreach (var page in Pages) page.SetTexts(Text); Changed(nameof(PageInfo)); Changed(nameof(SelectionInfo)); }
     public void ClearLayout()
     {
         Preview = null; Set(ref _selectedPage, null, nameof(SelectedPage));
-        foreach (var page in Pages) page.Dispose(); Pages.Clear(); _current = false; _moves.Clear();
+        foreach (var page in Pages) page.Dispose(); Pages.Clear(); _current = false; _moves.Clear(); SetSelection(null);
         Changed(nameof(HasPages)); Changed(nameof(PageInfo)); Changed(nameof(IsCurrent)); Changed(nameof(IsStale)); RefreshCommands();
     }
     public void Dispose()

@@ -2,7 +2,7 @@ using HappyColorSplit.Models;
 
 namespace HappyColorSplit.Services;
 
-public sealed class LaserManualPlacementService
+public sealed partial class LaserManualPlacementService
 {
     public LaserPlacement? HitTest(LaserPage page, int x, int y) => page.Placements.Reverse().FirstOrDefault(p => Contains(p, x, y));
 
@@ -12,22 +12,39 @@ public sealed class LaserManualPlacementService
         if (hit is null) return [];
         var chosen = page.Placements.Where(p => p.Part.SourceIndex == source
             && (wholeRegion ? p.Part.Region == hit.Part.Region : p.Part.Id == part)).Select(p => p.Part).ToHashSet();
+        return Expand(page, chosen);
+    }
+
+    public IReadOnlyList<LaserPlacement> SelectMany(LaserPage page, IReadOnlyList<LaserPartKey> keys)
+    {
+        var wanted = keys.ToHashSet();
+        var chosen = page.Placements.Where(p => wanted.Contains(new(p.Part.SourceIndex, p.Part.Id))).Select(p => p.Part).ToHashSet();
+        if (chosen.Count != wanted.Count) return [];
+        return Expand(page, chosen);
+    }
+
+    private static IReadOnlyList<LaserPlacement> Expand(LaserPage page, HashSet<LaserPart> chosen)
+    {
         // A surrounding piece carries all its nested descendants, even across original source regions.
-        var children = page.Placements.Where(p => p.Part.SourceIndex == source && p.NestedInPartId is not null)
-            .GroupBy(p => p.NestedInPartId!.Value).ToDictionary(g => g.Key, g => g.Select(p => p.Part).ToArray());
-        var pending = new Queue<int>(chosen.Select(p => p.Id));
-        while (pending.TryDequeue(out int parent))
+        var children = page.Placements.Where(p => p.NestedInPartId is not null)
+            .GroupBy(p => new LaserPartKey(p.Part.SourceIndex, p.NestedInPartId!.Value)).ToDictionary(g => g.Key, g => g.Select(p => p.Part).ToArray());
+        var pending = new Queue<LaserPartKey>(chosen.Select(p => new LaserPartKey(p.SourceIndex, p.Id)));
+        while (pending.TryDequeue(out var parent))
         {
             if (!children.TryGetValue(parent, out var nested)) continue;
-            foreach (var child in nested) if (chosen.Add(child)) pending.Enqueue(child.Id);
+            foreach (var child in nested) if (chosen.Add(child)) pending.Enqueue(new(child.SourceIndex, child.Id));
         }
         return page.Placements.Where(p => chosen.Contains(p.Part)).ToArray();
     }
 
     public LaserMoveResult Move(LaserMoveRequest request, CancellationToken token)
+        => Transform(new(request.Page, Select(request.Page, request.SourceIndex, request.PartId, request.WholeRegion)
+            .Select(p => new LaserPartKey(p.Part.SourceIndex, p.Part.Id)).ToArray(), request.DeltaX, request.DeltaY), token);
+
+    public LaserMoveResult Transform(LaserTransformRequest request, CancellationToken token)
     {
         token.ThrowIfCancellationRequested(); var page = request.Page;
-        var selected = Select(page, request.SourceIndex, request.PartId, request.WholeRegion).Select(p => p.Part).ToHashSet();
+        var selected = SelectMany(page, request.Parts).Select(p => p.Part).ToHashSet();
         if (selected.Count == 0) return new(page, LaserMoveFailure.Selection);
         if (request.DeltaX == 0 && request.DeltaY == 0) return new(page, LaserMoveFailure.None);
         int margin = page.Settings.MarginPixels;

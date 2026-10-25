@@ -150,6 +150,22 @@ internal static class LaserManualPlacementTests
             check(group.Placements.Where(p => p.Part.Region == part.Part.Region).All(p => p.X == original.Placements.Single(q => q.Part == p.Part).X + 30)
                 && group.Placements.Where(p => p.Part.Region != part.Part.Region).All(p => p == original.Placements.Single(q => q.Part == p.Part)),
                 "The right mouse button moves the source region on this page and leaves other regions in place");
+            var selectedRegion = laser.Selection;
+            Lasso(window, canvas, [new(.1, .1), new(70, .1), new(70, 50), new(.1, 50), new(.1, .1)], escape: true); pump(() => !vm.IsBusy);
+            check(ReferenceEquals(laser.Selection, selectedRegion) && ReferenceEquals(laser.SelectedPage.Page, group),
+                "Escape during a lasso preserves the previous selection and geometry");
+            Lasso(window, canvas, [new(.1, .1), new(70, .1), new(70, 50), new(.1, 50), new(.1, .1)]); pump(() => !vm.IsBusy);
+            check(laser.Selection?.Parts.Count == 3 && ReferenceEquals(canvas.Selection, laser.Selection) && ReferenceEquals(laser.SelectedPage.Page, group),
+                "A genuine freehand mouse outline selects multiple parts across original regions without changing geometry");
+            var selectedPart = group.Placements.First(p => p.Part.Id == 1);
+            Drag(window, canvas, selectedPart, 10, 0); pump(() => !vm.IsBusy);
+            check(laser.SelectedPage.Page.Placements.All(p => p.X == group.Placements.Single(q => q.Part == p.Part).X + 10)
+                && laser.Selection?.Parts.Count == 3 && ReferenceEquals(laser.Selection.Page, laser.SelectedPage.Page),
+                "Dragging an already selected part moves the entire persistent multi-selection and keeps it selected");
+            laser.UndoMoveCommand.Execute(null); pump(() => !vm.IsBusy);
+            check(ReferenceEquals(laser.SelectedPage.Page, group), "Undo restores the page after a multi-selection move");
+            window.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.Escape, null); Dispatcher.UIThread.RunJobs();
+            check(laser.Selection is null && canvas.Selection is null, "Escape when idle clears the persistent selection");
             var stale = laser.MoveAsync(new(original, part.Part.SourceIndex, part.Part.Id, false, 0, 5)); pump(() => stale.IsCompleted);
             check(ReferenceEquals(laser.SelectedPage.Page, group), "A delayed mouse request for an obsolete page cannot overwrite a newer edit");
             laser.MarginCm = .2m; Dispatcher.UIThread.RunJobs();
@@ -202,6 +218,18 @@ internal static class LaserManualPlacementTests
         window.MouseDown(start, button); window.MouseMove(end);
         if (escape) window.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.Escape, null);
         window.MouseUp(end, button); Dispatcher.UIThread.RunJobs();
+    }
+
+    private static void Lasso(Window window, LaserWorkspaceCanvas canvas, IReadOnlyList<LaserPoint> points, bool escape = false)
+    {
+        Dispatcher.UIThread.RunJobs(); using var frame = window.CaptureRenderedFrame();
+        var page = canvas.Page!; var sheet = LaserWorkspaceCanvas.SheetBounds(canvas.Bounds.Size, page.Size);
+        Point Map(LaserPoint p) => canvas.TranslatePoint(new Point(sheet.X + p.X * sheet.Width / page.Size.Width,
+            sheet.Y + p.Y * sheet.Height / page.Size.Height), window)!.Value;
+        window.MouseDown(Map(points[0]), MouseButton.Left);
+        foreach (var p in points.Skip(1)) window.MouseMove(Map(p));
+        if (escape) window.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.Escape, null);
+        window.MouseUp(Map(points[^1]), MouseButton.Left); Dispatcher.UIThread.RunJobs();
     }
 
     private static LaserPart Solid(int id, int source, int region, int w, int h) => new(id, source, "source.png", 0, 25,
