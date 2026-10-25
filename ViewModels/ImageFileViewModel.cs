@@ -9,6 +9,7 @@ public sealed class ImageFileViewModel(string path, Bitmap thumbnail, int source
     public string FileName => Path.GetFileName(FilePath);
     public Bitmap Thumbnail { get; } = thumbnail;
     public IReadOnlySet<string>? ExportColors { get; set; }
+    public bool ColorsDetected { get; set; }
     public int SourceWidth { get; private set; } = sourceWidth;
     public int SourceHeight { get; private set; } = sourceHeight;
     public ImageScale Scale { get; set; } = new(Dpi: dpi);

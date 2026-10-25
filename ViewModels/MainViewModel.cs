@@ -36,9 +36,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         _windowsIntegration = windowsIntegration ?? new WindowsIntegrationService();
         _exportFolderService = exportFolderService ?? new ExportFolderService();
         OpenCommand = new(OpenAsync, () => !IsBusy);
-        AnalyzeCommand = new(AnalyzeAsync, () => !IsBusy && _source is not null);
+        AnalyzeCommand = new(AnalyzeAsync, () => !IsBusy && Images.Count > 0);
         ExportCommand = new(ExportAsync, () => !IsBusy && _analysis is not null && ExportColorCount > 0);
-        ExportBatchCommand = new(ExportBatchAsync, () => !IsBusy && Images.Count > 0);
+        ExportBatchCommand = new(ExportBatchAsync, () => !IsBusy && HasBatchSelection);
         ClearImagesCommand = new(ClearImagesAsync, () => !IsBusy && Images.Count > 0);
         RemoveImageCommand = new(RemoveImageAsync, () => !IsBusy && SelectedImage is not null);
         CancelCommand = new(() => { Cancel(); return Task.CompletedTask; }, () => IsBusy);
@@ -83,6 +83,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
     public int ExportColorCount => Groups.Count(group => group.ExportEnabled);
+    public bool HasBatchSelection => Images.Any(image => image.ColorsDetected && image.ExportColors is { Count: > 0 });
     public int ExportAreaIndex
     {
         get => (int)_settings.ExportArea;
@@ -357,6 +358,12 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             ClearAnalysis(); Changed(nameof(HasImage)); Changed(nameof(FileName));
             RefreshScaleProperties();
             StatusMessage("Loaded");
+            if (SelectedImage.ColorsDetected)
+            {
+                var result = await Task.Run(() => _service.Analyze(_source!, Tolerance, token, (byte)MinimumAlpha), token);
+                token.ThrowIfCancellationRequested(); ApplyAnalysis(result);
+                StatusMessage("Found", Groups.Count, result.Width, result.Height);
+            }
         }
         finally { loaded?.Dispose(); }
     }
@@ -387,7 +394,53 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     private async Task AnalyzeAsync() => await RunAsync(async token =>
     {
-        var result = await Task.Run(() => _service.Analyze(_source!, Tolerance, token, (byte)MinimumAlpha), token);
+        var failures = new List<BatchFailure>(); SetFailures([]);
+        int completed = 0;
+        for (int i = 0; i < Images.Count; i++)
+        {
+            token.ThrowIfCancellationRequested();
+            var image = Images[i];
+            StatusMessage("AnalyzeWorking", i + 1, Images.Count, image.FileName);
+            try
+            {
+                IReadOnlyList<ColorGroup> palette;
+                if (image == SelectedImage && _source is not null)
+                {
+                    var result = await Task.Run(() => _service.Analyze(_source, Tolerance, token, (byte)MinimumAlpha), token);
+                    token.ThrowIfCancellationRequested();
+                    image.ColorsDetected = true; ApplyAnalysis(result); palette = result.Groups;
+                }
+                else
+                {
+                    // Retain only each image's palette/selection, never full-resolution label grids for all files.
+                    palette = await Task.Run(() =>
+                    {
+                        using var source = _service.Load(image.FilePath);
+                        return _service.Analyze(source, Tolerance, token, (byte)MinimumAlpha).Groups;
+                    }, token);
+                    token.ThrowIfCancellationRequested();
+                    image.ExportColors = palette.Where(g => image.ExportColors?.Contains(g.Hex) ?? true).Select(g => g.Hex).ToHashSet();
+                    image.ColorsDetected = true;
+                }
+                completed++;
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception error) when (error is not OutOfMemoryException)
+            {
+                image.ColorsDetected = false; image.ExportColors = new HashSet<string>();
+                if (image == SelectedImage) ClearAnalysis();
+                failures.Add(new(image.FilePath, error)); SetFailures(failures.ToArray());
+            }
+            Progress = (i + 1) * 100 / Images.Count;
+        }
+        if (_source is null && SelectedImage?.ColorsDetected == true) await LoadSelectedAsync(token);
+        if (Images.Count == 1 && failures.Count == 0 && _analysis is not null)
+            StatusMessage("Found", Groups.Count, _analysis.Width, _analysis.Height);
+        else StatusMessage("ImagesAnalyzed", completed, Images.Count, failures.Count);
+    });
+
+    private void ApplyAnalysis(ColorAnalysis result)
+    {
         _analysis = result;
         foreach (var old in Groups) old.PropertyChanged -= ExportSelectionChanged;
         Groups.Clear();
@@ -400,8 +453,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
         ExportSelectionChanged(null, new(nameof(ColorGroupViewModel.ExportEnabled)));
         Changed(nameof(HasGroups)); SelectedGroup = Groups.FirstOrDefault();
-        StatusMessage("Found", Groups.Count, result.Width, result.Height);
-    });
+    }
 
     private async Task ExportAsync() => await RunAsync(async token =>
     {
@@ -427,8 +479,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         byte alpha = (byte)MinimumAlpha;
         var options = CurrentExportOptions;
         var imageScales = Images.ToDictionary(image => image.FilePath, image => image.Scale, StringComparer.OrdinalIgnoreCase);
-        var selections = Images.Where(image => image.ExportColors is not null)
-            .ToDictionary(image => image.FilePath, image => (IReadOnlySet<string>)image.ExportColors!.ToHashSet(), StringComparer.OrdinalIgnoreCase);
+        var selections = Images.ToDictionary(image => image.FilePath,
+            image => (IReadOnlySet<string>)(image.ColorsDetected ? image.ExportColors ?? new HashSet<string>() : new HashSet<string>()).ToHashSet(),
+            StringComparer.OrdinalIgnoreCase);
         var progress = new Progress<BatchProgress>(value =>
         {
             Progress = value.Percent;
@@ -437,7 +490,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         var result = await Task.Run(() => new BatchExportService().Export(paths, parent, tolerance, progress, token, alpha, selections, options, imageScales), token);
         SetFailures(result.Failures);
         StatusMessage(result.Cancelled ? "BatchCancelled" : "BatchDone", result.ExportedImages,
-            result.ExportedMasks, result.Failures.Count, result.Folder);
+            result.ExportedMasks, result.Failures.Count, result.Folder, result.SkippedImages);
         if (result.ExportedImages > 0) RememberExportFolder(result.Folder);
     });
 
@@ -470,12 +523,12 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     {
         if (args.PropertyName != nameof(ColorGroupViewModel.ExportEnabled)) return;
         if (SelectedImage is not null) SelectedImage.ExportColors = Groups.Where(g => g.ExportEnabled).Select(g => g.Hex).ToHashSet();
-        Changed(nameof(ExportColorCount)); ExportCommand.Refresh();
+        Changed(nameof(ExportColorCount)); Changed(nameof(HasBatchSelection)); ExportCommand.Refresh(); ExportBatchCommand.Refresh();
     }
 
     private void InvalidateSelections()
     {
-        foreach (var image in Images) image.ExportColors = null;
+        foreach (var image in Images) { image.ExportColors = null; image.ColorsDetected = false; }
         ClearAnalysis();
     }
 

@@ -10,6 +10,10 @@ HappyColorSplit verwendet SkiaSharp 3.119.4 für PNG-/JPEG-Decodierung, Vorschau
 - Pixel unterhalb der Mindestdeckkraft werden ignoriert. Übrige Pixel werden nach ihrem RGB-Abstand zu festen Referenzfarben gruppiert; maximal 256 Gruppen sind möglich.
 - Die Farbgruppierung arbeitet mit den Originalpixeln nach Anwendung der EXIF-Ausrichtung. Eine individuelle Skalierung wird anschließend auf die Ausgabefläche angewendet, ohne die Farbgruppen neu zu bilden.
 
+„Farben erkennen“ verarbeitet alle geladenen Bilder nacheinander. Pro Bild bleiben Erkennungsstatus und angehakte RGB-Referenzfarben erhalten; volle Pixel- und Zuordnungspuffer werden nicht für die gesamte Liste gespeichert. Beim Bildwechsel wird die aktive Zuordnung für die eigene Palette wiederhergestellt. Eine erneute Erkennung behält vorhandene Häkchen bei unveränderten Erkennungseinstellungen bei. Fehlerhafte Bilder werden gemeldet; andere Bilder werden weiter verarbeitet. Ein Abbruch behält vollständig erkannte Bilder bei.
+
+Der Stapel-Export übernimmt explizite Farbauswahlen pro Bild als Momentaufnahme. Bilder ohne Erkennung oder mit leerer Farbauswahl werden gezählt übersprungen. Es gibt im Anwendungsablauf keinen automatischen Rückfall auf alle Farben. Änderungen der Farbähnlichkeit oder Mindestdeckkraft verwerfen alle Erkennungsstände und Auswahlen.
+
 ## Individuelle Skalierung
 
 Jeder Eintrag der Importliste enthält eine eigene unveränderliche Skalierung aus Prozentwert und DPI. Breite und Höhe werden immer mit demselben Faktor berechnet und auf ganze Pixel gerundet; frei voneinander veränderbare Seiten gibt es nicht. Zentimeter beziehen sich auf die gesamte Bildfläche. Standard für neue Bilder sind 100 % und zunächst 300 DPI; die DPI-Vorgabe ist einstellbar und wird gespeichert. Die Quelldatei-DPI wird nicht automatisch ausgewertet.

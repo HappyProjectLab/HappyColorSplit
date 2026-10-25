@@ -142,10 +142,10 @@ try
     Check(Directory.GetFiles(batch.Folder, "*.png", SearchOption.AllDirectories).Length == 4, "Batch writes all masks without overwrites");
     var selections = new Dictionary<string, IReadOnlySet<string>> { [input] = new HashSet<string> { "#0000FF" } };
     var filteredBatch = batchService.Export([input, sameName], root, 10, null, CancellationToken.None, 128, selections);
-    Check(filteredBatch.ExportedImages == 2 && filteredBatch.ExportedMasks == 2 && filteredBatch.Failures.Count == 0, "Batch respects per-image color selections; unreviewed image exports all colors");
+    Check(filteredBatch.ExportedImages == 1 && filteredBatch.ExportedMasks == 1 && filteredBatch.Failures.Count == 0 && filteredBatch.SkippedImages == 1, "Batch exports only explicit per-image selections and skips unreviewed images");
     var emptySelectionBatch = batchService.Export([input, sameName], root, 10, null, CancellationToken.None, 128,
         new Dictionary<string, IReadOnlySet<string>> { [input] = new HashSet<string>() });
-    Check(emptySelectionBatch.ExportedImages == 1 && emptySelectionBatch.Failures.Single().Error is NoColorsSelectedException, "Batch reports empty selection and continues with other images");
+    Check(emptySelectionBatch.ExportedImages == 0 && emptySelectionBatch.Failures.Count == 0 && emptySelectionBatch.SkippedImages == 2, "Batch skips empty and missing selections without exporting fallback colors");
     string faintPath = Path.Combine(root, "faint.png");
     using (var faint = new RasterImage(2, 1))
     {
@@ -236,7 +236,7 @@ try
     vm.Groups.Single(g => g.Group.B == 255).ExportEnabled = true;
     Check(vm.ExportColorCount == 1 && vm.ExportCommand.CanExecute(null), "Checking one color enables single-color export");
     vm.SelectedImage = vm.Images[1]; Pump(() => !vm.IsBusy);
-    Check(vm.FileName == "fixture.jpg" && vm.HasImage && !vm.HasMask && vm.Groups.Count == 0, "Image selection updates original and clears previous masks");
+    Check(vm.FileName == "fixture.jpg" && vm.HasImage && vm.HasMask && vm.Groups.Count > 0, "Image selection restores its own recognized colors and mask without another Find colors click");
     vm.AnalyzeCommand.Execute(null); Pump(() => !vm.IsBusy);
     Check(vm.HasGroups && vm.HasMask, "Second image can be analyzed independently");
     vm.SelectedImage = vm.Images[0]; Pump(() => !vm.IsBusy);
@@ -247,7 +247,9 @@ try
     vm.MinimumAlpha = 128;
     vm.Tolerance = 20;
     Check(vm.Groups.Count == 0 && !vm.HasMask && !vm.ExportCommand.CanExecute(null), "Changing tolerance invalidates stale analysis");
-    Check(vm.ExportBatchCommand.CanExecute(null), "Batch export available without individual analysis");
+    Check(!vm.ExportBatchCommand.CanExecute(null), "Batch export requires checked colors after detection settings invalidate selections");
+    vm.AnalyzeCommand.Execute(null); Pump(() => !vm.IsBusy);
+    Check(vm.ExportBatchCommand.CanExecute(null), "One Find colors command prepares all images for batch export");
     vm.ExportBatchCommand.Execute(null);
     Check(vm.IsBusy && !vm.ClearImagesCommand.CanExecute(null), "Cannot change batch list during export");
     Pump(() => !vm.IsBusy);
@@ -268,6 +270,7 @@ try
     ColorExportRegressionTests.Run(root, Check, Pump);
     BackgroundExportRegressionTests.Run(root, Check, Pump);
     ScalingRegressionTests.Run(root, Check, Pump);
+    BatchSelectionRegressionTests.Run(root, Check, Pump);
     if (args.Contains("--capture-baseline") || args.Contains("--verify-baseline"))
     {
         string importDirectory = Path.GetFullPath(Path.Combine("..", "Import"));

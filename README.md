@@ -101,7 +101,7 @@ dotnet run --project HappyColorSplit.csproj
 
 **Neu in 0.1.0-preview.4:** Drag-and-drop, optionale Windows-Einbindung, ein Button für den letzten Exportordner und getrennte Auswahlen für Flächenfarbe und Export-Hintergrund.
 
-**Lokaler Entwicklungsstand:** Die nachfolgend beschriebene individuelle Bildskalierung ist noch nicht im oben verlinkten Download `0.1.0-preview.4` enthalten.
+**Lokaler Entwicklungsstand:** Die nachfolgend beschriebene individuelle Bildskalierung und die gemeinsame Farberkennung mit strikter Farbauswahl pro Bild sind noch nicht im oben verlinkten Download `0.1.0-preview.4` enthalten.
 
 Ein oder mehrere Bilder lassen sich auf das Programmfenster ziehen. Unterstützt werden `.png`, `.jpg` und `.jpeg`; andere Formate und beschädigte Dateien werden nicht geladen. Bei gemischter Auswahl werden gültige Bilder übernommen und Fehler angezeigt. Während einer Verarbeitung nimmt das Fenster keine weiteren Dateien entgegen.
 
@@ -112,9 +112,9 @@ Unter **Windows-Einbindung** lassen sich **Öffnen mit → HappyColorSplit** und
 3. Farbgruppen in der Liste auswählen, um die Exportvorschau zu sehen. Die Häkchen bestimmen, welche Farben exportiert werden. **Alle** und **Keine** setzen die Auswahl gemeinsam. Ohne gewählte Farben ist der Einzelexport deaktiviert.
 4. **Ausgewähltes Bild exportieren** wählen und einen Zielordner auswählen.
 
-Für mehrere Bilder: **Alle Bilder exportieren** verarbeitet die gesamte Bildliste mit der aktuellen Farbähnlichkeit. Die Farben werden pro Bild automatisch erkannt, eine vorherige Einzelanalyse ist nicht nötig. Im gemeinsamen Exportordner erhält jedes Bild einen eigenen Unterordner, auch bei identischen Dateinamen aus verschiedenen Quellordnern.
+Für mehrere Bilder: **Farben erkennen** wertet alle geladenen Bilder mit der aktuellen Farbähnlichkeit und Mindestdeckkraft aus. Danach jedes Bild in der Importliste anklicken: Seine Farbgruppen und die zugehörigen Häkchen erscheinen automatisch. **Alle Bilder exportieren** speichert ausschließlich die angehakten Farbgruppen jedes Bildes. Im gemeinsamen Exportordner erhält jedes exportierte Bild einen eigenen Unterordner, auch bei identischen Dateinamen aus verschiedenen Quellordnern.
 
-Die Mindestdeckkraft gilt für alle Bilder. Jede bereits geprüfte Datei behält ihre eigene Farbauswahl während der aktuellen Sitzung, auch nach einem Bildwechsel und erneuter Erkennung. Ungeprüfte Dateien exportieren alle erkannten Farben. Bilder mit komplett abgewählten Farben werden beim Stapel-Export mit einer entsprechenden Meldung übersprungen. Änderungen an Farbähnlichkeit oder Mindestdeckkraft verwerfen die Erkennung und setzen die Farbauswahl aller Bilder zurück. Die Farbauswahl bezieht sich auf die unveränderte Quelldatei; extern bearbeitete Bilder bitte neu laden und prüfen.
+Die Mindestdeckkraft gilt für alle Bilder. Nach der ersten erfolgreichen Erkennung sind zunächst alle Farbgruppen des jeweiligen Bildes angehakt. Jede Datei behält ihre eigene Farbauswahl während der aktuellen Sitzung, auch nach einem Bildwechsel und erneuter Erkennung. Bilder ohne erfolgreiche Erkennung oder ohne angehakte Farben werden im Stapel ausdrücklich übersprungen, ohne auf alle Farben zurückzufallen. Solange kein Bild eine gewählte Exportfarbe hat, ist der Stapel-Export deaktiviert. Änderungen an Farbähnlichkeit oder Mindestdeckkraft verwerfen die Erkennung und setzen die Farbauswahl aller Bilder zurück. Die Farbauswahl bezieht sich auf die unveränderte Quelldatei; extern bearbeitete Bilder bitte neu laden und prüfen.
 
 **Detailansicht / Überlagerung** öffnet die ausgewählte Maske in Originalauflösung. Die Vergrößerung reicht von 25 bis 800 %. Scrollleisten verschieben den Ausschnitt. Bei aktiver Originalüberlagerung markiert eine grüne Fläche die ausgewählte Maske; die Überlagerungsstärke ist einstellbar. Ohne Überlagerung wird die Exportvorschau mit der gewählten Flächenfarbe und dem gewählten Hintergrund gezeigt. Die Detailansicht ist eine Momentaufnahme der aktuellen Auswahl.
 

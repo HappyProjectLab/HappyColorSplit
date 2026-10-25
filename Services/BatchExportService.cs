@@ -13,7 +13,7 @@ public sealed class BatchExportService
         string folder = Path.Combine(parent, $"HappyColorSplit_Batch_{DateTime.Now:yyyyMMdd_HHmmss}_{Guid.NewGuid().ToString("N")[..8]}");
         Directory.CreateDirectory(folder);
         var failures = new List<BatchFailure>();
-        int exportedImages = 0, exportedMasks = 0;
+        int exportedImages = 0, exportedMasks = 0, skippedImages = 0;
         bool cancelled = false;
         var service = new ColorSeparationService();
         // Decode and analyze one image at a time to bound batch memory use.
@@ -24,6 +24,10 @@ public sealed class BatchExportService
             void Report(int filePercent) => progress?.Report(new(fileIndex + 1, paths.Count,
                 (fileIndex * 100 + filePercent) / paths.Count, Path.GetFileName(paths[fileIndex])));
             Report(0);
+            if (exportColors is not null && (!exportColors.TryGetValue(paths[i], out var selectedColors) || selectedColors.Count == 0))
+            {
+                skippedImages++; Report(100); continue;
+            }
             try
             {
                 using var image = service.Load(paths[i]);
@@ -43,7 +47,7 @@ public sealed class BatchExportService
             }
             Report(100);
         }
-        return new(folder, exportedImages, exportedMasks, failures, cancelled);
+        return new(folder, exportedImages, exportedMasks, failures, cancelled, skippedImages);
     }
 
     private sealed class InlineProgress<T>(Action<T> report) : IProgress<T>
