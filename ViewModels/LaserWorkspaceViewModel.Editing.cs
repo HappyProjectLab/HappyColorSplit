@@ -7,10 +7,7 @@ namespace HappyColorSplit.ViewModels;
 public sealed partial class LaserWorkspaceViewModel
 {
     private readonly List<(LaserPageViewModel Target, LaserPage Before)> _moves = [];
-    private int _moveModeIndex;
     public bool CanEdit => IsIdle && IsCurrent && HasPages;
-    public int MoveModeIndex
-    { get => _moveModeIndex; set { if (IsIdle && value is 0 or 1) Set(ref _moveModeIndex, value); } }
     public AsyncCommand UndoMoveCommand { get; }
 
     public Task MoveAsync(LaserMoveRequest request)

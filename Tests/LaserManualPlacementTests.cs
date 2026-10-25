@@ -145,12 +145,11 @@ internal static class LaserManualPlacementTests
                 "A mouse drop onto another filled part is rejected without changing the arrangement");
             Drag(window, canvas, part, 30, 0, escape: true); pump(() => !vm.IsBusy);
             check(ReferenceEquals(laser.SelectedPage.Page, original), "Escape cancels a captured mouse drag without changing the page");
-            laser.MoveModeIndex = 1; Dispatcher.UIThread.RunJobs();
-            Drag(window, canvas, part, 30, 0); pump(() => !vm.IsBusy);
+            Drag(window, canvas, part, 30, 0, rightButton: true); pump(() => !vm.IsBusy);
             var group = laser.SelectedPage.Page;
             check(group.Placements.Where(p => p.Part.Region == part.Part.Region).All(p => p.X == original.Placements.Single(q => q.Part == p.Part).X + 30)
                 && group.Placements.Where(p => p.Part.Region != part.Part.Region).All(p => p == original.Placements.Single(q => q.Part == p.Part)),
-                "Region mode moves the source region on this page and leaves other regions in place");
+                "The right mouse button moves the source region on this page and leaves other regions in place");
             var stale = laser.MoveAsync(new(original, part.Part.SourceIndex, part.Part.Id, false, 0, 5)); pump(() => stale.IsCompleted);
             check(ReferenceEquals(laser.SelectedPage.Page, group), "A delayed mouse request for an obsolete page cannot overwrite a newer edit");
             laser.MarginCm = .2m; Dispatcher.UIThread.RunJobs();
@@ -192,16 +191,17 @@ internal static class LaserManualPlacementTests
         }
     }
 
-    private static void Drag(Window window, LaserWorkspaceCanvas canvas, LaserPlacement part, int dx, int dy, bool escape = false)
+    private static void Drag(Window window, LaserWorkspaceCanvas canvas, LaserPlacement part, int dx, int dy, bool escape = false, bool rightButton = false)
     {
         Dispatcher.UIThread.RunJobs(); using var frame = window.CaptureRenderedFrame(); Dispatcher.UIThread.RunJobs(); var page = canvas.Page!;
         var sheet = LaserWorkspaceCanvas.SheetBounds(canvas.Bounds.Size, page.Size);
         var start = canvas.TranslatePoint(new Point(sheet.X + (part.X + part.Width / 2.0) * sheet.Width / page.Size.Width,
             sheet.Y + (part.Y + part.Height / 2.0) * sheet.Height / page.Size.Height), window)!.Value;
         var end = start + new Vector(dx * sheet.Width / page.Size.Width, dy * sheet.Height / page.Size.Height);
-        window.MouseDown(start, MouseButton.Left); window.MouseMove(end);
+        var button = rightButton ? MouseButton.Right : MouseButton.Left;
+        window.MouseDown(start, button); window.MouseMove(end);
         if (escape) window.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.Escape, null);
-        window.MouseUp(end, MouseButton.Left); Dispatcher.UIThread.RunJobs();
+        window.MouseUp(end, button); Dispatcher.UIThread.RunJobs();
     }
 
     private static LaserPart Solid(int id, int source, int region, int w, int h) => new(id, source, "source.png", 0, 25,

@@ -13,9 +13,7 @@ public sealed class LaserMoveEventArgs(LaserMoveRequest request) : EventArgs
 public sealed partial class LaserWorkspaceCanvas
 {
     public static readonly StyledProperty<bool> CanEditProperty = AvaloniaProperty.Register<LaserWorkspaceCanvas, bool>(nameof(CanEdit));
-    public static readonly StyledProperty<int> MoveModeProperty = AvaloniaProperty.Register<LaserWorkspaceCanvas, int>(nameof(MoveMode));
     public bool CanEdit { get => GetValue(CanEditProperty); set => SetValue(CanEditProperty, value); }
-    public int MoveMode { get => GetValue(MoveModeProperty); set => SetValue(MoveModeProperty, value); }
     public event EventHandler<LaserMoveEventArgs>? MoveRequested;
     private static readonly Cursor DragCursor = new(StandardCursorType.SizeAll);
     private readonly LaserManualPlacementService _editor = new();
@@ -25,25 +23,28 @@ public sealed partial class LaserWorkspaceCanvas
     private IPointer? _pointer;
     private Point _start;
     private int _dx, _dy, _dragMode;
+    private MouseButton _button;
     private Bitmap? _ghost;
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
-        if (change.Property == PageProperty || change.Property == MoveModeProperty || change.Property == BoundsProperty
+        if (change.Property == PageProperty || change.Property == BoundsProperty
             || (change.Property == CanEditProperty && !CanEdit)) CancelDrag();
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);
-        if (!CanEdit || Page is not { } page || !e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
+        var buttons = e.GetCurrentPoint(this).Properties;
+        if (!CanEdit || Page is not { } page || _pointer is not null || (!buttons.IsLeftButtonPressed && !buttons.IsRightButtonPressed)) return;
         CancelDrag();
         var point = SheetPoint(e.GetPosition(this), page);
         if (point is null) return;
         var hit = _editor.HitTest(page, (int)point.Value.X, (int)point.Value.Y);
         if (hit is null) return;
-        _hit = hit; _dragPage = page; _dragMode = MoveMode;
+        _hit = hit; _dragPage = page; _dragMode = buttons.IsRightButtonPressed ? 1 : 0;
+        _button = buttons.IsRightButtonPressed ? MouseButton.Right : MouseButton.Left;
         _selection = _editor.Select(page, hit.Part.SourceIndex, hit.Part.Id, _dragMode == 1);
         // A translucent material-only ghost leaves the original position visible as a reference.
         byte[] png = new LaserPageRenderer().Render(page with { Placements = _selection },
@@ -74,7 +75,7 @@ public sealed partial class LaserWorkspaceCanvas
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         base.OnPointerReleased(e);
-        if (_pointer != e.Pointer || _dragPage is not { } page || _hit is not { } hit) return;
+        if (_pointer != e.Pointer || e.InitialPressMouseButton != _button || _dragPage is not { } page || _hit is not { } hit) return;
         UpdateDelta(e.GetPosition(this), page);
         var request = new LaserMoveRequest(page, hit.Part.SourceIndex, hit.Part.Id, _dragMode == 1, _dx, _dy);
         CancelDrag(); e.Handled = true;

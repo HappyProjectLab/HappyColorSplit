@@ -64,10 +64,6 @@
         <Button.Flyout>
           <Flyout>
             <StackPanel Width="320" Spacing="10">
-              <ComboBox SelectedIndex="{Binding MoveModeIndex, Mode=TwoWay}" IsEnabled="{Binding CanEdit}" HorizontalAlignment="Stretch">
-                <ComboBoxItem Content="{Binding Text[LaserMovePart]}" />
-                <ComboBoxItem Content="{Binding Text[LaserMoveRegion]}" />
-              </ComboBox>
               <TextBlock Text="{Binding Text[LaserMoveHelp]}" TextWrapping="Wrap" FontSize="12" />
               <Separator />
               <TextBlock Text="{Binding Text[LaserGroups]}" FontWeight="SemiBold" />
@@ -82,7 +78,7 @@
     <Border Grid.Row="2" Background="#10151F" CornerRadius="8" ClipToBounds="True">
       <Grid>
         <controls:LaserWorkspaceCanvas Preview="{Binding Preview}" Page="{Binding SelectedPage.Page}"
-                                      CanEdit="{Binding CanEdit}" MoveMode="{Binding MoveModeIndex}" MoveRequested="OnMoveRequested"
+                                      CanEdit="{Binding CanEdit}" MoveRequested="OnMoveRequested"
                                       ToolTip.Tip="{Binding Text[LaserMoveHelp]}"
                                       SheetBackground="{StaticResource TransparencyBackground}" IsVisible="{Binding HasPages}"
                                       RenderOptions.BitmapInterpolationMode="None" />
