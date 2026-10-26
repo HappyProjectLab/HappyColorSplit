@@ -125,6 +125,8 @@ Ein oder mehrere Bilder lassen sich auf das Programmfenster ziehen. Unterstützt
 
 Unter **Windows-Einbindung** lassen sich **Öffnen mit → HappyColorSplit** und **Senden an → HappyColorSplit** für das eigene Benutzerkonto einrichten und wieder entfernen. Das Standardprogramm für Bilder wird dabei nicht geändert; Administratorrechte sind nicht nötig. Details und die englische Anleitung: [Windows-Einbindung](docs/WINDOWS_INTEGRATION.md).
 
+Im Entwicklungsstand öffnet die Windows-Einbindung ein eigenes Fenster. Beim Hinzufügen von Bildern zeigt ein dezenter Effekt über dem gesamten Fensterhintergrund die laufende Dateiauswahl beziehungsweise den Import an. Abbrechen ist im Dateiauswahldialog möglich; der zusätzliche Abbrechen-Knopf im Hauptfenster entfällt. Die internen Abbruch- und Aufräumabläufe bleiben erhalten.
+
 1. Ein oder mehrere PNG-/JPG-Bilder über **Bilder hinzufügen** auswählen (Strg/Shift im Dateidialog). Weitere Auswahlvorgänge ergänzen die Liste; dieselbe Datei wird nicht doppelt aufgenommen.
 2. Farbähnlichkeit und **Mindestdeckkraft** einstellen und **Farben erkennen** wählen. Ein kleiner Ähnlichkeitswert trennt Farben feiner, ein großer Wert fasst mehr Farben zusammen. Bei 0 werden nur identische RGB-Farben zusammengefasst. Die Mindestdeckkraft ist standardmäßig 128/255 (etwa 50 %); schwächere Pixel werden ignoriert. 1 entspricht dem früheren Verhalten. JPG-Dateien sind deckend und werden vom Deckkraftfilter nicht verändert.
 3. Farbgruppen in der Liste auswählen, um die Exportvorschau zu sehen. Die Häkchen bestimmen, welche Farben exportiert werden. **Alle** und **Keine** setzen die Auswahl gemeinsam. Ohne gewählte Farben ist der Einzelexport deaktiviert.
@@ -149,6 +151,8 @@ Der Export erzeugt einen neuen Unterordner. Dateinamen enthalten laufende Nummer
 **Letzten Export öffnen** ist immer sichtbar und öffnet den zuletzt erfolgreich erstellten Export-Unterordner; beim Stapel-Export den gemeinsamen Stapelordner. Bis zum nächsten erfolgreichen Export bleibt dieses Ziel erhalten, auch nach einem Neustart. Ohne vorhandenen Ordner ist der Button ausgegraut. Der Zielordner für neue Exporte wird weiterhin separat ausgewählt.
 
 ### Vorschauen und Seitenleisten
+
+Die Buttons sind kompakt und ihre Texte und Symbole vertikal zentriert. Die beiden Regler beschriften ihre niedrige und hohe Einstellung links beziehungsweise rechts. Eine fett gesetzte Zusammenfassung steht mit Abstand eine Zeile darunter mittig und bezieht sich auf die gesamte Funktion.
 
 Über den Vorschauen mit einem einzigen Button **Untereinander ⇄ Nebeneinander** umschalten und die Trennlinie auf die gewünschte Position ziehen. Beide Varianten bleiben sichtbar, die aktuelle wird hervorgehoben. Die Anordnung wechselt nicht automatisch mit der Fenstergröße. Die Bilder- und Farbleiste lassen sich an ihren inneren Pfeilgriffen sanft einklappen; beschriftete Griffe, ein dezentes Randlauflicht mit schwächerem synchronen Flächenschimmer und Hinweispunkte halten verborgene Bereiche auffindbar. Im Laser-Modus enthält die rechte Leiste die Seiten.
 

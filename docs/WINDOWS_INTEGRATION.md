@@ -4,6 +4,8 @@
 
 Diese Funktionen sind ab `0.1.0-preview.4` enthalten.
 
+Im vorbereiteten Entwicklungsstand öffnet **Windows-Einbindung** ein eigenes Fenster mit Erklärung, Einrichten, Entfernen und Schließen. Der Button bleibt hervorgehoben, solange das Fenster geöffnet ist. Das Öffnen allein richtet nichts ein und entfernt nichts. Dieses neue Fenster ist noch nicht im veröffentlichten Download `0.1.0-preview.4` enthalten.
+
 - **Drag-and-drop:** Eine oder mehrere PNG-/JPG-/JPEG-Dateien aus dem Explorer in das Fenster ziehen. Die vorhandene Bildliste wird ergänzt. Dieselben normalisierten Dateipfade werden nicht doppelt aufgenommen. Ordner werden nicht durchsucht. Während Laden, Erkennung oder Export wird kein weiterer Drop angenommen.
 - **Einrichten:** Das vollständige Programmpaket zuerst an seinen dauerhaften Speicherort entpacken. `HappyColorSplit.exe` starten und oben **Windows-Einbindung → Explorer-Einträge einrichten / aktualisieren** wählen. Die Einträge gelten nur für das aktuelle Benutzerkonto. Das Standardprogramm für Bilder bleibt unverändert.
 - **Öffnen mit:** Bei PNG, JPG oder JPEG im Explorer **Öffnen mit → HappyColorSplit** auswählen; ggf. unter den weiteren Apps suchen. Windows kann die Darstellung und Reihenfolge der Vorschläge selbst bestimmen.
@@ -16,6 +18,8 @@ Die Einbindung erfolgt freiwillig. Beim normalen Programmstart und beim Laden vo
 Technisch werden ausschließlich eigene Einträge unter `HKEY_CURRENT_USER\Software\Classes` sowie `HappyColorSplit.lnk` im Senden-an-Ordner des Benutzers eingerichtet. Es gibt keine Zuordnung für andere Dateiendungen, keine Änderungen an `UserChoice` und keine Änderungen unter `HKEY_LOCAL_MACHINE`. Der Startbefehl setzt Programmpfad und Dateipfad jeweils in Anführungszeichen. Zusätzliche NuGet-Pakete sind nicht erforderlich.
 
 ## English
+
+In the prepared development version, **Windows integration** opens its own window with help, setup, removal and Close. Its button stays highlighted while the window is open. Opening it never registers or removes anything automatically. This new window is not included in the published `0.1.0-preview.4` download yet.
 
 These features are included starting with `0.1.0-preview.4`.
 
