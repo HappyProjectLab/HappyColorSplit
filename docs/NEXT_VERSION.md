@@ -1,6 +1,24 @@
 # Vorgemerkt für die nächste Version
 
-Stand: 26.10.2026. Im lokalen Entwicklungsstand umgesetzt; noch nicht als neues GitHub-Release veröffentlicht.
+Stand: 26.10.2026. Erledigte Punkte sind im lokalen Entwicklungsstand umgesetzt; offene Punkte sind für den nächsten Release vorgemerkt. Noch nicht als neues GitHub-Release veröffentlicht.
+
+## Noch umzusetzen
+
+- [ ] Die **Laser-Funktion deutlich als experimentell kennzeichnen**: im Modus-Umschaltbutton **„Farbauszüge ⇄ Laser (experimentell)“** anzeigen und im geöffneten Laser-Arbeitsbereich einen gut sichtbaren Hinweis **„Experimentell“** platzieren. Die Kennzeichnung darf nicht nur in einem Tooltip stehen. Englische Entsprechung: **„Laser (experimental)“** beziehungsweise **„Experimental“**. Auch die Beschreibung der Laser-Funktion in README und Anleitung entsprechend kennzeichnen. Bei kleiner Fenstergröße sicherstellen, dass die Kennzeichnung lesbar bleibt. Bis zur nächsten Umsetzung bleibt die Oberfläche unverändert.
+
+- [ ] Das bisherige **Lauflicht beim Aufruf von „Bilder hinzufügen“** entfernen und die Aktivitätsanzeige stattdessen dezent **über den gesamten Fensterhintergrund** laufen lassen. Gemeint ist die Hintergrundfläche des Programms, nicht nur eine Fortschrittslinie oder der Button. Text und Bedienelemente müssen gut lesbar bleiben; der Effekt darf keine Eingaben abfangen. Beim Schließen des Dateidialogs beziehungsweise Abschluss des Imports wieder beenden und die vorhandene Einstellung für reduzierte Bewegung berücksichtigen. Das separate Lauflicht der eingeklappten Seitenleisten bleibt erhalten.
+- [ ] Den zusätzlich eingeblendeten **Abbrechen-Button im Hauptfenster entfernen**. Beim geöffneten Dateidialog ist das Hauptfenster gesperrt, weshalb dieser Knopf dort nicht bedienbar ist. Das reguläre Abbrechen im Dateiauswahldialog bleibt möglich; die interne Abbruch- und Aufräumlogik nicht entfernen. Bis zur nächsten Umsetzung keine Änderung an der Oberfläche.
+
+- [ ] **Windows-Einbindung als eigenes Fenster** statt als aufklappendes Menü gestalten, passend zu **Lizenzen & Hinweise**. Der vorhandene Button öffnet das Fenster und bleibt währenddessen heller hervorgehoben; das Menüsymbol durch ein Symbol für das Öffnen eines Fensters ersetzen. Im Fenster die Erklärung sowie die bestehenden Aktionen zum Einrichten und Entfernen von „Öffnen mit“ und „Senden an“ übersichtlich darstellen und einen Schließen-Button anbieten. Die bisherigen Aktionen bleiben ausdrücklich vom Benutzer ausgelöst. Deutsch und Englisch berücksichtigen. Bis zur nächsten Umsetzung bleibt das bisherige Menü bestehen.
+
+- [ ] Texte und Symbole der neuen Buttons **vertikal zentrieren**, einschließlich der Umschalter mit zwei Varianten und Wechselpfeil sowie Windows-Einbindung, Lizenzen und Ansichtsbuttons. Zuerst die Inhaltsausrichtung korrigieren; danach prüfen, ob eine etwas kleinere gemeinsame Buttonhöhe unnötigen Leerraum reduziert. Alle betroffenen Buttons sollen weiterhin gleich hoch, gut lesbar und bequem anklickbar sein. Darstellung in beiden Sprachen und bei kleiner Fenstergröße kontrollieren. Bis zur nächsten Umsetzung bleibt die Oberfläche unverändert.
+
+- [ ] Die Beschreibungen unter **Farbähnlichkeit** und **Mindestdeckkraft** neu anordnen. Direkt unter jedem Regler stehen die Beschreibungen seiner niedrigen und hohen Einstellung links- beziehungsweise rechtsbündig. Die Zusammenfassung der gesamten Funktion steht mit erkennbarem Abstand **eine Zeile darunter, zentriert und fett**. Sie darf optisch nicht wie die Beschriftung einer mittleren Reglerposition wirken. Name und aktueller Zahlenwert bleiben oberhalb des Reglers.
+  - **Farbähnlichkeit:** links „Fein trennen“, rechts „Stärker zusammenfassen“; darunter mittig und fett „Ähnliche Farben gruppieren“.
+  - **Mindestdeckkraft:** links „Alle sichtbaren Pixel“, rechts „Nur fast deckende Pixel“; darunter mittig und fett „Schwache Pixel ausfiltern“.
+  - Bei der Umsetzung passende englische Texte zentral ergänzen und die Darstellung bei kleiner Fenstergröße prüfen. Bis dahin keine Änderung an der Oberfläche oder Reglerfunktion.
+
+## Bereits lokal umgesetzt
 
 - [x] Den Menüknopf **Ansicht** aus der Oberfläche entfernen.
 - [x] Den gemeinsamen Leistenknopf so ändern, dass er **beide** Seitenleisten gemeinsam ein- und ausblendet. Beim Einblenden beide öffnen, auch wenn zuvor nur eine geöffnet war. Die bisherige Wiederherstellung unterschiedlicher Leistenzustände soll hier entfallen. Gemeldetes Verhalten: „Leisten zeigen“ öffnet teilweise nur die rechte Leiste.
