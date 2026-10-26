@@ -10,7 +10,7 @@
           <TextBlock Text="{Binding Text[WindowsHelp]}" TextWrapping="Wrap" />
           <Button x:Name="EnableIntegrationButton" Content="{Binding Text[WindowsEnable]}" Command="{Binding EnableWindowsIntegrationCommand}" HorizontalAlignment="Left" />
           <Button x:Name="RemoveIntegrationButton" Content="{Binding Text[WindowsRemove]}" Command="{Binding RemoveWindowsIntegrationCommand}" HorizontalAlignment="Left" />
-          <TextBlock Text="{Binding Status}" Classes="muted" TextWrapping="Wrap" />
+          <TextBlock x:Name="IntegrationStatus" Text="{Binding WindowsIntegrationStatus}" Classes="muted" TextWrapping="Wrap" />
         </StackPanel>
       </ScrollViewer>
     </Border>

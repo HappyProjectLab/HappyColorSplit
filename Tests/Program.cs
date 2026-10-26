@@ -284,6 +284,7 @@ try
     LaserRotationRegressionTests.Run(Check);
     ContourSmoothingRegressionTests.Run(root, Check, Pump);
     WorkspaceRegressionTests.Run(root, Check, Pump);
+    ImportActivityRegressionTests.Run(root, Check, Pump);
     if (args.Contains("--capture-baseline") || args.Contains("--verify-baseline"))
     {
         string importDirectory = Path.GetFullPath(Path.Combine("..", "Import"));

@@ -19,9 +19,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private ColorAnalysis? _analysis;
     private CancellationTokenSource? _cancellation;
     private Bitmap? _original, _mask;
-    private bool _busy, _licensesOpen;
+    private bool _busy, _licensesOpen, _importing;
     private bool _showCombinedPreview, _updatingColorSelection;
     private string _filePath = "", _statusKey = "Ready";
+    private (string Key, object[] Args)? _integrationFeedback;
     private object[] _statusArgs = [];
     private int _progress;
     private ColorGroupViewModel? _selected;
@@ -62,10 +63,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public int LanguageIndex
     {
         get => _settings.Language == "en" ? 1 : 0;
-        set { _settings.Language = value == 1 ? "en" : "de"; Changed(); Changed(nameof(EnglishSelected)); Changed(nameof(Text)); Changed(nameof(Status)); Changed(nameof(ErrorDetails)); Changed(nameof(ExportOutputHelp)); Changed(nameof(ImageSizeSummary)); Laser.ChangeLanguage(); RefreshWorkspaceLabels(); SaveSettings(); }
+        set { _settings.Language = value == 1 ? "en" : "de"; Changed(); Changed(nameof(EnglishSelected)); Changed(nameof(Text)); Changed(nameof(Status)); Changed(nameof(WindowsIntegrationStatus)); Changed(nameof(ErrorDetails)); Changed(nameof(ExportOutputHelp)); Changed(nameof(ImageSizeSummary)); Laser.ChangeLanguage(); RefreshWorkspaceLabels(); SaveSettings(); }
     }
     public bool EnglishSelected { get => LanguageIndex == 1; set => LanguageIndex = value ? 1 : 0; }
     public bool IsLicenseWindowOpen { get => _licensesOpen; private set => Set(ref _licensesOpen, value); }
+    public string WindowsIntegrationStatus => _integrationFeedback is { } feedback ? string.Format(Text[feedback.Key], feedback.Args) : "";
     public double Tolerance
     {
         get => _settings.Tolerance;
@@ -206,7 +208,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         Changed(nameof(ScaleDpi)); Changed(nameof(ImageSizeSummary));
         TripleContourResolutionCommand.Refresh();
     }
-    public bool IsBusy { get => _busy; private set { Set(ref _busy, value); Changed(nameof(IsIdle)); RefreshCommands(); } }
+    public bool IsBusy { get => _busy; private set { Set(ref _busy, value); Changed(nameof(IsIdle)); Changed(nameof(ShowProgressBar)); RefreshCommands(); } }
+    public bool IsImporting { get => _importing; private set { if (Set(ref _importing, value)) Changed(nameof(ShowProgressBar)); } }
+    public bool ShowProgressBar => IsBusy && !IsImporting;
     public bool IsIdle => !IsBusy;
     public bool CanIntegrateWithWindows => _windowsIntegration.IsAvailable;
     public string LastExportFolder => _settings.LastExportFolder;
@@ -301,10 +305,16 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         try
         {
             if (enable) _windowsIntegration.Enable(); else _windowsIntegration.Remove();
-            StatusMessage(enable ? "WindowsEnabled" : "WindowsRemoved");
+            WindowsStatusMessage(enable ? "WindowsEnabled" : "WindowsRemoved");
         }
-        catch (Exception error) { StatusMessage("Error", error.Message); }
+        catch (Exception error) { WindowsStatusMessage("Error", error.Message); }
         return Task.CompletedTask;
+    }
+
+    private void WindowsStatusMessage(string key, params object[] args)
+    {
+        _integrationFeedback = (key, args); Changed(nameof(WindowsIntegrationStatus));
+        StatusMessage(key, args);
     }
 
     private async Task ShowLicensesAsync()
@@ -315,19 +325,30 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         finally { IsLicenseWindowOpen = false; }
     }
 
-    private async Task OpenAsync() => await RunAsync(async token =>
+    private async Task OpenAsync()
     {
-        var paths = await _dialogs.OpenImagesAsync(Text);
-        if (paths.Count == 0) return;
-        await AddImagesCoreAsync(paths, token);
-    });
+        IsImporting = true;
+        try
+        {
+            await RunAsync(async token =>
+            {
+                var paths = await _dialogs.OpenImagesAsync(Text);
+                if (paths.Count == 0) return;
+                await AddImagesCoreAsync(paths, token);
+            });
+        }
+        finally { IsImporting = false; }
+    }
 
     // Picker, Explorer launch and drop all use the same validation and loading path.
-    public Task AddImagesAsync(IEnumerable<string> paths)
+    public async Task AddImagesAsync(IEnumerable<string> paths)
     {
-        if (IsBusy) return Task.CompletedTask;
+        if (IsBusy) return;
         string[] snapshot = paths.ToArray();
-        return snapshot.Length == 0 ? Task.CompletedTask : RunAsync(token => AddImagesCoreAsync(snapshot, token));
+        if (snapshot.Length == 0) return;
+        IsImporting = true;
+        try { await RunAsync(token => AddImagesCoreAsync(snapshot, token)); }
+        finally { IsImporting = false; }
     }
 
     private async Task AddImagesCoreAsync(IEnumerable<string> paths, CancellationToken token)

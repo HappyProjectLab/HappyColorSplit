@@ -61,10 +61,12 @@ internal static class ImageInputRegressionTests
         Avalonia.Threading.Dispatcher.UIThread.RunJobs();
         var integrationWindow = window.OwnedWindows.OfType<HappyColorSplit.Views.WindowsIntegrationWindow>().Single();
         var enable = integrationWindow.FindControl<Button>("EnableIntegrationButton")!;
+        check(string.IsNullOrEmpty(integrationWindow.FindControl<TextBlock>("IntegrationStatus")!.Text), "Integration window does not show unrelated image-processing status");
         check(enable.Command == vm.EnableWindowsIntegrationCommand, "Explorer setup window binds to the application commands");
         check(!integration.Enabled, "Opening Windows integration never changes Explorer settings automatically");
         enable.Command!.Execute(null);
         check(integration.Enabled && vm.Status.Contains("eingerichtet"), "Explorer integration is explicitly enabled by a user command");
+        check(integrationWindow.FindControl<TextBlock>("IntegrationStatus")!.Text!.Contains("eingerichtet"), "Integration actions report their result in the owned window");
         vm.RemoveWindowsIntegrationCommand.Execute(null);
         check(!integration.Enabled && vm.Status.Contains("entfernt"), "Explorer integration can be removed from the app");
         integration.Fail = true;
