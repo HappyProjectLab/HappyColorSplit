@@ -68,7 +68,7 @@ public sealed class CollapsibleSidebar : ContentControl
         _rail.Click += (_, _) => SetCurrentValue(IsCollapsedProperty, false);
         _rail.PointerEntered += (_, _) => _rail.Background = Brush("#EF263C50");
         _rail.PointerExited += (_, _) => _rail.Background = Brush("#E3182433");
-        grid.Children.Add(_rail); _beacon = new SidebarBeacon { Width = 2 }; grid.Children.Add(_beacon);
+        grid.Children.Add(_rail); _beacon = new SidebarBeacon { Width = RailWidth }; grid.Children.Add(_beacon);
         ApplyState(false); return grid;
     }
     private static IBrush Brush(string color) => new SolidColorBrush(Color.Parse(color));
@@ -104,6 +104,7 @@ public sealed class CollapsibleSidebar : ContentControl
         _railText!.Text = RailLabel; _arrow!.Text = IsRight ? "‹" : "›"; _notice!.IsVisible = HasNotice;
         ToolTip.SetTip(_rail, RailLabel); Avalonia.Automation.AutomationProperties.SetName(_rail, RailLabel);
         _beacon.HorizontalAlignment = IsRight ? Avalonia.Layout.HorizontalAlignment.Left : Avalonia.Layout.HorizontalAlignment.Right;
+        _beacon.EdgeOnLeft = IsRight; _beacon.Opacity = progress;
         _beacon.IsVisible = progress > 0; _beacon.SetRunning(_attached && IsCollapsed && !ReduceMotion);
     }
 }
