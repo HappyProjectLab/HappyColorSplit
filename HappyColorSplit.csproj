@@ -27,6 +27,7 @@
     <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.1" />
     <PackageReference Include="SkiaSharp" Version="3.119.4" />
     <AvaloniaResource Include="Assets/**" />
+    <AvaloniaResource Include="docs/images/01_Titelcollage.png" />
     <Compile Remove="Tests/**" />
     <None Update="LICENSE" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <None Update="licenses/**" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />

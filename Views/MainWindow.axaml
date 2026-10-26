@@ -4,6 +4,11 @@
         x:Class="HappyColorSplit.Views.MainWindow"
         Title="HappyColorSplit" Width="1380" Height="870" MinWidth="1120" MinHeight="740"
         Background="#111824" Icon="/Assets/HappyColorSplit.ico">
+  <Window.Styles>
+    <Style Selector="Border.panel"><Setter Property="Background" Value="#E61C2432" /></Style>
+  </Window.Styles>
+  <Grid>
+    <controls:WindowBackdrop Opacity="0.12" />
   <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" Margin="28" RowSpacing="16">
     <Grid ColumnDefinitions="*,Auto">
       <StackPanel Spacing="6">
@@ -244,5 +249,6 @@
     <Expander Grid.Row="4" Header="{Binding Text[ErrorDetails]}" IsVisible="{Binding HasErrors}" HorizontalAlignment="Stretch">
       <TextBox Text="{Binding ErrorDetails, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" MaxHeight="100" />
     </Expander>
+  </Grid>
   </Grid>
 </Window>

@@ -220,7 +220,7 @@ Grenzen: maximal 16 Millionen Pixel je Eingabebild und je skaliertem Exportbild 
 
 ## Technik und Struktur
 
-- C#, .NET 10, Avalonia 12.1.1 mit AXAML, dunkles Fluent-Theme und Inter.
+- C#, .NET 10, Avalonia 12.1.1 mit AXAML, dunkles Fluent-Theme und Inter. Die Titelcollage erscheint dezent in Graustufen im Fensterhintergrund.
 - `Views`: Fenster und Ansichten; `ViewModels`: Zustand und Befehle; `Models`: Daten; `Services`: Bildverarbeitung, Anordnung, Dateiauswahl, Einstellungen und Übersetzungen; `Controls`: Farbkachel und interaktive Laser-Arbeitsfläche; `Assets`: Programmsymbol.
 - Zentral verwaltete deutsche und englische Texte in `Services/Texts.cs`.
 - Einstellungen: `%LOCALAPPDATA%\HappyColorSplit\settings.json` (Sprache, Farbähnlichkeit, Mindestdeckkraft, Flächenfarbe, Export-Hintergrund, Konturglättung, letzter Exportordner, Größen-Einheit und DPI-Vorgabe sowie Laser-Arbeitsfläche, Abstände und Materialfarben).
