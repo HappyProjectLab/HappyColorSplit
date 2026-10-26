@@ -1,6 +1,6 @@
 # Harte Konturen glätten / Smooth hard contours
 
-Die Funktion gehört zum lokalen Entwicklungsstand, noch nicht zum öffentlichen Download `0.1.0-preview.4`.
+Die Funktion ist ab `0.1.0-preview.5` im öffentlichen Download enthalten.
 
 ## Bedienung
 

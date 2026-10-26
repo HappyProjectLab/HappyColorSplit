@@ -1,6 +1,6 @@
 # Arbeitsbereich und Vorschauen / Workspace and previews
 
-Diese Funktionen gehören zum vorbereiteten Entwicklungsstand und sind noch nicht im veröffentlichten Download `0.1.0-preview.4` enthalten.
+Diese Funktionen sind ab `0.1.0-preview.5` im Windows-Download enthalten.
 
 ## Deutsch
 
@@ -29,7 +29,7 @@ Die erweiterte Einstellung `Workspace.ReduceMotion` bleibt in dieser JSON-Datei 
 
 ## English
 
-These features belong to the prepared development version and are not included in the published `0.1.0-preview.4` download yet.
+These features are included in the Windows download starting with `0.1.0-preview.5`.
 
 View buttons share a compact 32-pixel height with vertically centered text and symbols. Under **Color similarity** and **Minimum opacity**, left- and right-aligned labels describe the low and high settings. The bold, centered summary sits on a separate line below with extra spacing; it does not label the slider's midpoint.
 

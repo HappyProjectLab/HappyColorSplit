@@ -1,8 +1,8 @@
-# Vorgemerkt für die nächste Version
+# Umgesetzt für 0.1.0-preview.5
 
-Stand: 26.10.2026. Erledigte Punkte sind im lokalen Entwicklungsstand umgesetzt; offene Punkte sind für den nächsten Release vorgemerkt. Noch nicht als neues GitHub-Release veröffentlicht.
+Stand: 26.10.2026. Die abgehakten Punkte sind Bestandteil von `0.1.0-preview.5`. Offene Wünsche für spätere Versionen stehen in [FEATURE_REQUESTS.md](FEATURE_REQUESTS.md).
 
-## Für diesen Release lokal umgesetzt
+## Für diesen Release umgesetzt
 
 - [x] Die **Laser-Funktion deutlich als experimentell kennzeichnen**: im Modus-Umschaltbutton **„Farbauszüge ⇄ Laser (experimentell)“** anzeigen und im geöffneten Laser-Arbeitsbereich einen gut sichtbaren Hinweis **„Experimentell“** platzieren. Die Kennzeichnung darf nicht nur in einem Tooltip stehen. Englische Entsprechung: **„Laser (experimental)“** beziehungsweise **„Experimental“**. Auch die Beschreibung der Laser-Funktion in README und Anleitung entsprechend kennzeichnen. Bei kleiner Fenstergröße sicherstellen, dass die Kennzeichnung lesbar bleibt.
 
@@ -18,7 +18,7 @@ Stand: 26.10.2026. Erledigte Punkte sind im lokalen Entwicklungsstand umgesetzt;
   - **Mindestdeckkraft:** links „Alle sichtbaren Pixel“, rechts „Nur fast deckende Pixel“; darunter mittig und fett „Schwache Pixel ausfiltern“.
   - Bei der Umsetzung passende englische Texte zentral ergänzen und die Darstellung bei kleiner Fenstergröße prüfen.
 
-## Bereits zuvor lokal umgesetzt
+## Weitere Änderungen dieses Releases
 
 - [x] Den Menüknopf **Ansicht** aus der Oberfläche entfernen.
 - [x] Den gemeinsamen Leistenknopf so ändern, dass er **beide** Seitenleisten gemeinsam ein- und ausblendet. Beim Einblenden beide öffnen, auch wenn zuvor nur eine geöffnet war. Die bisherige Wiederherstellung unterschiedlicher Leistenzustände soll hier entfallen. Gemeldetes Verhalten: „Leisten zeigen“ öffnet teilweise nur die rechte Leiste.
@@ -30,7 +30,7 @@ Stand: 26.10.2026. Erledigte Punkte sind im lokalen Entwicklungsstand umgesetzt;
 - [x] Moduswechsel genauso gestalten: genau ein Button **Farbauszüge ⇄ Laser**, beide Varianten sichtbar und aktuelle Variante hervorgehoben. Laser erhält den helleren Hintergrund.
 - [x] Sprachwahl als einen Button **Deutsch ⇄ English** mit Hervorhebung der aktuellen Sprache gestalten.
 - [x] **Zoom koppeln** als Schaltbutton statt „Synchron“ verwenden.
-- [x] **Windows-Einbindung** und **Lizenzen & Hinweise** optisch an diese Buttons angleichen. Sie öffnen weiterhin Menü beziehungsweise Fenster; eine helle Hervorhebung zeigt deren geöffneten Zustand, keine dauerhafte Aktivierung.
+- [x] **Windows-Einbindung** und **Lizenzen & Hinweise** optisch an diese Buttons angleichen. Sie öffnen jeweils ein eigenes Fenster; eine helle Hervorhebung zeigt deren geöffneten Zustand, keine dauerhafte Aktivierung.
 - [x] Ein schwächeres Flächenlauflicht auf den gesamten eingeklappten Seitenleisten ergänzen. Randlicht und Flächenschimmer sowie beide Seitenleisten laufen synchron.
 - [x] Zugehörige Bedienungsanleitung und Funktionsprüfungen bei der Umsetzung aktualisieren.
 

@@ -4,7 +4,7 @@
 
 Diese Funktionen sind ab `0.1.0-preview.4` enthalten.
 
-Im vorbereiteten Entwicklungsstand öffnet **Windows-Einbindung** ein eigenes Fenster mit Erklärung, Einrichten, Entfernen und Schließen. Der Button bleibt hervorgehoben, solange das Fenster geöffnet ist. Das Öffnen allein richtet nichts ein und entfernt nichts. Dieses neue Fenster ist noch nicht im veröffentlichten Download `0.1.0-preview.4` enthalten.
+Seit `0.1.0-preview.5` öffnet **Windows-Einbindung** ein eigenes Fenster mit Erklärung, Einrichten, Entfernen und Schließen. Der Button bleibt hervorgehoben, solange das Fenster geöffnet ist. Das Öffnen allein richtet nichts ein und entfernt nichts. Dieses neue Fenster ist ab `0.1.0-preview.5` im veröffentlichten Download enthalten.
 
 - **Drag-and-drop:** Eine oder mehrere PNG-/JPG-/JPEG-Dateien aus dem Explorer in das Fenster ziehen. Die vorhandene Bildliste wird ergänzt. Dieselben normalisierten Dateipfade werden nicht doppelt aufgenommen. Ordner werden nicht durchsucht. Während Laden, Erkennung oder Export wird kein weiterer Drop angenommen.
 - **Einrichten:** Das vollständige Programmpaket zuerst an seinen dauerhaften Speicherort entpacken. `HappyColorSplit.exe` starten und oben **Windows-Einbindung → Explorer-Einträge einrichten / aktualisieren** wählen. Die Einträge gelten nur für das aktuelle Benutzerkonto. Das Standardprogramm für Bilder bleibt unverändert.
@@ -19,7 +19,7 @@ Technisch werden ausschließlich eigene Einträge unter `HKEY_CURRENT_USER\Softw
 
 ## English
 
-In the prepared development version, **Windows integration** opens its own window with help, setup, removal and Close. Its button stays highlighted while the window is open. Opening it never registers or removes anything automatically. This new window is not included in the published `0.1.0-preview.4` download yet.
+Starting with `0.1.0-preview.5`, **Windows integration** opens its own window with help, setup, removal and Close. Its button stays highlighted while the window is open. Opening it never registers or removes anything automatically. This new window is included in the published download starting with `0.1.0-preview.5`.
 
 These features are included starting with `0.1.0-preview.4`.
 

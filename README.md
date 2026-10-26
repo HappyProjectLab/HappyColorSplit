@@ -2,9 +2,9 @@
 
 Windows-Desktop-Anwendung zum Trennen ähnlicher Farben aus PNG- und JPG-Bildern – als Ausgangspunkt für Siebdruck-Schablonen, Plotterfolien und Laser-Applikationen. Ausgewählte Farbgruppen lassen sich einzeln oder gemeinsam als PNG exportieren. Im **experimentellen Laser-Bereich** können ihre Einzelteile auf Materialseiten angeordnet und anschließend von Hand bearbeitet werden.
 
-Zuletzt veröffentlichter Download: **0.1.0-preview.4**. Dies ist eine Vorabversion. Das öffentliche Repository befindet sich unter [HappyProjectLab/HappyColorSplit](https://github.com/HappyProjectLab/HappyColorSplit).
+Zuletzt veröffentlichter Download: **0.1.0-preview.5**. Dies ist eine Vorabversion. Das öffentliche Repository befindet sich unter [HappyProjectLab/HappyColorSplit](https://github.com/HappyProjectLab/HappyColorSplit).
 
-**Stand dieser README:** Die neuen Funktionen beschreiben den vorbereiteten Entwicklungsstand. Sie sind noch nicht im unten verlinkten Download `0.1.0-preview.4` enthalten.
+**Stand dieser README:** Die beschriebenen Funktionen sind im unten verlinkten Download `0.1.0-preview.5` enthalten. Der Laser-Bereich ist experimentell.
 
 ## Funktionsübersicht
 
@@ -24,13 +24,13 @@ Standard für Farbauszüge ist **weiße Farbfläche auf schwarzem Hintergrund**.
 
 ## Programm herunterladen
 
-### [⬇ HappyColorSplit für Windows herunterladen (ZIP, x64)](https://github.com/HappyProjectLab/HappyColorSplit/releases/download/v0.1.0-preview.4/HappyColorSplit-0.1.0-preview.4-Windows-x64.zip)
+### [⬇ HappyColorSplit für Windows herunterladen (ZIP, x64)](https://github.com/HappyProjectLab/HappyColorSplit/releases/download/v0.1.0-preview.5/HappyColorSplit-0.1.0-preview.5-Windows-x64.zip)
 
 ZIP vollständig entpacken und im Ordner `HappyColorSplit` die Datei **HappyColorSplit.exe** starten. **Die .NET-Laufzeit ist enthalten; eine zusätzliche .NET-Installation ist nicht erforderlich.** Alle Dateien und Unterordner zusammen behalten.
 
 Voraussetzung: Windows 10/11 mit x64-Prozessor. Dies ist eine Vorabversion. Der Download ist öffentlich zugänglich; ein GitHub-Konto ist dafür nicht erforderlich.
 
-[Versionshinweise, Quellcode und SHA-256-Prüfsummen](https://github.com/HappyProjectLab/HappyColorSplit/releases/tag/v0.1.0-preview.4)
+[Versionshinweise, Quellcode und SHA-256-Prüfsummen](https://github.com/HappyProjectLab/HappyColorSplit/releases/tag/v0.1.0-preview.5)
 
 ### Windows blockiert den Start? (Defender SmartScreen)
 
@@ -57,7 +57,7 @@ Aus der Vorbereitung meines Latex-Siebdruck-Projekts ist HappyColorSplit entstan
 
 Die echte Programmoberfläche zeigt das Ausgangsmotiv und die Vorschau eines Farbauszugs. Hier sind fünf Farbgruppen für den Export ausgewählt; die zusätzliche Übergangsfarbe bleibt abgewählt.
 
-Die Abbildung zeigt einen früheren Oberflächenstand. Flächenfarbe und Export-Hintergrund sind inzwischen getrennt wählbar; der vorbereitete Entwicklungsstand ergänzt unter anderem Konturglättung und den Laser-Arbeitsbereich.
+Die Abbildung zeigt einen früheren Oberflächenstand. Flächenfarbe und Export-Hintergrund sind inzwischen getrennt wählbar; Version 0.1.0-preview.5 ergänzt unter anderem Konturglättung und den Laser-Arbeitsbereich.
 
 ### Ein Motiv, fünf Farbauszüge
 
@@ -117,15 +117,15 @@ dotnet run --project HappyColorSplit.csproj
 
 ## Verwendung
 
-**Neu in 0.1.0-preview.4:** Drag-and-drop, optionale Windows-Einbindung, ein Button für den letzten Exportordner und getrennte Auswahlen für Flächenfarbe und Export-Hintergrund.
+**Neu in 0.1.0-preview.5:** Individuelle Bildgrößen, gespeicherte Farbauswahl je Bild, kombinierter PNG-Export, harte Konturglättung, ein anpassbarer Vorschau-Arbeitsbereich und der experimentelle Laser-Modus. Die Windows-Einbindung öffnet ein eigenes Fenster; die Importaktivität erscheint dezent im Fensterhintergrund.
 
-Die nachfolgenden Schritte beschreiben den vorbereiteten Entwicklungsstand; die Abgrenzung zum veröffentlichten Download steht oben.
+Die nachfolgenden Schritte beschreiben Version 0.1.0-preview.5.
 
 Ein oder mehrere Bilder lassen sich auf das Programmfenster ziehen. Unterstützt werden `.png`, `.jpg` und `.jpeg`; andere Formate und beschädigte Dateien werden nicht geladen. Bei gemischter Auswahl werden gültige Bilder übernommen und Fehler angezeigt. Während einer Verarbeitung nimmt das Fenster keine weiteren Dateien entgegen.
 
 Unter **Windows-Einbindung** lassen sich **Öffnen mit → HappyColorSplit** und **Senden an → HappyColorSplit** für das eigene Benutzerkonto einrichten und wieder entfernen. Das Standardprogramm für Bilder wird dabei nicht geändert; Administratorrechte sind nicht nötig. Details und die englische Anleitung: [Windows-Einbindung](docs/WINDOWS_INTEGRATION.md).
 
-Im Entwicklungsstand öffnet die Windows-Einbindung ein eigenes Fenster. Beim Hinzufügen von Bildern zeigt ein dezenter Effekt über dem gesamten Fensterhintergrund die laufende Dateiauswahl beziehungsweise den Import an. Abbrechen ist im Dateiauswahldialog möglich; der zusätzliche Abbrechen-Knopf im Hauptfenster entfällt. Die internen Abbruch- und Aufräumabläufe bleiben erhalten.
+Seit 0.1.0-preview.5 öffnet die Windows-Einbindung ein eigenes Fenster. Beim Hinzufügen von Bildern zeigt ein dezenter Effekt über dem gesamten Fensterhintergrund die laufende Dateiauswahl beziehungsweise den Import an. Abbrechen ist im Dateiauswahldialog möglich; der zusätzliche Abbrechen-Knopf im Hauptfenster entfällt. Die internen Abbruch- und Aufräumabläufe bleiben erhalten.
 
 1. Ein oder mehrere PNG-/JPG-Bilder über **Bilder hinzufügen** auswählen (Strg/Shift im Dateidialog). Weitere Auswahlvorgänge ergänzen die Liste; dieselbe Datei wird nicht doppelt aufgenommen.
 2. Farbähnlichkeit und **Mindestdeckkraft** einstellen und **Farben erkennen** wählen. Ein kleiner Ähnlichkeitswert trennt Farben feiner, ein großer Wert fasst mehr Farben zusammen. Bei 0 werden nur identische RGB-Farben zusammengefasst. Die Mindestdeckkraft ist standardmäßig 128/255 (etwa 50 %); schwächere Pixel werden ignoriert. 1 entspricht dem früheren Verhalten. JPG-Dateien sind deckend und werden vom Deckkraftfilter nicht verändert.
@@ -140,7 +140,7 @@ Die Mindestdeckkraft gilt für alle Bilder. Nach der ersten erfolgreichen Erkenn
 
 Der Button **Farbauswahl vereinen** rechts über den Vorschauen zeigt diese gemeinsame Maske mit den aktuellen Ausgabeoptionen. Änderungen an den Häkchen aktualisieren sie sofort. Die Vorschau-Einstellung ändert nicht die Exportart: **Alle Bilder exportieren** erzeugt weiterhin einzelne Farb-PNGs; **Kombiniert exportieren** erzeugt Dateien mit der Endung `_merged.png`, jeweils in einem eigenen Bild-Unterordner. Beide Exportarten verwenden ausschließlich die gespeicherten Häkchen des jeweiligen Bildes und dessen eigene Größe und DPI.
 
-Die Vorschauen lassen sich mit Mausrad oder Plus/Minus vergrößern und mit der linken Maustaste verschieben. **Einpassen** oder Doppelklick setzt den Ausschnitt zurück. Ein gesonderter Knopf für Detailansicht und Überlagerung wird im aktuellen Entwicklungsstand nicht mehr angezeigt.
+Die Vorschauen lassen sich mit Mausrad oder Plus/Minus vergrößern und mit der linken Maustaste verschieben. **Einpassen** oder Doppelklick setzt den Ausschnitt zurück. Ein gesonderter Knopf für Detailansicht und Überlagerung wird seit 0.1.0-preview.5 nicht mehr angezeigt.
 
 Die Bildliste zeigt Miniaturvorschauen. Ein Klick auf ein Bild zeigt dessen Original; **Farben erkennen** erzeugt die zugehörigen Farbgruppen und Maskenvorschauen. Die Farbauswahl bereits geprüfter Bilder bleibt beim Bildwechsel erhalten. Mit **Entfernen** oder **Liste leeren** lassen sich Bilder aus der Liste nehmen.
 

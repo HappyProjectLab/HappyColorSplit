@@ -2,7 +2,7 @@
 
 ## Bedienung
 
-Der Laser-Modus ist Teil des lokalen Entwicklungsstands und noch nicht im Download `0.1.0-preview.4` enthalten. Er erstellt PNG-Vorlagen mit platzierten Applikationen. Die Bilderkennung, Häkchen je Bild, individuellen Bildmaße und Ausgabefarben werden mit dem normalen Farbauszugs-Modus gemeinsam genutzt.
+Der experimentelle Laser-Modus ist ab `0.1.0-preview.5` im Download enthalten. Er erstellt PNG-Vorlagen mit platzierten Applikationen. Die Bilderkennung, Häkchen je Bild, individuellen Bildmaße und Ausgabefarben werden mit dem normalen Farbauszugs-Modus gemeinsam genutzt.
 
 Nach dem Import gegebenenfalls die Bildgröße in cm oder % einstellen und **Farben erkennen** ausführen. Im Bereich **Farbauszüge** die auszuschneidenden Farben pro Bild anhaken. Nicht erkannte Bilder und Bilder ohne Häkchen gehören nicht zur Laser-Anordnung. Auch eine angehakte Hintergrundfarbe wird als Materialfläche behandelt; bei Bedarf abwählen.
 
