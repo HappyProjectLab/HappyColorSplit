@@ -46,6 +46,8 @@ public sealed class Texts(string language)
         ["SmoothContoursHelp"] = ["Gilt für alle Bilder, einzelne und kombinierte Farbauszüge sowie die Laser-Teilerkennung. Glättet beim Vergrößern, ohne graue oder halbtransparente Randpixel. Bei 100 % bleibt das Pixelraster erhalten. Für mehr Konturauflösung unter Bildgröße zuerst cm wählen und dann die DPI erhöhen: Die Zentimetergröße bleibt gleich. Kleine Details, Spitzen und enge Lücken bitte prüfen. Für Laser-Seiten danach erneut anordnen.", "Applies to all images, individual/merged layers and laser part extraction. Smooths enlargement without grey or semitransparent edge pixels. At 100% the source pixel grid is retained. For higher contour resolution, select cm under Image size, then increase DPI: physical size stays the same. Check tiny details, tips and narrow gaps. Rearrange laser pages afterwards."],
         ["ColorWorkspace"] = ["Farbauszüge", "Color layers"],
         ["LaserWorkspace"] = ["Laser", "Laser"],
+        ["LaserWorkspaceExperimental"] = ["Laser (experimentell)", "Laser (experimental)"],
+        ["Experimental"] = ["Experimentell", "Experimental"],
         ["LaserSettings"] = ["Laser-Einstellungen", "Laser settings"],
         ["LaserArrange"] = ["Anordnen", "Arrange"],
         ["LaserMaterials"] = ["Vorhandene Materialfarben", "Available material colors"],

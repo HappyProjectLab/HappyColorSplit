@@ -82,7 +82,12 @@
       <Button Content="{Binding Text[LaserUndoMove]}" Command="{Binding UndoMoveCommand}" FontSize="11" Padding="10,10" />
       <Button Content="↻" Command="{Binding RotateClockwiseCommand}" ToolTip.Tip="{Binding Text[LaserRotateTip]}" AutomationProperties.Name="{Binding Text[LaserRotateRight]}" FontSize="18" Padding="8,5" />
     </StackPanel>
-    <TextBlock Grid.Row="1" Text="{Binding PageInfo}" TextWrapping="Wrap" FontSize="12" Classes="muted" />
+    <WrapPanel Grid.Row="1">
+      <Border Background="#352B1C" BorderBrush="#A48242" BorderThickness="1" CornerRadius="5" Padding="7,3" Margin="0,0,10,3">
+        <TextBlock x:Name="LaserExperimentalBadge" Text="{Binding Text[Experimental]}" Foreground="#FFD790" FontWeight="SemiBold" FontSize="11" />
+      </Border>
+      <TextBlock Text="{Binding PageInfo}" TextWrapping="Wrap" FontSize="12" Classes="muted" VerticalAlignment="Center" />
+    </WrapPanel>
     <Border Grid.Row="2" Background="#10151F" CornerRadius="8" ClipToBounds="True">
       <Grid>
         <controls:LaserWorkspaceCanvas Preview="{Binding Preview}" Page="{Binding SelectedPage.Page}"

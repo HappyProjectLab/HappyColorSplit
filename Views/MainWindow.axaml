@@ -46,7 +46,7 @@
           <StackPanel Orientation="Horizontal" Spacing="7">
             <TextBlock Text="{Binding Text[ColorWorkspace]}" Classes="switch-option" Classes.current="{Binding !IsLaserMode}" />
             <TextBlock Text="⇄" Opacity="0.65" />
-            <TextBlock Text="{Binding Text[LaserWorkspace]}" Classes="switch-option" Classes.current="{Binding IsLaserMode}" />
+            <TextBlock Text="{Binding Text[LaserWorkspaceExperimental]}" Classes="switch-option" Classes.current="{Binding IsLaserMode}" />
           </StackPanel>
         </ToggleButton>
         <Button x:Name="WindowsIntegrationButton" Classes="toolbar" IsVisible="{Binding CanIntegrateWithWindows}" Click="WindowsIntegration_OnClick">

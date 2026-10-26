@@ -1,6 +1,6 @@
 # HappyColorSplit
 
-Windows-Desktop-Anwendung zum Trennen ähnlicher Farben aus PNG- und JPG-Bildern – als Ausgangspunkt für Siebdruck-Schablonen, Plotterfolien und Laser-Applikationen. Ausgewählte Farbgruppen lassen sich einzeln oder gemeinsam als PNG exportieren. Für Laser-Vorlagen können ihre Einzelteile auf Materialseiten angeordnet und anschließend von Hand bearbeitet werden.
+Windows-Desktop-Anwendung zum Trennen ähnlicher Farben aus PNG- und JPG-Bildern – als Ausgangspunkt für Siebdruck-Schablonen, Plotterfolien und Laser-Applikationen. Ausgewählte Farbgruppen lassen sich einzeln oder gemeinsam als PNG exportieren. Im **experimentellen Laser-Bereich** können ihre Einzelteile auf Materialseiten angeordnet und anschließend von Hand bearbeitet werden.
 
 Zuletzt veröffentlichter Download: **0.1.0-preview.4**. Dies ist eine Vorabversion. Das öffentliche Repository befindet sich unter [HappyProjectLab/HappyColorSplit](https://github.com/HappyProjectLab/HappyColorSplit).
 
@@ -17,8 +17,8 @@ Zuletzt veröffentlichter Download: **0.1.0-preview.4**. Dies ist eine Vorabvers
 | Ausgabe gestalten | Flächen in Schwarz, Weiß, Transparent oder Gruppenfarbe; Hintergrund in Schwarz, Grau, Weiß oder Transparent |
 | Konturen glätten | Optionale harte Konturglättung; dreifache Auflösung bei gleicher beabsichtigter cm-Größe |
 | Arbeitsbereich anpassen | Vorschauen manuell neben- oder untereinander, verstellbare Trennlinie, einklappbare Leisten, optional synchroner Zoom |
-| Laser-Vorlagen anordnen | Eigene Arbeitsfläche und Materialfarben; Seiten je Material; Aussparungen nutzen und automatisch nachoptimieren |
-| Laser-Vorlagen bearbeiten | Einzelteile links ziehen, Bereiche rechts ziehen, freie Mehrfachauswahl, gemeinsame Vierteldrehungen und Rückgängig |
+| Laser-Vorlagen anordnen (experimentell) | Eigene Arbeitsfläche und Materialfarben; Seiten je Material; Aussparungen nutzen und automatisch nachoptimieren |
+| Laser-Vorlagen bearbeiten (experimentell) | Einzelteile links ziehen, Bereiche rechts ziehen, freie Mehrfachauswahl, gemeinsame Vierteldrehungen und Rückgängig |
 
 Standard für Farbauszüge ist **weiße Farbfläche auf schwarzem Hintergrund**. Ohne Größenänderung werden die Originalpixelmaße verwendet. Die Ausgabe besteht aus PNG-Bildvorlagen; Maschinenbefehle und Vektor-Schnittpfade werden nicht erzeugt.
 
@@ -178,7 +178,9 @@ Neben **Flächen exportieren als** auf **Konturen** klicken. **Harte Konturen gl
 
 Bei 100 % bleibt die ursprüngliche Pixelmaske erhalten. Zusätzliche Ausgabepixel ermöglichen feinere Konturen, rekonstruieren aber keine verlorenen Originaldetails. Kleine Inseln, schmale Linien, Spitzen und enge Lücken in der Vorschau und im exportierten PNG prüfen. Für Laser-Ausgaben auch die Seiten-DPI berücksichtigen und nach einer Änderung erneut anordnen. Details: [Konturglättung](docs/CONTOUR_SMOOTHING.md).
 
-## Laser / Applikationen
+## Laser / Applikationen (experimentell)
+
+Die Laser-Funktion ist **experimentell**. Dies wird direkt im Umschalter **Laser (experimentell)** und durch eine sichtbare Kennzeichnung im Laser-Arbeitsbereich angezeigt. English: **Laser (experimental)** / **Experimental**.
 
 Oben zwischen **Farbauszüge** und **Laser** wechseln. Der Laser-Arbeitsbereich nutzt die Fläche der bisherigen Original- und Exportvorschau; rechts erscheint eine Liste der angelegten Materialseiten.
 

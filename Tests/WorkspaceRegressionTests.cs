@@ -132,6 +132,9 @@ internal static class WorkspaceRegressionTests
             var mode = window.FindControl<ToggleButton>("WorkspaceSelector")!;
             Click(window, mode);
             check(vm.RightSidebarCollapsed && vm.RightRailLabel.StartsWith("Expand pages") && !panels.IsVisible, "Laser mode uses the full center and the same collapsed rail for pages");
+            check(mode.GetVisualDescendants().OfType<TextBlock>().Any(t => t.Text == "Laser (experimental)")
+                && window.GetVisualDescendants().OfType<TextBlock>().Any(t => t.Name == "LaserExperimentalBadge" && t.Text == "Experimental" && t.IsVisible),
+                "Laser is visibly marked experimental in the mode switch and workspace");
             vm.AnalyzeCommand.Execute(null); pump(() => !vm.IsBusy);
             vm.Laser.MaterialHex = "#E60A50"; vm.Laser.AddMaterialCommand.Execute(null);
             vm.Laser.ArrangeCommand.Execute(null); pump(() => !vm.IsBusy); Layout();
