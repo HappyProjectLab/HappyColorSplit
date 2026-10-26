@@ -75,7 +75,7 @@ internal static class WorkspaceRegressionTests
             licenses.Close(); pump(() => !vm.IsLicenseWindowOpen); Layout();
             check(!licenseButton.Classes.Contains("open"), "Closing licenses clears its highlight");
             check(new Control[] { selector, language, windowsButton, licenseButton, window.FindControl<ToggleButton>("SyncPreviewsToggle")!,
-                window.FindControl<ToggleButton>("SidebarsToggle")!, window.FindControl<ToggleButton>("CombinedPreviewToggle")! }.All(c => c.Height == 34),
+                window.FindControl<ToggleButton>("SidebarsToggle")!, window.FindControl<ToggleButton>("CombinedPreviewToggle")! }.All(c => c.Height == 32),
                 "All header and preview-toolbar buttons share a consistent height");
             check(!window.GetVisualDescendants().OfType<Button>().Any(b => Equals(b.Content, "View") || Equals(b.Content, "Detail view / overlay")),
                 "View and detail/overlay buttons are removed from the main window");

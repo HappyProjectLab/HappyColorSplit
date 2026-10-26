@@ -7,8 +7,9 @@
   <Window.Styles>
     <Style Selector="Border.panel"><Setter Property="Background" Value="#E61C2432" /></Style>
     <Style Selector=":is(Button).toolbar">
-      <Setter Property="Height" Value="34" /><Setter Property="MinHeight" Value="34" />
-      <Setter Property="Padding" Value="10,6" /><Setter Property="FontSize" Value="12" />
+      <Setter Property="Height" Value="32" /><Setter Property="MinHeight" Value="32" />
+      <Setter Property="Padding" Value="10,4" /><Setter Property="FontSize" Value="12" />
+      <Setter Property="VerticalContentAlignment" Value="Center" /><Setter Property="HorizontalContentAlignment" Value="Center" />
       <Setter Property="CornerRadius" Value="8" /><Setter Property="BorderThickness" Value="1" />
       <Setter Property="Background" Value="#182433" /><Setter Property="BorderBrush" Value="#3C5065" /><Setter Property="Foreground" Value="#D8E5EF" />
     </Style>
@@ -28,6 +29,7 @@
       <Setter Property="Background" Value="#476D87" />
     </Style>
     <Style Selector=":is(Button).toolbar:disabled"><Setter Property="Opacity" Value="0.45" /></Style>
+    <Style Selector=":is(Button).toolbar TextBlock"><Setter Property="VerticalAlignment" Value="Center" /></Style>
     <Style Selector="TextBlock.switch-option"><Setter Property="Opacity" Value="0.58" /></Style>
     <Style Selector="TextBlock.switch-option.current"><Setter Property="Opacity" Value="1" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
   </Window.Styles>
@@ -80,7 +82,11 @@
             <TextBlock Grid.Column="1" Text="{Binding Tolerance, StringFormat={}{0:0}}" Foreground="#7DD3FC" />
           </Grid>
           <Slider Minimum="0" Maximum="150" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding Tolerance, Mode=TwoWay}" />
-          <TextBlock Text="{Binding Text[ToleranceHelp]}" Classes="muted" FontSize="11" TextWrapping="Wrap" />
+          <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+            <TextBlock Text="{Binding Text[ToleranceLow]}" Classes="muted" FontSize="11" TextWrapping="Wrap" />
+            <TextBlock Grid.Column="1" Text="{Binding Text[ToleranceHigh]}" Classes="muted" FontSize="11" TextWrapping="Wrap" TextAlignment="Right" HorizontalAlignment="Right" />
+          </Grid>
+          <TextBlock Text="{Binding Text[ToleranceSummary]}" FontSize="11" FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap" Margin="0,5,0,0" />
         </StackPanel>
         <StackPanel Grid.Column="2" Spacing="5" IsEnabled="{Binding IsIdle}">
           <Grid ColumnDefinitions="*,Auto">
@@ -88,7 +94,11 @@
             <TextBlock Grid.Column="1" Text="{Binding MinimumAlpha, StringFormat={}{0:0}/255}" Foreground="#7DD3FC" />
           </Grid>
           <Slider Minimum="1" Maximum="254" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding MinimumAlpha, Mode=TwoWay}" />
-          <TextBlock Text="{Binding Text[AlphaHelp]}" Classes="muted" FontSize="11" TextWrapping="Wrap" />
+          <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+            <TextBlock Text="{Binding Text[AlphaLow]}" Classes="muted" FontSize="11" TextWrapping="Wrap" />
+            <TextBlock Grid.Column="1" Text="{Binding Text[AlphaHigh]}" Classes="muted" FontSize="11" TextWrapping="Wrap" TextAlignment="Right" HorizontalAlignment="Right" />
+          </Grid>
+          <TextBlock Text="{Binding Text[AlphaSummary]}" FontSize="11" FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap" Margin="0,5,0,0" />
         </StackPanel>
         <Button Grid.Column="3" Content="{Binding Text[Analyze]}" Command="{Binding AnalyzeCommand}" VerticalAlignment="Center" />
         <Grid Grid.Row="1" Grid.ColumnSpan="4" ColumnDefinitions="*,*" ColumnSpacing="16" IsEnabled="{Binding IsIdle}">
