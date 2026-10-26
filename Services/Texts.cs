@@ -68,6 +68,7 @@ public sealed class Texts(string language)
         ["LaserSourceInfo"] = ["#{0} {1} → Bereiche {2} · Teile: {3}", "#{0} {1} → Regions {2} · Parts: {3}"],
         ["LaserGroups"] = ["Dateien und Bereiche", "Files and regions"],
         ["LaserShowGroups"] = ["Gruppenrahmen anzeigen (nur Vorschau)", "Show group outlines (preview only)"],
+        ["LaserGroupOutlines"] = ["Gruppenrahmen", "Group outlines"],
         ["LaserEdit"] = ["Bearbeiten", "Edit"],
         ["LaserUndoMove"] = ["Rückgängig", "Undo"],
         ["LaserSelectionInfo"] = ["{0} Teile ausgewählt", "{0} parts selected"],

@@ -196,7 +196,7 @@
       </Border>
       </controls:CollapsibleSidebar>
       <Grid Grid.Column="1" RowDefinitions="Auto,*" RowSpacing="8">
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" IsVisible="{Binding !IsLaserMode}">
           <WrapPanel>
             <ToggleButton x:Name="PreviewLayoutSelector" Classes="toolbar" IsChecked="{Binding SideBySide, Mode=TwoWay}" IsVisible="{Binding !IsLaserMode}" Margin="0,0,8,4" ToolTip.Tip="{Binding Text[PreviewLayout]}">
               <StackPanel Orientation="Horizontal" Spacing="7">
@@ -210,6 +210,7 @@
           </WrapPanel>
           <ToggleButton x:Name="CombinedPreviewToggle" Grid.Column="1" Classes="toolbar" Content="{Binding Text[CombinedPreview]}" IsChecked="{Binding ShowCombinedPreview, Mode=TwoWay}" IsEnabled="{Binding IsIdle}" IsVisible="{Binding !IsLaserMode}" ToolTip.Tip="{Binding Text[CombinedHelp]}" VerticalAlignment="Top" Margin="0,0,0,4" />
         </Grid>
+        <views:LaserToolbarView IsVisible="{Binding IsLaserMode}" />
       <Grid x:Name="PreviewPanels" Grid.Row="1" RowDefinitions="*,8,*" IsVisible="{Binding !IsLaserMode}">
         <Border x:Name="OriginalPreviewPanel" Classes="panel">
           <Grid RowDefinitions="Auto,*" RowSpacing="12">

@@ -140,6 +140,23 @@ internal static class WorkspaceRegressionTests
             vm.Laser.ArrangeCommand.Execute(null); pump(() => !vm.IsBusy); Layout();
             check(vm.Laser.Pages.Count > 0 && vm.RightHasNotice && right.HasNotice && vm.RightRailLabel.Contains(vm.Laser.Pages.Count.ToString()),
                 "New laser pages update the hidden page rail and its notification");
+            var laserToolbar = window.GetVisualDescendants().OfType<LaserToolbarView>().Single();
+            var laserGroups = laserToolbar.FindControl<ToggleButton>("LaserGroupsToggle")!;
+            var pageBefore = vm.Laser.SelectedPage!.Page;
+            bool groupsBefore = vm.Laser.ShowGroups;
+            Click(window, laserGroups); pump(() => !vm.IsBusy);
+            check(vm.Laser.ShowGroups != groupsBefore && ReferenceEquals(pageBefore, vm.Laser.SelectedPage.Page),
+                "The group-outline toolbar button updates the preview without changing the laser layout");
+            Click(window, laserGroups); pump(() => !vm.IsBusy);
+            var laserSidebars = laserToolbar.FindControl<ToggleButton>("LaserSidebarsToggle")!;
+            Click(window, laserSidebars); check(vm.IsPreviewOnly, "The laser toolbar closes both sidebars");
+            Click(window, laserSidebars); check(!vm.ImagesSidebarCollapsed && !vm.RightSidebarCollapsed, "The laser toolbar opens both sidebars");
+            vm.RightSidebarCollapsed = true; Layout();
+            var laserSettings = laserToolbar.FindControl<Button>("LaserSettingsButton")!;
+            laserSettings.Flyout!.ShowAt(laserSettings); Layout();
+            check(laserSettings.Classes.Contains("open") && ((Control)((Flyout)laserSettings.Flyout).Content!).DataContext == vm.Laser,
+                "Moved laser settings retain their view model and highlight while open");
+            laserSettings.Flyout.Hide(); Layout();
             Click(window, mode);
             check(vm.SideBySide && panels.IsVisible && vm.RightRailLabel.StartsWith("Expand colors"), "Returning from Laser retains the selected color-preview layout");
             vm.LanguageIndex = 0; Layout();

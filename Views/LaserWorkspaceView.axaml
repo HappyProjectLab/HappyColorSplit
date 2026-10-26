@@ -1,94 +1,14 @@
 <UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="using:HappyColorSplit.Controls"
              x:Class="HappyColorSplit.Views.LaserWorkspaceView">
-  <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="12">
-    <StackPanel Orientation="Horizontal" Spacing="8">
-      <Button Content="{Binding Text[LaserSettings]}" IsEnabled="{Binding IsIdle}">
-        <Button.Flyout>
-          <Flyout Placement="Bottom">
-            <ScrollViewer MaxHeight="520" VerticalScrollBarVisibility="Auto">
-              <StackPanel Width="350" Spacing="10" IsEnabled="{Binding IsIdle}">
-                <TextBlock Text="{Binding Text[LaserSettings]}" FontWeight="SemiBold" FontSize="16" />
-                <Grid ColumnDefinitions="*,*,90" ColumnSpacing="8">
-                  <StackPanel Spacing="3">
-                    <TextBlock Text="{Binding Text[WidthCm]}" FontSize="11" />
-                    <NumericUpDown Value="{Binding WidthCm, Mode=TwoWay}" Minimum="0.1" Maximum="500" Increment="0.1" FormatString="0.##" ShowButtonSpinner="False" MinWidth="0" />
-                  </StackPanel>
-                  <StackPanel Grid.Column="1" Spacing="3">
-                    <TextBlock Text="{Binding Text[HeightCm]}" FontSize="11" />
-                    <NumericUpDown Value="{Binding HeightCm, Mode=TwoWay}" Minimum="0.1" Maximum="500" Increment="0.1" FormatString="0.##" ShowButtonSpinner="False" MinWidth="0" />
-                  </StackPanel>
-                  <StackPanel Grid.Column="2" Spacing="3">
-                    <TextBlock Text="DPI" FontSize="11" />
-                    <NumericUpDown Value="{Binding Dpi, Mode=TwoWay}" Minimum="1" Maximum="2400" FormatString="0" ShowButtonSpinner="False" MinWidth="0" />
-                  </StackPanel>
-                </Grid>
-                <TextBlock Text="{Binding Text[LaserDistances]}" FontWeight="SemiBold" />
-                <Grid ColumnDefinitions="*,100" RowDefinitions="Auto,Auto,Auto" RowSpacing="6" ColumnSpacing="8">
-                  <TextBlock Text="{Binding Text[LaserMargin]}" VerticalAlignment="Center" />
-                  <NumericUpDown Grid.Column="1" Value="{Binding MarginCm, Mode=TwoWay}" Minimum="0" Maximum="500" Increment="0.1" FormatString="0.##" ShowButtonSpinner="False" MinWidth="0" />
-                  <TextBlock Grid.Row="1" Text="{Binding Text[LaserCavityGap]}" VerticalAlignment="Center" />
-                  <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding CavityGapCm, Mode=TwoWay}" Minimum="0" Maximum="500" Increment="0.1" FormatString="0.##" ShowButtonSpinner="False" MinWidth="0" />
-                  <TextBlock Grid.Row="2" Text="{Binding Text[LaserElementGap]}" VerticalAlignment="Center" />
-                  <NumericUpDown Grid.Row="2" Grid.Column="1" Value="{Binding ElementGapCm, Mode=TwoWay}" Minimum="0" Maximum="500" Increment="0.1" FormatString="0.##" ShowButtonSpinner="False" MinWidth="0" />
-                </Grid>
-                <TextBlock Text="{Binding Text[LaserSpacing]}" Foreground="#7DD3FC" FontSize="11" TextWrapping="Wrap" />
-                <TextBlock Text="{Binding Text[LaserMaterials]}" FontWeight="SemiBold" />
-                <TextBox Text="{Binding MaterialName, Mode=TwoWay}" PlaceholderText="{Binding Text[LaserMaterialName]}" MaxLength="80" />
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                  <TextBox Text="{Binding MaterialHex, Mode=TwoWay}" PlaceholderText="#RRGGBB" MaxLength="7" />
-                  <Button Grid.Column="1" Content="{Binding Text[LaserAddMaterial]}" Command="{Binding AddMaterialCommand}" />
-                </Grid>
-                <ListBox ItemsSource="{Binding Materials}" SelectedItem="{Binding SelectedMaterial, Mode=TwoWay}" Height="150">
-                  <ListBox.ItemTemplate>
-                    <DataTemplate>
-                      <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10" Margin="0,4">
-                        <Border Background="{Binding Swatch}" Width="24" Height="24" CornerRadius="4" BorderBrush="#708090" BorderThickness="1" />
-                        <StackPanel Grid.Column="1">
-                          <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
-                          <TextBlock Text="{Binding Hex}" FontSize="11" Classes="muted" />
-                        </StackPanel>
-                      </Grid>
-                    </DataTemplate>
-                  </ListBox.ItemTemplate>
-                </ListBox>
-                <Button Content="{Binding Text[RemoveImage]}" Command="{Binding RemoveMaterialCommand}" />
-                <TextBlock Text="{Binding Text[LaserMaterialHelp]}" FontSize="11" Classes="muted" TextWrapping="Wrap" />
-              </StackPanel>
-            </ScrollViewer>
-          </Flyout>
-        </Button.Flyout>
-      </Button>
-      <Button Content="{Binding Text[LaserArrange]}" Command="{Binding ArrangeCommand}" Background="#89D6FA" Foreground="#0B2333" />
-      <Button Content="{Binding Text[LaserEdit]}" IsEnabled="{Binding HasPages}" FontSize="11" Padding="10,10">
-        <Button.Flyout>
-          <Flyout>
-            <ScrollViewer MaxHeight="520" VerticalScrollBarVisibility="Auto">
-            <StackPanel Width="320" Spacing="10">
-              <TextBlock Text="{Binding SelectionInfo}" FontWeight="SemiBold" />
-              <StackPanel Orientation="Horizontal" Spacing="8">
-                <Button Content="{Binding Text[LaserRotateLeft]}" Command="{Binding RotateCounterclockwiseCommand}" />
-                <Button Content="{Binding Text[LaserRotateRight]}" Command="{Binding RotateClockwiseCommand}" />
-              </StackPanel>
-              <TextBlock Text="{Binding Text[LaserMoveHelp]}" TextWrapping="Wrap" FontSize="12" />
-              <Separator />
-              <TextBlock Text="{Binding Text[LaserGroups]}" FontWeight="SemiBold" />
-              <ScrollViewer MaxHeight="230"><TextBlock Text="{Binding SelectedPage.Groups}" TextWrapping="Wrap" FontSize="12" /></ScrollViewer>
-            </StackPanel>
-            </ScrollViewer>
-          </Flyout>
-        </Button.Flyout>
-      </Button>
-      <Button Content="{Binding Text[LaserUndoMove]}" Command="{Binding UndoMoveCommand}" FontSize="11" Padding="10,10" />
-      <Button Content="↻" Command="{Binding RotateClockwiseCommand}" ToolTip.Tip="{Binding Text[LaserRotateTip]}" AutomationProperties.Name="{Binding Text[LaserRotateRight]}" FontSize="18" Padding="8,5" />
-    </StackPanel>
-    <WrapPanel Grid.Row="1">
+  <Grid RowDefinitions="Auto,*,Auto" RowSpacing="12">
+    <WrapPanel>
       <Border Background="#352B1C" BorderBrush="#A48242" BorderThickness="1" CornerRadius="5" Padding="7,3" Margin="0,0,10,3">
         <TextBlock x:Name="LaserExperimentalBadge" Text="{Binding Text[Experimental]}" Foreground="#FFD790" FontWeight="SemiBold" FontSize="11" />
       </Border>
       <TextBlock Text="{Binding PageInfo}" TextWrapping="Wrap" FontSize="12" Classes="muted" VerticalAlignment="Center" />
     </WrapPanel>
-    <Border Grid.Row="2" Background="#10151F" CornerRadius="8" ClipToBounds="True">
+    <Border Grid.Row="1" Background="#10151F" CornerRadius="8" ClipToBounds="True">
       <Grid>
         <controls:LaserWorkspaceCanvas Preview="{Binding Preview}" Page="{Binding SelectedPage.Page}"
                                       CanEdit="{Binding CanEdit}" Selection="{Binding Selection, Mode=TwoWay}"
@@ -100,8 +20,7 @@
         <TextBlock Text="{Binding Text[LaserPreviewEmpty]}" IsVisible="{Binding !HasPages}" TextWrapping="Wrap" MaxWidth="350" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" FontSize="12" Margin="8" />
       </Grid>
     </Border>
-    <StackPanel Grid.Row="3" Spacing="6">
-      <CheckBox Content="{Binding Text[LaserShowGroups]}" IsChecked="{Binding ShowGroups, Mode=TwoWay}" IsEnabled="{Binding IsIdle}" FontSize="11" />
+    <StackPanel Grid.Row="2" Spacing="6">
       <TextBlock Text="{Binding Text[LaserStale]}" IsVisible="{Binding IsStale}" Foreground="#FFC25C" FontSize="12" TextWrapping="Wrap" />
     </StackPanel>
   </Grid>

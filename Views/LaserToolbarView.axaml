@@ -1,0 +1,87 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="HappyColorSplit.Views.LaserToolbarView">
+  <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+    <WrapPanel>
+      <ToggleButton x:Name="LaserSidebarsToggle" Classes="toolbar" Content="{Binding PreviewOnlyLabel}" Command="{Binding PreviewOnlyCommand}" IsChecked="{Binding IsPreviewOnly, Mode=OneWay}" ToolTip.Tip="{Binding Text[ToggleSidebarsHelp]}" Margin="0,0,8,4" />
+      <Button x:Name="LaserSettingsButton" DataContext="{Binding Laser}" Classes="toolbar" Content="{Binding Text[LaserSettings]}" IsEnabled="{Binding IsIdle}" Margin="0,0,8,4">
+        <Button.Flyout>
+          <Flyout Placement="Bottom">
+            <ScrollViewer MaxHeight="520" VerticalScrollBarVisibility="Auto">
+              <StackPanel Width="350" Spacing="10" IsEnabled="{Binding IsIdle}">
+                <TextBlock Text="{Binding Text[LaserSettings]}" FontWeight="SemiBold" FontSize="16" />
+                <Grid ColumnDefinitions="*,*,90" ColumnSpacing="8">
+                  <StackPanel Spacing="3">
+                    <TextBlock Text="{Binding Text[WidthCm]}" FontSize="11" />
+                    <NumericUpDown Value="{Binding WidthCm, Mode=TwoWay}" Minimum="0.1" Maximum="500" Increment="0.1" FormatString="0.##" ShowButtonSpinner="False" MinWidth="0" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="1" Spacing="3">
+                    <TextBlock Text="{Binding Text[HeightCm]}" FontSize="11" />
+                    <NumericUpDown Value="{Binding HeightCm, Mode=TwoWay}" Minimum="0.1" Maximum="500" Increment="0.1" FormatString="0.##" ShowButtonSpinner="False" MinWidth="0" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="2" Spacing="3">
+                    <TextBlock Text="DPI" FontSize="11" />
+                    <NumericUpDown Value="{Binding Dpi, Mode=TwoWay}" Minimum="1" Maximum="2400" FormatString="0" ShowButtonSpinner="False" MinWidth="0" />
+                  </StackPanel>
+                </Grid>
+                <TextBlock Text="{Binding Text[LaserDistances]}" FontWeight="SemiBold" />
+                <Grid ColumnDefinitions="*,100" RowDefinitions="Auto,Auto,Auto" RowSpacing="6" ColumnSpacing="8">
+                  <TextBlock Text="{Binding Text[LaserMargin]}" VerticalAlignment="Center" />
+                  <NumericUpDown Grid.Column="1" Value="{Binding MarginCm, Mode=TwoWay}" Minimum="0" Maximum="500" Increment="0.1" FormatString="0.##" ShowButtonSpinner="False" MinWidth="0" />
+                  <TextBlock Grid.Row="1" Text="{Binding Text[LaserCavityGap]}" VerticalAlignment="Center" />
+                  <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding CavityGapCm, Mode=TwoWay}" Minimum="0" Maximum="500" Increment="0.1" FormatString="0.##" ShowButtonSpinner="False" MinWidth="0" />
+                  <TextBlock Grid.Row="2" Text="{Binding Text[LaserElementGap]}" VerticalAlignment="Center" />
+                  <NumericUpDown Grid.Row="2" Grid.Column="1" Value="{Binding ElementGapCm, Mode=TwoWay}" Minimum="0" Maximum="500" Increment="0.1" FormatString="0.##" ShowButtonSpinner="False" MinWidth="0" />
+                </Grid>
+                <TextBlock Text="{Binding Text[LaserSpacing]}" Foreground="#7DD3FC" FontSize="11" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding Text[LaserMaterials]}" FontWeight="SemiBold" />
+                <TextBox Text="{Binding MaterialName, Mode=TwoWay}" PlaceholderText="{Binding Text[LaserMaterialName]}" MaxLength="80" />
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                  <TextBox Text="{Binding MaterialHex, Mode=TwoWay}" PlaceholderText="#RRGGBB" MaxLength="7" />
+                  <Button Grid.Column="1" Classes="toolbar" Content="{Binding Text[LaserAddMaterial]}" Command="{Binding AddMaterialCommand}" />
+                </Grid>
+                <ListBox ItemsSource="{Binding Materials}" SelectedItem="{Binding SelectedMaterial, Mode=TwoWay}" Height="150">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate>
+                      <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10" Margin="0,4">
+                        <Border Background="{Binding Swatch}" Width="24" Height="24" CornerRadius="4" BorderBrush="#708090" BorderThickness="1" />
+                        <StackPanel Grid.Column="1">
+                          <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                          <TextBlock Text="{Binding Hex}" FontSize="11" Classes="muted" />
+                        </StackPanel>
+                      </Grid>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+                <Button Classes="toolbar" Content="{Binding Text[RemoveImage]}" Command="{Binding RemoveMaterialCommand}" />
+                <TextBlock Text="{Binding Text[LaserMaterialHelp]}" FontSize="11" Classes="muted" TextWrapping="Wrap" />
+              </StackPanel>
+            </ScrollViewer>
+          </Flyout>
+        </Button.Flyout>
+      </Button>
+      <Button x:Name="LaserArrangeButton" DataContext="{Binding Laser}" Classes="toolbar" Content="{Binding Text[LaserArrange]}" Command="{Binding ArrangeCommand}" Margin="0,0,8,4" />
+      <Button x:Name="LaserEditButton" DataContext="{Binding Laser}" Classes="toolbar" Content="{Binding Text[LaserEdit]}" IsEnabled="{Binding HasPages}" Margin="0,0,8,4">
+        <Button.Flyout>
+          <Flyout>
+            <ScrollViewer MaxHeight="520" VerticalScrollBarVisibility="Auto">
+            <StackPanel Width="320" Spacing="10">
+              <TextBlock Text="{Binding SelectionInfo}" FontWeight="SemiBold" />
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Classes="toolbar" Content="{Binding Text[LaserRotateLeft]}" Command="{Binding RotateCounterclockwiseCommand}" />
+                <Button Classes="toolbar" Content="{Binding Text[LaserRotateRight]}" Command="{Binding RotateClockwiseCommand}" />
+              </StackPanel>
+              <TextBlock Text="{Binding Text[LaserMoveHelp]}" TextWrapping="Wrap" FontSize="12" />
+              <Separator />
+              <TextBlock Text="{Binding Text[LaserGroups]}" FontWeight="SemiBold" />
+              <ScrollViewer MaxHeight="230"><TextBlock Text="{Binding SelectedPage.Groups}" TextWrapping="Wrap" FontSize="12" /></ScrollViewer>
+            </StackPanel>
+            </ScrollViewer>
+          </Flyout>
+        </Button.Flyout>
+      </Button>
+      <Button x:Name="LaserUndoButton" DataContext="{Binding Laser}" Classes="toolbar" Content="{Binding Text[LaserUndoMove]}" Command="{Binding UndoMoveCommand}" Margin="0,0,8,4" />
+      <Button x:Name="LaserRotateButton" DataContext="{Binding Laser}" Classes="toolbar" Content="↻" Command="{Binding RotateClockwiseCommand}" ToolTip.Tip="{Binding Text[LaserRotateTip]}" AutomationProperties.Name="{Binding Text[LaserRotateRight]}" Margin="0,0,0,4" MinWidth="32" />
+    </WrapPanel>
+    <ToggleButton x:Name="LaserGroupsToggle" Grid.Column="1" DataContext="{Binding Laser}" Classes="toolbar" Content="{Binding Text[LaserGroupOutlines]}" IsChecked="{Binding ShowGroups, Mode=TwoWay}" IsEnabled="{Binding IsIdle}" ToolTip.Tip="{Binding Text[LaserShowGroups]}" VerticalAlignment="Top" Margin="0,0,0,4" />
+  </Grid>
+</UserControl>

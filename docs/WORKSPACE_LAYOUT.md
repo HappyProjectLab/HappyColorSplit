@@ -23,6 +23,8 @@ Der Vorschauzoom ist relativ zur eingepassten Ansicht: `1×` zeigt das gesamte B
 
 Im **experimentellen Laser-Modus** nutzt die Arbeitsfläche den gesamten mittleren Bereich; die rechte Leiste enthält die Laser-Seiten. Die Kennzeichnung **Experimentell** ist im Arbeitsbereich dauerhaft sichtbar. Die eingestellte Farbvorschau-Anordnung bleibt für die Rückkehr erhalten. Die Leisten öffnen sich beim Moduswechsel nicht von selbst.
 
+Die Laser-Aktionen stehen ebenfalls in der kompakten Leiste **über** dem Arbeitsbereich: Leisten ein-/ausblenden, Laser-Einstellungen, Anordnen, Bearbeiten, Rückgängig und Drehen. Sie verwenden dieselbe Höhe und Gestaltung wie die Farbauszüge; bei wenig Platz bricht die Leiste um. Rechts schaltet **Gruppenrahmen** die Rahmen in der Vorschau ein oder aus. Ein heller Button zeigt die eingeschaltete Option beziehungsweise das geöffnete Menü. Unter der Materialseite gibt es dafür keine zusätzliche Checkbox mehr. Die Rahmen werden weiterhin nicht exportiert.
+
 Anordnung, Leistenzustand, beide Trennpositionen, Synchronisierung und reduzierte Bewegung werden in `%LOCALAPPDATA%\HappyColorSplit\settings.json` gespeichert. Zoom, Ausschnitt und Hinweispunkte gelten für die aktuelle Sitzung; die Bildliste wird weiterhin nicht als Projekt gespeichert.
 
 Die erweiterte Einstellung `Workspace.ReduceMotion` bleibt in dieser JSON-Datei verfügbar: `true` schaltet Klappanimation und Lauflicht ab, Beschriftungen und Hinweise bleiben erhalten. Dafür gibt es nach Entfernen von „Ansicht“ keinen Menüknopf mehr. Die Einstellung bei geschlossenem Programm ändern.
@@ -49,6 +51,8 @@ During **Add images**, subtle activity travels across the entire window backgrou
 Preview zoom is relative to the fitted view: `1×` fits the entire image. It never changes export pixels, physical dimensions or DPI, and cannot recover missing image detail. Use **Image size** to set export dimensions. Selecting another source fits both previews again.
 
 In **experimental Laser** mode, the sheet uses the entire central area and the right sidebar contains laser pages. An **Experimental** badge stays visible in the workspace. The color-preview layout is preserved for your return. Switching modes never opens sidebars automatically.
+
+Laser actions also live in the compact toolbar **above** the workspace: show/hide sidebars, settings, arrange, edit, undo and rotate. They use the same height and styling as the color-layer controls and wrap when space is limited. The right-aligned **Group outlines** button switches preview outlines on or off; highlighted buttons indicate enabled options or open menus. The former checkbox below the material sheet has been removed. Group outlines are still excluded from exports.
 
 Layout, collapsed states, both divider positions, synchronization and reduced motion are saved in `%LOCALAPPDATA%\HappyColorSplit\settings.json`. Zoom, pan and notification dots apply to the current session; the image list is still not saved as a project.
 
