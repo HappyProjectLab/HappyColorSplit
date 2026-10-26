@@ -57,11 +57,12 @@ internal static class ImageInputRegressionTests
         check(vm.Images.Count == 0 && !vm.HasImage && vm.HasErrors, "Unsupported-only external launch does not open a file");
 
         var button = window.FindControl<Button>("WindowsIntegrationButton")!;
-        button.Flyout!.ShowAt(button);
+        button.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
         Avalonia.Threading.Dispatcher.UIThread.RunJobs();
-        var content = (StackPanel)((Flyout)button.Flyout).Content!;
-        var enable = content.Children.OfType<Button>().First();
-        check(enable.Command == vm.EnableWindowsIntegrationCommand, "Explorer setup flyout binds to the application view model");
+        var integrationWindow = window.OwnedWindows.OfType<HappyColorSplit.Views.WindowsIntegrationWindow>().Single();
+        var enable = integrationWindow.FindControl<Button>("EnableIntegrationButton")!;
+        check(enable.Command == vm.EnableWindowsIntegrationCommand, "Explorer setup window binds to the application commands");
+        check(!integration.Enabled, "Opening Windows integration never changes Explorer settings automatically");
         enable.Command!.Execute(null);
         check(integration.Enabled && vm.Status.Contains("eingerichtet"), "Explorer integration is explicitly enabled by a user command");
         vm.RemoveWindowsIntegrationCommand.Execute(null);
@@ -69,7 +70,7 @@ internal static class ImageInputRegressionTests
         integration.Fail = true;
         vm.EnableWindowsIntegrationCommand.Execute(null);
         check(vm.Status.Contains("test failure"), "Windows setup failures are shown without crashing the app");
-        button.Flyout.Hide();
+        integrationWindow.Close(); Avalonia.Threading.Dispatcher.UIThread.RunJobs();
         vm.ClearImagesCommand.Execute(null);
         using var transfer = new DataTransfer();
         var storagePng = window.StorageProvider.TryGetFileFromPathAsync(new Uri(png)).GetAwaiter().GetResult();

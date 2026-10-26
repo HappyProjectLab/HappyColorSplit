@@ -1,0 +1,19 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="HappyColorSplit.Views.WindowsIntegrationWindow"
+        Title="{Binding Text[WindowsIntegration]}" Width="660" Height="440" MinWidth="540" MinHeight="400"
+        WindowStartupLocation="CenterOwner" Background="#111824" Icon="/Assets/HappyColorSplit.ico">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="24" RowSpacing="18">
+    <TextBlock Text="{Binding Text[WindowsIntegration]}" FontSize="23" FontWeight="SemiBold" />
+    <Border Grid.Row="1" Classes="panel">
+      <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="18">
+          <TextBlock Text="{Binding Text[WindowsHelp]}" TextWrapping="Wrap" />
+          <Button x:Name="EnableIntegrationButton" Content="{Binding Text[WindowsEnable]}" Command="{Binding EnableWindowsIntegrationCommand}" HorizontalAlignment="Left" />
+          <Button x:Name="RemoveIntegrationButton" Content="{Binding Text[WindowsRemove]}" Command="{Binding RemoveWindowsIntegrationCommand}" HorizontalAlignment="Left" />
+          <TextBlock Text="{Binding Status}" Classes="muted" TextWrapping="Wrap" />
+        </StackPanel>
+      </ScrollViewer>
+    </Border>
+    <Button x:Name="CloseIntegrationButton" Grid.Row="2" Content="{Binding Text[Close]}" Click="Close_OnClick" IsCancel="True" HorizontalAlignment="Right" />
+  </Grid>
+</Window>

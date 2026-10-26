@@ -32,7 +32,7 @@ internal static class WorkspaceRegressionTests
         check(settings.Load().Workspace is { HorizontalSplit: .85, VerticalSplit: .15 }, "Saved divider ratios cannot hide either preview");
         settings.Save(new AppSettings { Language = "en" });
         var licenses = new DeferredLicenseWindow();
-        using var vm = new MainViewModel(new Dialogs(folder), settings, licenseWindow: licenses);
+        using var vm = new MainViewModel(new Dialogs(folder), settings, licenseWindow: licenses, windowsIntegration: new IntegrationStub());
         var window = new MainWindow { DataContext = vm }; window.Show(); Layout();
         try
         {
@@ -65,9 +65,10 @@ internal static class WorkspaceRegressionTests
             Click(window, language); check(vm.LanguageIndex == 0 && !vm.EnglishSelected, "One language button switches to German");
             Click(window, language); check(vm.LanguageIndex == 1 && vm.EnglishSelected, "The same language button switches back to English");
             var windowsButton = window.FindControl<Button>("WindowsIntegrationButton")!;
-            windowsButton.Flyout!.ShowAt(windowsButton); Layout();
-            check(windowsButton.Classes.Contains("open"), "Windows integration highlights its open menu");
-            windowsButton.Flyout.Hide(); Layout();
+            // Show the real owned dialog without touching any registry actions.
+            Click(window, windowsButton);
+            check(windowsButton.Classes.Contains("open"), "Windows integration highlights its open window");
+            window.OwnedWindows.OfType<WindowsIntegrationWindow>().Single().Close(); Layout();
             check(!windowsButton.Classes.Contains("open"), "Closing Windows integration restores its neutral appearance");
             var licenseButton = window.FindControl<Button>("LicensesButton")!;
             Click(window, licenseButton);
@@ -169,6 +170,12 @@ internal static class WorkspaceRegressionTests
         Layout();
         var point = control.TranslatePoint(new Point(control.Bounds.Width / 2, control.Bounds.Height / 2), window)!.Value;
         window.MouseDown(point, MouseButton.Left); window.MouseUp(point, MouseButton.Left); Layout();
+    }
+    private sealed class IntegrationStub : IWindowsIntegrationService
+    {
+        public bool IsAvailable => true;
+        public void Enable() { }
+        public void Remove() { }
     }
     private sealed class DeferredLicenseWindow : ILicenseWindowService
     {

@@ -49,17 +49,8 @@
             <TextBlock Text="{Binding Text[LaserWorkspace]}" Classes="switch-option" Classes.current="{Binding IsLaserMode}" />
           </StackPanel>
         </ToggleButton>
-        <Button x:Name="WindowsIntegrationButton" Classes="toolbar" IsVisible="{Binding CanIntegrateWithWindows}">
-          <StackPanel Orientation="Horizontal" Spacing="7"><TextBlock Text="{Binding Text[WindowsIntegration]}" /><TextBlock Text="▾" Opacity="0.65" /></StackPanel>
-          <Button.Flyout>
-            <Flyout>
-              <StackPanel Spacing="12" MaxWidth="380">
-                <TextBlock Text="{Binding Text[WindowsHelp]}" TextWrapping="Wrap" />
-                <Button Content="{Binding Text[WindowsEnable]}" Command="{Binding EnableWindowsIntegrationCommand}" />
-                <Button Content="{Binding Text[WindowsRemove]}" Command="{Binding RemoveWindowsIntegrationCommand}" />
-              </StackPanel>
-            </Flyout>
-          </Button.Flyout>
+        <Button x:Name="WindowsIntegrationButton" Classes="toolbar" IsVisible="{Binding CanIntegrateWithWindows}" Click="WindowsIntegration_OnClick">
+          <StackPanel Orientation="Horizontal" Spacing="7"><TextBlock Text="{Binding Text[WindowsIntegration]}" /><TextBlock Text="↗" Opacity="0.65" /></StackPanel>
         </Button>
         <Button x:Name="LicensesButton" Classes="toolbar" Classes.open="{Binding IsLicenseWindowOpen}" Command="{Binding LicensesCommand}">
           <StackPanel Orientation="Horizontal" Spacing="7"><TextBlock Text="{Binding Text[Licenses]}" /><TextBlock Text="↗" Opacity="0.65" /></StackPanel>

@@ -10,12 +10,11 @@ namespace HappyColorSplit.Views;
 public partial class MainWindow : Window
 {
     private readonly DispatcherTimer _folderTimer = new() { Interval = TimeSpan.FromSeconds(3) };
+    private WindowsIntegrationWindow? _integrationWindow;
     public MainWindow()
     {
         InitializeComponent();
         InitializeWorkspaceLayout();
-        WindowsIntegrationButton.Flyout!.Opened += (_, _) => WindowsIntegrationButton.Classes.Add("open");
-        WindowsIntegrationButton.Flyout.Closed += (_, _) => WindowsIntegrationButton.Classes.Remove("open");
         DragDrop.SetAllowDrop(this, true);
         AddHandler(DragDrop.DragOverEvent, OnDragOver, RoutingStrategies.Bubble, handledEventsToo: true);
         AddHandler(DragDrop.DropEvent, OnDrop, RoutingStrategies.Bubble, handledEventsToo: true);
@@ -23,6 +22,15 @@ public partial class MainWindow : Window
         Opened += (_, _) => _folderTimer.Start();
         Activated += (_, _) => (DataContext as MainViewModel)?.RefreshLastExportFolder();
         Closed += (_, _) => _folderTimer.Stop();
+    }
+
+    private async void WindowsIntegration_OnClick(object? sender, RoutedEventArgs args)
+    {
+        if (_integrationWindow is not null || DataContext is not MainViewModel { CanIntegrateWithWindows: true } vm) return;
+        _integrationWindow = new WindowsIntegrationWindow { DataContext = vm };
+        WindowsIntegrationButton.Classes.Add("open");
+        try { await _integrationWindow.ShowDialog(this); }
+        finally { _integrationWindow = null; WindowsIntegrationButton.Classes.Remove("open"); }
     }
 
     private static string[] GetDroppedPaths(DragEventArgs args) => args.DataTransfer.TryGetFiles()?
