@@ -16,6 +16,7 @@ Zuletzt veröffentlichter Download: **0.1.0-preview.4**. Dies ist eine Vorabvers
 | PNG exportieren | Einzelne Farb-Layer oder eine gemeinsame PNG pro Bild; ausschließlich die angehakten Farben |
 | Ausgabe gestalten | Flächen in Schwarz, Weiß, Transparent oder Gruppenfarbe; Hintergrund in Schwarz, Grau, Weiß oder Transparent |
 | Konturen glätten | Optionale harte Konturglättung; dreifache Auflösung bei gleicher beabsichtigter cm-Größe |
+| Arbeitsbereich anpassen | Vorschauen manuell neben- oder untereinander, verstellbare Trennlinie, einklappbare Leisten, optional synchroner Zoom |
 | Laser-Vorlagen anordnen | Eigene Arbeitsfläche und Materialfarben; Seiten je Material; Aussparungen nutzen und automatisch nachoptimieren |
 | Laser-Vorlagen bearbeiten | Einzelteile links ziehen, Bereiche rechts ziehen, freie Mehrfachauswahl, gemeinsame Vierteldrehungen und Rückgängig |
 
@@ -146,6 +147,12 @@ Die Stapelverarbeitung lädt jeweils nur ein Bild in voller Auflösung. Fehlerha
 Der Export erzeugt einen neuen Unterordner. Dateinamen enthalten laufende Nummer und RGB-Hexwert der Referenzfarbe. Vorhandene Exporte werden nicht überschrieben. Bei Abbruch werden die temporären Dateien des aktuellen Exports entfernt.
 
 **Letzten Export öffnen** ist immer sichtbar und öffnet den zuletzt erfolgreich erstellten Export-Unterordner; beim Stapel-Export den gemeinsamen Stapelordner. Bis zum nächsten erfolgreichen Export bleibt dieses Ziel erhalten, auch nach einem Neustart. Ohne vorhandenen Ordner ist der Button ausgegraut. Der Zielordner für neue Exporte wird weiterhin separat ausgewählt.
+
+### Vorschauen und Seitenleisten
+
+Über den Vorschauen **Untereinander** oder **Nebeneinander** wählen und die Trennlinie auf die gewünschte Position ziehen. Die Anordnung wechselt nicht automatisch mit der Fenstergröße. Die Bilder- und Farbleiste lassen sich an ihren inneren Pfeilgriffen sanft einklappen; beschriftete Griffe, ein dezentes Lauflicht und Hinweispunkte halten verborgene Bereiche auffindbar. Im Laser-Modus enthält die rechte Leiste die Seiten.
+
+**Nur Vorschauen** blendet beide Leisten aus, **Leisten zeigen** stellt den vorherigen Zustand wieder her. Mausrad und Ziehen mit links zoomen beziehungsweise verschieben den Ausschnitt; **Einpassen** oder Doppelklick zeigt wieder das gesamte Bild. **Synchron** koppelt beide Vorschauen. Der Vorschauzoom ändert keine Exportmaße. Unter **Ansicht → Bewegung reduzieren** lassen sich die Animationen abschalten. Die Ansichtsoptionen werden gespeichert. [Bedienung auf Deutsch und Englisch](docs/WORKSPACE_LAYOUT.md).
 
 ### Eigene Bildgröße pro Import
 
