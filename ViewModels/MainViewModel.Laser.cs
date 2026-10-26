@@ -12,7 +12,7 @@ public sealed partial class MainViewModel
         set
         {
             if (IsBusy || value is not (0 or 1) || !Set(ref _workspaceIndex, value)) return;
-            Changed(nameof(IsLaserMode)); if (IsLaserMode) Laser.RefreshAppearance();
+            Changed(nameof(IsLaserMode)); WorkspaceModeChanged(); if (IsLaserMode) Laser.RefreshAppearance();
         }
     }
     public bool IsLaserMode => WorkspaceIndex == 1;

@@ -94,7 +94,10 @@
         </Grid>
       </Grid>
     </Border>
-    <Grid Grid.Row="2" ColumnDefinitions="220,*,270" ColumnSpacing="16">
+    <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
+      <controls:CollapsibleSidebar x:Name="ImagesSidebar" ExpandedWidth="220"
+          IsCollapsed="{Binding ImagesSidebarCollapsed, Mode=TwoWay}" ReduceMotion="{Binding ReduceMotion}"
+          RailLabel="{Binding ImagesRailLabel}" CollapseLabel="{Binding Text[CollapseImages]}" HasNotice="{Binding ImagesHasNotice}">
       <Border Classes="panel" Padding="12,20">
         <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" RowSpacing="12">
           <Grid ColumnDefinitions="*,Auto" Margin="4,0">
@@ -154,8 +157,28 @@
           </StackPanel>
         </Grid>
       </Border>
-      <Grid Grid.Column="1" RowDefinitions="*,*" RowSpacing="16" IsVisible="{Binding !IsLaserMode}">
-        <Border Classes="panel">
+      </controls:CollapsibleSidebar>
+      <Grid Grid.Column="1" RowDefinitions="Auto,*" RowSpacing="8">
+        <WrapPanel>
+          <ComboBox x:Name="PreviewLayoutSelector" ItemsSource="{Binding PreviewLayouts}" SelectedIndex="{Binding PreviewLayoutIndex, Mode=TwoWay}" IsVisible="{Binding !IsLaserMode}" MinWidth="145" Margin="0,0,8,4" ToolTip.Tip="{Binding Text[PreviewLayout]}">
+            <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Label}" /></DataTemplate></ComboBox.ItemTemplate>
+          </ComboBox>
+          <CheckBox x:Name="SyncPreviewsToggle" Content="{Binding Text[SyncPreviews]}" IsChecked="{Binding SynchronizePreviews, Mode=TwoWay}" IsVisible="{Binding !IsLaserMode}" ToolTip.Tip="{Binding Text[SyncPreviewsHelp]}" Margin="0,0,8,4" />
+          <Button Content="{Binding PreviewOnlyLabel}" Command="{Binding PreviewOnlyCommand}" FontSize="12" Padding="9,7" Margin="0,0,8,4" />
+          <Button Content="{Binding Text[ViewSettings]}" FontSize="12" Padding="9,7" Margin="0,0,0,4">
+            <Button.Flyout>
+              <Flyout>
+                <StackPanel Width="320" Spacing="12">
+                  <CheckBox Content="{Binding Text[ReduceMotion]}" IsChecked="{Binding ReduceMotion, Mode=TwoWay}" />
+                  <TextBlock Text="{Binding Text[ReduceMotionHelp]}" TextWrapping="Wrap" FontSize="12" />
+                  <TextBlock Text="{Binding Text[MainPreviewNavigation]}" TextWrapping="Wrap" FontSize="12" Foreground="#A9CCE0" />
+                </StackPanel>
+              </Flyout>
+            </Button.Flyout>
+          </Button>
+        </WrapPanel>
+      <Grid x:Name="PreviewPanels" Grid.Row="1" RowDefinitions="*,8,*" IsVisible="{Binding !IsLaserMode}">
+        <Border x:Name="OriginalPreviewPanel" Classes="panel">
           <Grid RowDefinitions="Auto,*" RowSpacing="12">
             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
               <TextBlock Text="{Binding Text[Original]}" FontWeight="SemiBold" />
@@ -164,36 +187,58 @@
             <Border Grid.Row="1" Background="#10151F" CornerRadius="8" ClipToBounds="True">
               <Grid>
                 <TextBlock Text="{Binding Text[Hint]}" IsVisible="{Binding !HasImage}" TextWrapping="Wrap" MaxWidth="320" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Classes="muted" Margin="20" />
-                <Image Source="{Binding Original}" Stretch="Uniform" Margin="8" />
+                <controls:ImageViewport x:Name="OriginalViewportControl" Source="{Binding Original}" Margin="8"
+                    Zoom="{Binding OriginalViewport.Zoom, Mode=TwoWay}" CenterX="{Binding OriginalViewport.CenterX, Mode=TwoWay}" CenterY="{Binding OriginalViewport.CenterY, Mode=TwoWay}" />
+                <Border Background="#E610151F" CornerRadius="5" Margin="6" Padding="3" HorizontalAlignment="Left" VerticalAlignment="Bottom" IsVisible="{Binding HasImage}">
+                  <StackPanel Orientation="Horizontal" Spacing="3">
+                    <Button Content="−" Command="{Binding OriginalViewport.ZoomOutCommand}" Padding="6,2" ToolTip.Tip="{Binding Text[PreviewZoomOut]}" />
+                    <TextBlock Text="{Binding OriginalViewport.ZoomLabel}" Width="40" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" />
+                    <Button Content="+" Command="{Binding OriginalViewport.ZoomInCommand}" Padding="6,2" ToolTip.Tip="{Binding Text[PreviewZoomIn]}" />
+                    <Button Content="{Binding Text[FitPreview]}" Command="{Binding OriginalViewport.FitCommand}" FontSize="11" Padding="6,2" />
+                  </StackPanel>
+                </Border>
               </Grid>
             </Border>
           </Grid>
         </Border>
-        <Border Grid.Row="1" Classes="panel">
+        <GridSplitter x:Name="PreviewDivider" Grid.Row="1" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#345065" ToolTip.Tip="{Binding Text[ResizePreviews]}" />
+        <Border x:Name="ExportPreviewPanel" Grid.Row="2" Classes="panel">
           <Grid RowDefinitions="Auto,*" RowSpacing="12">
-            <Grid ColumnDefinitions="*,Auto">
-              <StackPanel Orientation="Horizontal" Spacing="10">
-                <TextBlock Text="{Binding Text[Mask]}" FontWeight="SemiBold" VerticalAlignment="Center" />
-                <CheckBox Content="{Binding Text[CombinedPreview]}" IsChecked="{Binding ShowCombinedPreview, Mode=TwoWay}" IsEnabled="{Binding IsIdle}" ToolTip.Tip="{Binding Text[CombinedHelp]}" FontSize="11" MinHeight="0" />
-              </StackPanel>
-              <Button Grid.Column="1" Content="{Binding Text[DetailPreview]}" Command="{Binding DetailPreviewCommand}" FontSize="11" Padding="10,5" />
-            </Grid>
+            <WrapPanel>
+              <TextBlock Text="{Binding Text[Mask]}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0" />
+              <CheckBox Content="{Binding Text[CombinedPreview]}" IsChecked="{Binding ShowCombinedPreview, Mode=TwoWay}" IsEnabled="{Binding IsIdle}" ToolTip.Tip="{Binding Text[CombinedHelp]}" FontSize="11" MinHeight="0" Margin="0,0,10,0" />
+              <Button Content="{Binding Text[DetailPreview]}" Command="{Binding DetailPreviewCommand}" FontSize="11" Padding="8,4" />
+            </WrapPanel>
             <Border Grid.Row="1" Background="{StaticResource TransparencyBackground}" CornerRadius="8" ClipToBounds="True">
               <Grid>
                 <TextBlock Text="{Binding Text[MaskHint]}" IsVisible="{Binding !HasMask}" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" Classes="muted" Margin="20" />
-                <Image Source="{Binding Mask}" Stretch="Uniform" Margin="8" />
+                <controls:ImageViewport x:Name="ExportViewportControl" Source="{Binding Mask}" Margin="8"
+                    Zoom="{Binding ExportViewport.Zoom, Mode=TwoWay}" CenterX="{Binding ExportViewport.CenterX, Mode=TwoWay}" CenterY="{Binding ExportViewport.CenterY, Mode=TwoWay}" />
+                <Border Background="#E610151F" CornerRadius="5" Margin="6" Padding="3" HorizontalAlignment="Left" VerticalAlignment="Bottom" IsVisible="{Binding HasMask}">
+                  <StackPanel Orientation="Horizontal" Spacing="3">
+                    <Button Content="−" Command="{Binding ExportViewport.ZoomOutCommand}" Padding="6,2" ToolTip.Tip="{Binding Text[PreviewZoomOut]}" />
+                    <TextBlock Text="{Binding ExportViewport.ZoomLabel}" Width="40" FontSize="11" TextAlignment="Center" VerticalAlignment="Center" />
+                    <Button Content="+" Command="{Binding ExportViewport.ZoomInCommand}" Padding="6,2" ToolTip.Tip="{Binding Text[PreviewZoomIn]}" />
+                    <Button Content="{Binding Text[FitPreview]}" Command="{Binding ExportViewport.FitCommand}" FontSize="11" Padding="6,2" />
+                  </StackPanel>
+                </Border>
               </Grid>
             </Border>
           </Grid>
         </Border>
       </Grid>
-      <Border Grid.Column="1" Classes="panel" IsVisible="{Binding IsLaserMode}">
+      <Border Grid.Row="1" Classes="panel" IsVisible="{Binding IsLaserMode}">
         <views:LaserWorkspaceView DataContext="{Binding Laser}" />
       </Border>
-      <Border Grid.Column="2" Classes="panel" Padding="14,20" IsVisible="{Binding IsLaserMode}">
+      </Grid>
+      <controls:CollapsibleSidebar x:Name="RightSidebar" Grid.Column="2" ExpandedWidth="270" IsRight="True"
+          IsCollapsed="{Binding RightSidebarCollapsed, Mode=TwoWay}" ReduceMotion="{Binding ReduceMotion}"
+          RailLabel="{Binding RightRailLabel}" CollapseLabel="{Binding Text[CollapseRight]}" HasNotice="{Binding RightHasNotice}">
+      <Grid>
+      <Border Classes="panel" Padding="14,20" IsVisible="{Binding IsLaserMode}">
         <views:LaserPagesView DataContext="{Binding Laser}" />
       </Border>
-      <Border Grid.Column="2" Classes="panel" Padding="14,20" IsVisible="{Binding !IsLaserMode}">
+      <Border Classes="panel" Padding="14,20" IsVisible="{Binding !IsLaserMode}">
         <Grid RowDefinitions="Auto,*,Auto" RowSpacing="14">
           <StackPanel Spacing="8" Margin="6,0">
             <TextBlock Text="{Binding Text[Colors]}" FontWeight="SemiBold" />
@@ -233,6 +278,8 @@
           </Expander>
         </Grid>
       </Border>
+    </Grid>
+    </controls:CollapsibleSidebar>
     </Grid>
     <Grid Grid.Row="3" ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="10">
       <TextBlock Text="{Binding Status}" TextWrapping="Wrap" VerticalAlignment="Center" Classes="muted" MaxHeight="64" />

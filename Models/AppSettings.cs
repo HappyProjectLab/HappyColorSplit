@@ -12,4 +12,5 @@ public sealed class AppSettings
     public int DefaultExportDpi { get; set; } = 300;
     public int ScaleUnit { get; set; }
     public LaserSettings Laser { get; set; } = new();
+    public WorkspacePreferences Workspace { get; set; } = new();
 }

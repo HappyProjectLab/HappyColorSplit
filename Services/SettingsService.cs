@@ -33,6 +33,9 @@ public sealed class SettingsService(string? directory = null, string? legacyDire
             if (!Enum.IsDefined(settings.ExportBackground)) settings.ExportBackground = ExportBackground.Black;
             settings.DefaultExportDpi = Math.Clamp(settings.DefaultExportDpi, 1, 2400);
             settings.ScaleUnit = settings.ScaleUnit == 1 ? 1 : 0;
+            settings.Workspace ??= new();
+            settings.Workspace.HorizontalSplit = NormalizeSplit(settings.Workspace.HorizontalSplit);
+            settings.Workspace.VerticalSplit = NormalizeSplit(settings.Workspace.VerticalSplit);
             settings.Laser ??= new();
             if (settings.Laser.MarginCm is < 0 or > 500) settings.Laser.MarginCm = 0;
             if (settings.Laser.CavityGapCm is < 0 or > 500) settings.Laser.CavityGapCm = .5m;
@@ -57,4 +60,5 @@ public sealed class SettingsService(string? directory = null, string? legacyDire
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException) { return false; }
     }
+    private static double NormalizeSplit(double value) => double.IsFinite(value) ? Math.Clamp(value, .15, .85) : .5;
 }

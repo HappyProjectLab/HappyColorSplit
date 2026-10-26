@@ -54,6 +54,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         ResetScaleCommand = new(() => { ApplyScale(new(100, (int)ScaleDpi)); return Task.CompletedTask; }, () => IsIdle && HasImage);
         TripleContourResolutionCommand = new(TripleContourResolutionAsync, () => CanTripleContourResolution);
         Laser = new(this, _settings.Laser);
+        InitializeWorkspacePreferences();
     }
 
     public Texts Text => new(_settings.Language);
@@ -61,7 +62,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public int LanguageIndex
     {
         get => _settings.Language == "en" ? 1 : 0;
-        set { _settings.Language = value == 1 ? "en" : "de"; Changed(); Changed(nameof(Text)); Changed(nameof(Status)); Changed(nameof(ErrorDetails)); Changed(nameof(ExportOutputHelp)); Changed(nameof(ImageSizeSummary)); Laser.ChangeLanguage(); SaveSettings(); }
+        set { _settings.Language = value == 1 ? "en" : "de"; Changed(); Changed(nameof(Text)); Changed(nameof(Status)); Changed(nameof(ErrorDetails)); Changed(nameof(ExportOutputHelp)); Changed(nameof(ImageSizeSummary)); RefreshPreviewLayoutLabels(); Laser.ChangeLanguage(); RefreshWorkspaceLabels(); SaveSettings(); }
     }
     public double Tolerance
     {
@@ -365,6 +366,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private async Task LoadSelectedAsync(CancellationToken token)
     {
+        ResetPreviewViewports();
         _source?.Dispose(); _source = null; Original = null;
         ClearAnalysis(); Changed(nameof(HasImage));
         _filePath = SelectedImage?.FilePath ?? ""; Changed(nameof(FileName));
@@ -568,6 +570,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             SelectedImage.ExportColors = colors;
         }
         Changed(nameof(ExportColorCount)); Changed(nameof(HasBatchSelection)); ExportCommand.Refresh(); ExportBatchCommand.Refresh(); ExportCombinedBatchCommand.Refresh();
+        if (RightSidebarCollapsed || IsLaserMode) _colorsNotice = true; RefreshWorkspaceLabels();
         if (ShowCombinedPreview) RefreshMask();
         DetailPreviewCommand.Refresh();
         Laser.RefreshCommands();
@@ -637,7 +640,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public void Cancel() => _cancellation?.Cancel();
     public void Dispose()
     {
-        Cancel(); SaveSettings();
+        Cancel(); DisposeWorkspacePreferences(); SaveSettings();
         Laser.Dispose();
         Set(ref _selectedImage, null, nameof(SelectedImage));
         _source?.Dispose(); _source = null; Original = null; Mask = null;
