@@ -53,7 +53,7 @@
         <Button Grid.Column="3" Content="{Binding Text[Analyze]}" Command="{Binding AnalyzeCommand}" VerticalAlignment="Center" />
         <Grid Grid.Row="1" Grid.ColumnSpan="4" ColumnDefinitions="*,*" ColumnSpacing="16" IsEnabled="{Binding IsIdle}">
           <Border Background="#131C29" BorderBrush="#344255" BorderThickness="1" CornerRadius="8" Padding="12,8">
-            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
               <TextBlock Text="{Binding Text[ExportAreasAs]}" VerticalAlignment="Center" />
               <ComboBox x:Name="ExportAreaSelector" Grid.Column="1" SelectedIndex="{Binding ExportAreaIndex, Mode=TwoWay}" HorizontalAlignment="Stretch" MinWidth="155">
                 <ComboBoxItem Content="{Binding Text[AreaBlack]}" />
@@ -61,6 +61,18 @@
                 <ComboBoxItem Content="{Binding Text[AreaTransparent]}" />
                 <ComboBoxItem Content="{Binding Text[AreaGroupColor]}" />
               </ComboBox>
+              <Button Grid.Column="2" Content="{Binding Text[Contours]}" FontSize="11" Padding="8,8">
+                <Button.Flyout>
+                  <Flyout>
+                    <StackPanel Width="340" Spacing="10">
+                      <CheckBox x:Name="SmoothContoursToggle" Content="{Binding Text[SmoothContours]}" IsChecked="{Binding SmoothContours, Mode=TwoWay}" />
+                      <Button Content="{Binding Text[TripleContourResolution]}" Command="{Binding TripleContourResolutionCommand}" />
+                      <TextBlock Text="{Binding Text[TripleContourResolutionHelp]}" TextWrapping="Wrap" FontSize="12" Foreground="#7DD3FC" />
+                      <TextBlock Text="{Binding Text[SmoothContoursHelp]}" TextWrapping="Wrap" FontSize="12" />
+                    </StackPanel>
+                  </Flyout>
+                </Button.Flyout>
+              </Button>
             </Grid>
           </Border>
           <Border Grid.Column="1" Background="#131C29" BorderBrush="#344255" BorderThickness="1" CornerRadius="8" Padding="12,8">

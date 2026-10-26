@@ -52,6 +52,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         RemoveWindowsIntegrationCommand = new(() => UpdateWindowsIntegrationAsync(false), () => IsIdle && CanIntegrateWithWindows);
         OpenLastExportFolderCommand = new(OpenLastExportFolderAsync, () => CanOpenLastExportFolder);
         ResetScaleCommand = new(() => { ApplyScale(new(100, (int)ScaleDpi)); return Task.CompletedTask; }, () => IsIdle && HasImage);
+        TripleContourResolutionCommand = new(TripleContourResolutionAsync, () => CanTripleContourResolution);
         Laser = new(this, _settings.Laser);
     }
 
@@ -114,7 +115,16 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     }
     public string ExportOutputHelp => string.Format(Text["ExportAppearanceHelp"],
         Text["Area" + _settings.ExportArea], Text["Background" + _settings.ExportBackground]);
-    private ExportOptions CurrentExportOptions => new(_settings.ExportArea, _settings.ExportBackground);
+    public bool SmoothContours
+    {
+        get => _settings.SmoothContours;
+        set
+        {
+            if (IsBusy || value == _settings.SmoothContours) return;
+            _settings.SmoothContours = value; Changed(); Laser.Invalidate(); RefreshMask(); SaveSettings();
+        }
+    }
+    private ExportOptions CurrentExportOptions => new(_settings.ExportArea, _settings.ExportBackground, _settings.SmoothContours);
     public int ScaleUnitIndex
     {
         get => SelectedImage?.ScaleUnit ?? _settings.ScaleUnit;
@@ -191,6 +201,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         Changed(nameof(ScaleUnitIndex)); Changed(nameof(IsScalePercent)); Changed(nameof(IsScaleCm));
         Changed(nameof(ScalePercent)); Changed(nameof(ScaleWidthCm)); Changed(nameof(ScaleHeightCm));
         Changed(nameof(ScaleDpi)); Changed(nameof(ImageSizeSummary));
+        TripleContourResolutionCommand.Refresh();
     }
     public bool IsBusy { get => _busy; private set { Set(ref _busy, value); Changed(nameof(IsIdle)); RefreshCommands(); } }
     public bool IsIdle => !IsBusy;
@@ -245,6 +256,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public AsyncCommand RemoveWindowsIntegrationCommand { get; }
     public AsyncCommand OpenLastExportFolderCommand { get; }
     public AsyncCommand ResetScaleCommand { get; }
+    public AsyncCommand TripleContourResolutionCommand { get; }
 
     private void RefreshMask()
     {
@@ -526,10 +538,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             byte[] original = _service.OriginalPreview(_source!, size.Width, size.Height, sizing);
             token.ThrowIfCancellationRequested();
-            byte[] mask = combined ? _service.CombinedPreview(analysis, selected, options, sizing, fullResolution: true)
-                : _service.MaskPreview(analysis, group, fullResolution: true, options: options, sizing: sizing);
-            byte[] overlay = combined ? _service.OverlayPreview(analysis, selected, token, sizing)
-                : _service.OverlayPreview(analysis, group, token, sizing);
+            byte[] mask = combined ? _service.CombinedPreview(analysis, selected, options, sizing, fullResolution: true, token: token)
+                : _service.MaskPreview(analysis, group, fullResolution: true, options: options, sizing: sizing, token: token);
+            byte[] overlay = combined ? _service.OverlayPreview(analysis, selected, token, sizing, options.SmoothContours)
+                : _service.OverlayPreview(analysis, group, token, sizing, options.SmoothContours);
             return (original, mask, overlay);
         }, token);
         token.ThrowIfCancellationRequested();
@@ -618,6 +630,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         DetailPreviewCommand.Refresh(); SelectAllColorsCommand.Refresh(); DeselectAllColorsCommand.Refresh();
         EnableWindowsIntegrationCommand.Refresh(); RemoveWindowsIntegrationCommand.Refresh();
         ResetScaleCommand.Refresh();
+        TripleContourResolutionCommand.Refresh();
         Laser.RefreshCommands();
     }
     private void SaveSettings() { if (!_settingsService.Save(_settings)) StatusMessage("SaveError"); }

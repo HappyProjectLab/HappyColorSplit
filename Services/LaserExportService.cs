@@ -29,6 +29,7 @@ public sealed class LaserExportService
             {
                 Page = page.Index, page.MaterialPage, Material = page.Material.Name, page.Material.Hex,
                 page.Settings.WidthCm, page.Settings.HeightCm, page.Settings.Dpi,
+                options.SmoothContours,
                 page.Settings.MarginCm, page.Settings.CavityGapCm, page.Settings.ElementGapCm,
                 MinimumGapCm = Math.Min(page.Settings.CavityGapCm, page.Settings.ElementGapCm),
                 PixelWidth = page.Size.Width, PixelHeight = page.Size.Height,

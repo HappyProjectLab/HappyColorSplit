@@ -101,7 +101,9 @@ dotnet run --project HappyColorSplit.csproj
 
 **Neu in 0.1.0-preview.4:** Drag-and-drop, optionale Windows-Einbindung, ein Button für den letzten Exportordner und getrennte Auswahlen für Flächenfarbe und Export-Hintergrund.
 
-**Lokaler Entwicklungsstand:** Die nachfolgend beschriebene individuelle Bildskalierung, die gemeinsame Farberkennung mit strikter Farbauswahl pro Bild, der kombinierte Export und der Laser-Modus sind noch nicht im oben verlinkten Download `0.1.0-preview.4` enthalten.
+**Lokaler Entwicklungsstand:** Die nachfolgend beschriebene individuelle Bildskalierung, die gemeinsame Farberkennung mit strikter Farbauswahl pro Bild, der kombinierte Export, die optionale harte Konturglättung und der Laser-Modus sind noch nicht im oben verlinkten Download `0.1.0-preview.4` enthalten.
+
+Bei niedrig aufgelösten Vorlagen: **Konturen → 3× Auflösung bei gleicher Größe** aktiviert die harte Konturglättung und erhöht für das ausgewählte Bild Pixelauflösung und DPI gemeinsam. Die Zentimetergröße bleibt erhalten. Einzelne und kombinierte Farbauszüge erhalten klar getrennte Flächen ohne graue oder halbtransparente Randpixel. Kleine Details und Lücken prüfen; fehlende Originaldetails werden nicht rekonstruiert. Anleitung und Grenzen: [Konturglättung](docs/CONTOUR_SMOOTHING.md).
 
 Ein oder mehrere Bilder lassen sich auf das Programmfenster ziehen. Unterstützt werden `.png`, `.jpg` und `.jpeg`; andere Formate und beschädigte Dateien werden nicht geladen. Bei gemischter Auswahl werden gültige Bilder übernommen und Fehler angezeigt. Während einer Verarbeitung nimmt das Fenster keine weiteren Dateien entgegen.
 

@@ -25,5 +25,5 @@ public sealed partial class MainViewModel
     internal ExportOptions LaserAppearance => CurrentExportOptions;
     internal IReadOnlyList<LaserSource> GetLaserSources() => Images.Select((image, index) => (image, index))
         .Where(pair => pair.image.ColorsDetected && pair.image.ExportColors is { Count: > 0 })
-        .Select(pair => new LaserSource(pair.index + 1, pair.image.FilePath, pair.image.Scale, pair.image.ExportColors!.ToHashSet())).ToArray();
+        .Select(pair => new LaserSource(pair.index + 1, pair.image.FilePath, pair.image.Scale, pair.image.ExportColors!.ToHashSet(), _settings.SmoothContours)).ToArray();
 }

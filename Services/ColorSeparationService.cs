@@ -98,25 +98,26 @@ public sealed class ColorSeparationService
     }
 
     public byte[] MaskPreview(ColorAnalysis analysis, int group, bool fullResolution = false, ExportOptions? options = null,
-        ImageScale? sizing = null)
+        ImageScale? sizing = null, CancellationToken token = default)
     {
         options ??= new();
-        // Nearest-neighbor sampling bounds memory and retains hard mask edges.
+        // Sample the final export grid so reduced previews retain the same hard mask decisions.
         var size = sizing?.GetSize(analysis.Width, analysis.Height) ?? new(analysis.Width, analysis.Height);
         double scale = fullResolution ? 1 : Math.Min(1, Math.Min(1100.0 / size.Width, 750.0 / size.Height));
         int width = Math.Max(1, (int)(size.Width * scale)), height = Math.Max(1, (int)(size.Height * scale));
         using var mask = ExportImageRenderer.CreateBitmap(width, height, options);
-        ExportImageRenderer.Fill(mask, analysis, group, options, exportSize: size);
+        ExportImageRenderer.Fill(mask, analysis, group, options, token, size);
         return RasterImageCodec.EncodePng(mask);
     }
 
-    public byte[] OverlayPreview(ColorAnalysis analysis, int group, CancellationToken token, ImageScale? sizing = null)
-        => OverlayPreview(analysis, new HashSet<int> { group }, token, sizing);
+    public byte[] OverlayPreview(ColorAnalysis analysis, int group, CancellationToken token, ImageScale? sizing = null, bool smoothContours = false)
+        => OverlayPreview(analysis, new HashSet<int> { group }, token, sizing, smoothContours, false);
 
-    public byte[] OverlayPreview(ColorAnalysis analysis, IReadOnlySet<int> groups, CancellationToken token, ImageScale? sizing = null)
+    public byte[] OverlayPreview(ColorAnalysis analysis, IReadOnlySet<int> groups, CancellationToken token, ImageScale? sizing = null, bool smoothContours = false, bool combineGroups = true)
     {
         var size = sizing?.GetSize(analysis.Width, analysis.Height) ?? new(analysis.Width, analysis.Height);
         using var overlay = new RasterImage(size.Width, size.Height);
+        var smoothing = smoothContours ? new HardContourSampler(analysis, analysis.Groups.ToDictionary(g => g.Index, g => !combineGroups || groups.Contains(g.Index) ? g.Index : -1)) : null;
         for (int y = 0; y < size.Height; y++)
         {
             token.ThrowIfCancellationRequested();
@@ -125,7 +126,8 @@ public sealed class ColorSeparationService
             for (int x = 0; x < size.Width; x++)
             {
                 int sourceX = ImageResampling.Source(x, size.Width, size.Width, analysis.Width);
-                if (!groups.Contains(analysis.Labels[sourceY * analysis.Width + sourceX])) continue;
+                int label = smoothing is null ? analysis.Labels[sourceY * analysis.Width + sourceX] : smoothing.Sample(x, y, size.Width, size.Height);
+                if (!groups.Contains(label)) continue;
                 int offset = x * 4;
                 row[offset] = 80; row[offset + 1] = 255; row[offset + 2] = 120; row[offset + 3] = 255;
             }
@@ -180,14 +182,14 @@ public sealed class ColorSeparationService
     }
 
     public byte[] CombinedPreview(ColorAnalysis analysis, IReadOnlySet<int> groups, ExportOptions? options = null,
-        ImageScale? sizing = null, bool fullResolution = false)
+        ImageScale? sizing = null, bool fullResolution = false, CancellationToken token = default)
     {
         if (!analysis.Groups.Any(g => groups.Contains(g.Index))) throw new NoColorsSelectedException();
         options ??= new();
         var size = sizing?.GetSize(analysis.Width, analysis.Height) ?? new(analysis.Width, analysis.Height);
         double scale = fullResolution ? 1 : Math.Min(1, Math.Min(1100.0 / size.Width, 750.0 / size.Height));
         using var mask = ExportImageRenderer.CreateBitmap(Math.Max(1, (int)(size.Width * scale)), Math.Max(1, (int)(size.Height * scale)), options);
-        ExportImageRenderer.FillCombined(mask, analysis, groups, options, exportSize: size);
+        ExportImageRenderer.FillCombined(mask, analysis, groups, options, token, size);
         return RasterImageCodec.EncodePng(mask);
     }
 

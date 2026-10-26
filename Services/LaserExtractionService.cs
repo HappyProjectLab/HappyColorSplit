@@ -16,8 +16,10 @@ public sealed class LaserExtractionService
         var size = source.Scale.GetSize(analysis.Width, analysis.Height);
         var map = analysis.Groups.ToDictionary(g => g.Index,
             g => source.Colors.Contains(g.Hex) ? ClosestMaterial(new(g.R, g.G, g.B), settings.Materials) : -1);
+        var smoothing = source.SmoothContours ? new HardContourSampler(analysis, map) : null;
         int Read(int x, int y)
         {
+            if (smoothing is not null) return smoothing.Sample(x, y, size.Width, size.Height);
             int sx = (int)(x * (long)analysis.Width / size.Width), sy = (int)(y * (long)analysis.Height / size.Height);
             int label = analysis.Labels[sy * analysis.Width + sx];
             return label >= 0 ? map[label] : -1;

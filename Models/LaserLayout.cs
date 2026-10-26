@@ -41,7 +41,7 @@ public sealed class LaserSettings
         MarginCm = MarginCm, CavityGapCm = CavityGapCm, ElementGapCm = ElementGapCm, Materials = Materials.ToList() };
 }
 
-public sealed record LaserSource(int Index, string FilePath, ImageScale Scale, IReadOnlySet<string> Colors);
+public sealed record LaserSource(int Index, string FilePath, ImageScale Scale, IReadOnlySet<string> Colors, bool SmoothContours = false);
 public readonly record struct LaserRun(int Y, int X, int Length);
 public readonly record struct LaserRect(int X, int Y, int Width, int Height);
 

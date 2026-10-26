@@ -8,6 +8,7 @@ public sealed class AppSettings
     public string LastExportFolder { get; set; } = "";
     public ExportArea ExportArea { get; set; } = ExportArea.White;
     public ExportBackground ExportBackground { get; set; } = ExportBackground.Black;
+    public bool SmoothContours { get; set; }
     public int DefaultExportDpi { get; set; } = 300;
     public int ScaleUnit { get; set; }
     public LaserSettings Laser { get; set; } = new();

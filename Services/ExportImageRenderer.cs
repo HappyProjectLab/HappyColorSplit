@@ -43,6 +43,8 @@ internal static class ExportImageRenderer
         };
         bool rgba = NeedsRgba(options);
         var size = exportSize ?? new ImageDimensions(analysis.Width, analysis.Height);
+        var smoothing = options.SmoothContours ? new HardContourSampler(analysis, analysis.Groups
+            .ToDictionary(g => g.Index, g => combinedGroups is null || combinedGroups.Contains(g.Index) ? g.Index : -1)) : null;
         bool originalSize = target.Width == analysis.Width && target.Height == analysis.Height
             && size.Width == analysis.Width && size.Height == analysis.Height;
         for (int y = 0; y < target.Height; y++)
@@ -53,7 +55,8 @@ internal static class ExportImageRenderer
             for (int x = 0; x < target.Width; x++)
             {
                 int sourceX = originalSize ? x : ImageResampling.Source(x, target.Width, size.Width, analysis.Width);
-                int label = analysis.Labels[sourceY * analysis.Width + sourceX];
+                int label = smoothing is null ? analysis.Labels[sourceY * analysis.Width + sourceX]
+                    : smoothing.Sample((int)(x * (long)size.Width / target.Width), (int)(y * (long)size.Height / target.Height), size.Width, size.Height);
                 // Union of transparent-background, black-foreground masks first; style only afterwards.
                 bool selected = label >= 0 && (combinedGroups?.Contains(label) ?? label == groupIndex);
                 RgbaPixel foreground = area;

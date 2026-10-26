@@ -7,6 +7,12 @@ public sealed class Texts(string language)
     private static readonly Dictionary<string, string[]> Entries = new()
     {
         ["Subtitle"] = ["Farben trennen. Masken exportieren.", "Separate colors. Export masks."],
+        ["Contours"] = ["Konturen", "Contours"],
+        ["TripleContourResolution"] = ["3× Auflösung bei gleicher Größe", "3× resolution, same physical size"],
+        ["TripleContourResolutionHelp"] = ["Für das ausgewählte Bild: dreifache Pixelbreite/-höhe und dreifache DPI. Die cm-Größe bleibt gleich; Glättung wird aktiviert. Bis 16 Millionen Pixel und 2400 DPI. Für Laser gegebenenfalls auch die Seiten-DPI erhöhen.", "For the selected image: triples pixel width/height and DPI. Size in cm stays the same; smoothing is enabled. Limited to 16 million pixels and 2400 DPI. For laser output, increase the page DPI as needed too."],
+        ["ContourResolutionTripled"] = ["Konturauflösung verdreifacht, cm-Größe beibehalten und Glättung aktiviert. Vorschau prüfen; Laser-Seiten bei Bedarf erneut anordnen.", "Contour resolution tripled, physical size preserved and smoothing enabled. Check the preview; rearrange laser pages if needed."],
+        ["SmoothContours"] = ["Harte Konturen glätten", "Smooth hard contours"],
+        ["SmoothContoursHelp"] = ["Gilt für alle Bilder, einzelne und kombinierte Farbauszüge sowie die Laser-Teilerkennung. Glättet beim Vergrößern, ohne graue oder halbtransparente Randpixel. Bei 100 % bleibt das Pixelraster erhalten. Für mehr Konturauflösung unter Bildgröße zuerst cm wählen und dann die DPI erhöhen: Die Zentimetergröße bleibt gleich. Kleine Details, Spitzen und enge Lücken bitte prüfen. Für Laser-Seiten danach erneut anordnen.", "Applies to all images, individual/merged layers and laser part extraction. Smooths enlargement without grey or semitransparent edge pixels. At 100% the source pixel grid is retained. For higher contour resolution, select cm under Image size, then increase DPI: physical size stays the same. Check tiny details, tips and narrow gaps. Rearrange laser pages afterwards."],
         ["ColorWorkspace"] = ["Farbauszüge", "Color layers"],
         ["LaserWorkspace"] = ["Laser", "Laser"],
         ["LaserSettings"] = ["Laser-Einstellungen", "Laser settings"],
