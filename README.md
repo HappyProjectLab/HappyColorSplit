@@ -1,8 +1,25 @@
 # HappyColorSplit
 
-Windows-Desktop-Anwendung zum Trennen ähnlicher Farben aus PNG- und JPG-Bildern. Jede Farbgruppe wird als eigenes PNG exportiert. Standard ist **weiße Farbfläche auf schwarzem Hintergrund in Originalgröße**; Flächenfarbe und Hintergrund lassen sich unabhängig voneinander wählen. Der lokale Entwicklungsstand bietet zusätzlich eine proportionale Skalierung pro Bild.
+Windows-Desktop-Anwendung zum Trennen ähnlicher Farben aus PNG- und JPG-Bildern – als Ausgangspunkt für Siebdruck-Schablonen, Plotterfolien und Laser-Applikationen. Ausgewählte Farbgruppen lassen sich einzeln oder gemeinsam als PNG exportieren. Für Laser-Vorlagen können ihre Einzelteile auf Materialseiten angeordnet und anschließend von Hand bearbeitet werden.
 
-Aktueller Entwicklungsstand: **0.1.0-preview.4**. Dies ist eine Vorabversion. Projekt und Quellcode sind im öffentlichen Repository [HappyProjectLab/HappyColorSplit](https://github.com/HappyProjectLab/HappyColorSplit) verfügbar.
+Zuletzt veröffentlichter Download: **0.1.0-preview.4**. Dies ist eine Vorabversion. Das öffentliche Repository befindet sich unter [HappyProjectLab/HappyColorSplit](https://github.com/HappyProjectLab/HappyColorSplit).
+
+**Stand dieser README:** Die neuen Funktionen beschreiben den vorbereiteten Entwicklungsstand. Sie sind noch nicht im unten verlinkten Download `0.1.0-preview.4` enthalten.
+
+## Funktionsübersicht
+
+| Bereich | Funktionen |
+| --- | --- |
+| Bilder laden | PNG, JPG und JPEG; mehrere Bilder; Drag-and-drop und optionale Windows-Einbindung |
+| Farben trennen | Ähnliche Farben erkennen, Mindestdeckkraft einstellen und Exportfarben je Bild auswählen |
+| Größen festlegen | Eigene Maße und DPI je Bild; Skalierung in cm oder % bei gesperrtem Seitenverhältnis |
+| PNG exportieren | Einzelne Farb-Layer oder eine gemeinsame PNG pro Bild; ausschließlich die angehakten Farben |
+| Ausgabe gestalten | Flächen in Schwarz, Weiß, Transparent oder Gruppenfarbe; Hintergrund in Schwarz, Grau, Weiß oder Transparent |
+| Konturen glätten | Optionale harte Konturglättung; dreifache Auflösung bei gleicher beabsichtigter cm-Größe |
+| Laser-Vorlagen anordnen | Eigene Arbeitsfläche und Materialfarben; Seiten je Material; Aussparungen nutzen und automatisch nachoptimieren |
+| Laser-Vorlagen bearbeiten | Einzelteile links ziehen, Bereiche rechts ziehen, freie Mehrfachauswahl, gemeinsame Vierteldrehungen und Rückgängig |
+
+Standard für Farbauszüge ist **weiße Farbfläche auf schwarzem Hintergrund**. Ohne Größenänderung werden die Originalpixelmaße verwendet. Die Ausgabe besteht aus PNG-Bildvorlagen; Maschinenbefehle und Vektor-Schnittpfade werden nicht erzeugt.
 
 ## Programm herunterladen
 
@@ -39,7 +56,7 @@ Aus der Vorbereitung meines Latex-Siebdruck-Projekts ist HappyColorSplit entstan
 
 Die echte Programmoberfläche zeigt das Ausgangsmotiv und die Vorschau eines Farbauszugs. Hier sind fünf Farbgruppen für den Export ausgewählt; die zusätzliche Übergangsfarbe bleibt abgewählt.
 
-Die Abbildung zeigt einen früheren Oberflächenstand. Die aktuelle Version bietet zusätzlich die Auswahl von Flächenfarbe und Export-Hintergrund.
+Die Abbildung zeigt einen früheren Oberflächenstand. Flächenfarbe und Export-Hintergrund sind inzwischen getrennt wählbar; der vorbereitete Entwicklungsstand ergänzt unter anderem Konturglättung und den Laser-Arbeitsbereich.
 
 ### Ein Motiv, fünf Farbauszüge
 
@@ -101,9 +118,7 @@ dotnet run --project HappyColorSplit.csproj
 
 **Neu in 0.1.0-preview.4:** Drag-and-drop, optionale Windows-Einbindung, ein Button für den letzten Exportordner und getrennte Auswahlen für Flächenfarbe und Export-Hintergrund.
 
-**Lokaler Entwicklungsstand:** Die nachfolgend beschriebene individuelle Bildskalierung, die gemeinsame Farberkennung mit strikter Farbauswahl pro Bild, der kombinierte Export, die optionale harte Konturglättung und der Laser-Modus sind noch nicht im oben verlinkten Download `0.1.0-preview.4` enthalten.
-
-Bei niedrig aufgelösten Vorlagen: **Konturen → 3× Auflösung bei gleicher Größe** aktiviert die harte Konturglättung und erhöht für das ausgewählte Bild Pixelauflösung und DPI gemeinsam. Die Zentimetergröße bleibt erhalten. Einzelne und kombinierte Farbauszüge erhalten klar getrennte Flächen ohne graue oder halbtransparente Randpixel. Kleine Details und Lücken prüfen; fehlende Originaldetails werden nicht rekonstruiert. Anleitung und Grenzen: [Konturglättung](docs/CONTOUR_SMOOTHING.md).
+Die nachfolgenden Schritte beschreiben den vorbereiteten Entwicklungsstand; die Abgrenzung zum veröffentlichten Download steht oben.
 
 Ein oder mehrere Bilder lassen sich auf das Programmfenster ziehen. Unterstützt werden `.png`, `.jpg` und `.jpeg`; andere Formate und beschädigte Dateien werden nicht geladen. Bei gemischter Auswahl werden gültige Bilder übernommen und Fehler angezeigt. Während einer Verarbeitung nimmt das Fenster keine weiteren Dateien entgegen.
 
@@ -122,7 +137,7 @@ Die Mindestdeckkraft gilt für alle Bilder. Nach der ersten erfolgreichen Erkenn
 
 Die Einstellung **Auswahl vereinen** in der Exportvorschau zeigt diese gemeinsame Maske mit den aktuellen Ausgabeoptionen. Änderungen an den Häkchen aktualisieren sie sofort. Neue Detailansichten einschließlich grüner Überlagerung können ebenfalls die gesamte Auswahl zeigen. Die Vorschau-Einstellung ändert nicht die Exportart: **Alle Bilder exportieren** erzeugt weiterhin einzelne Farb-PNGs; **Kombiniert exportieren** erzeugt Dateien mit der Endung `_merged.png`, jeweils in einem eigenen Bild-Unterordner. Beide Exportarten verwenden ausschließlich die gespeicherten Häkchen des jeweiligen Bildes und dessen eigene Größe und DPI.
 
-**Detailansicht / Überlagerung** öffnet die ausgewählte Maske in Originalauflösung. Die Vergrößerung reicht von 25 bis 800 %. Scrollleisten verschieben den Ausschnitt. Bei aktiver Originalüberlagerung markiert eine grüne Fläche die ausgewählte Maske; die Überlagerungsstärke ist einstellbar. Ohne Überlagerung wird die Exportvorschau mit der gewählten Flächenfarbe und dem gewählten Hintergrund gezeigt. Die Detailansicht ist eine Momentaufnahme der aktuellen Auswahl.
+**Detailansicht / Überlagerung** öffnet die ausgewählte Maske in voller Exportauflösung. Die Vergrößerung reicht von 25 bis 800 %. Scrollleisten verschieben den Ausschnitt. Bei aktiver Originalüberlagerung markiert eine grüne Fläche die ausgewählte Maske; die Überlagerungsstärke ist einstellbar. Ohne Überlagerung wird die Exportvorschau mit der gewählten Flächenfarbe und dem gewählten Hintergrund gezeigt. Die Detailansicht ist eine Momentaufnahme der aktuellen Auswahl.
 
 Die Bildliste zeigt Miniaturvorschauen. Ein Klick auf ein Bild zeigt dessen Original; **Farben erkennen** erzeugt die zugehörigen Farbgruppen und Maskenvorschauen. Die Farbauswahl bereits geprüfter Bilder bleibt beim Bildwechsel erhalten. Mit **Entfernen** oder **Liste leeren** lassen sich Bilder aus der Liste nehmen.
 
@@ -148,45 +163,69 @@ Die Farberkennung bleibt auf der Originalgröße. Erst die Ausgabe wird ohne Mis
 
 **Export-Hintergrund** bietet **Schwarz**, **Grau** (`#808080`), **Weiß** oder **Transparent**. Die Einstellung gilt unabhängig von der Flächenauswahl für Vorschau, neue Detailansichten und beide Exportarten; sie wird gespeichert. Transparent bedeutet echte PNG-Transparenz außerhalb der ausgewählten Fläche. Ausgewählte Pixel sind bei Schwarz, Weiß und Gruppenfarbe vollständig deckend; die Flächeneinstellung Transparent setzt sie auf Alpha 0. Beide Auswahlmenüs stehen in getrennten Bereichen. Das Schachbrettraster in der Vorschau dient nur zur Anzeige und wird nicht mitgespeichert. Gleiche Flächen- und Hintergrundfarben sind möglich und können die Fläche unsichtbar machen; Transparent für beide Bereiche erzeugt ein vollständig transparentes PNG.
 
+### Harte Konturen für niedrig aufgelöste Vorlagen
+
+Neben **Flächen exportieren als** auf **Konturen** klicken. **Harte Konturen glätten** verbessert Konturverläufe beim Vergrößern und erzeugt weiterhin klare Farbflächen ohne graue oder halbtransparente Randpixel. Die Option gilt für alle Bilder, Einzel-Layer, kombinierte Layer und die Laser-Teilerkennung; sie wird gespeichert und ist zunächst ausgeschaltet.
+
+**3× Auflösung bei gleicher Größe** aktiviert die Glättung und verdreifacht Pixelbreite, Pixelhöhe und DPI des ausgewählten Bildes gemeinsam. Die beabsichtigten Zentimetermaße bleiben erhalten; die anderen Bilder behalten ihre eigenen Maße. Der Knopf berücksichtigt die Grenzen von 16 Millionen Pixeln und 2400 DPI. Alternativ unter **Bildgröße** zuerst **cm** wählen und dann die DPI erhöhen.
+
+Bei 100 % bleibt die ursprüngliche Pixelmaske erhalten. Zusätzliche Ausgabepixel ermöglichen feinere Konturen, rekonstruieren aber keine verlorenen Originaldetails. Kleine Inseln, schmale Linien, Spitzen und enge Lücken in der Vorschau beziehungsweise Detailansicht prüfen. Für Laser-Ausgaben auch die Seiten-DPI berücksichtigen und nach einer Änderung erneut anordnen. Details: [Konturglättung](docs/CONTOUR_SMOOTHING.md).
+
 ## Laser / Applikationen
 
 Oben zwischen **Farbauszüge** und **Laser** wechseln. Der Laser-Arbeitsbereich nutzt die Fläche der bisherigen Original- und Exportvorschau; rechts erscheint eine Liste der angelegten Materialseiten.
 
 Links und oberhalb der angeordneten Arbeitsfläche helfen Zentimetermaßstäbe mit ganzen und halben Zentimetern bei der Orientierung. Die Maßstäbe werden nicht exportiert.
 
-Der reservierte Rand wird auf der Arbeitsfläche und an den Maßstäben grau angezeigt. Nach dem Anordnen zieht die linke Maustaste Einzelteile, die rechte Maustaste ganze Bereiche. Rand und Abstände werden beim Loslassen geprüft. **Rückgängig** stellt die vorherige Position wieder her; Export und Vorschau übernehmen gültige Änderungen. Erneutes Anordnen ersetzt manuelle Änderungen.
-
-Mit links auf freier Fläche eine Umrandung ziehen, um mehrere Teile auszuwählen (mit **Shift + links** auch über einem Teil beginnen). Die markierte Auswahl anschließend an einem ihrer Teile gemeinsam ziehen. **Esc** bricht die Geste ab beziehungsweise hebt die Auswahl auf.
-
-**↻** dreht die Auswahl gemeinsam um 90° nach rechts; **Bearbeiten** bietet beide Drehrichtungen. Auf der Arbeitsfläche funktionieren auch **R** und **Shift + R**. Rand und Abstände werden erneut geprüft, ungültige Drehungen verworfen. **Rückgängig** gilt für Verschiebungen und Drehungen.
+Der reservierte Rand wird auf der Arbeitsfläche und an den Maßstäben grau angezeigt. Die Anordnung verwendet die individuellen Maße der importierten Bilder. Eingesetzte Teile bewegen und drehen sich mit ihrem umgebenden Teil.
 
 1. Bilder laden, gegebenenfalls pro Bild **Bildgröße** einstellen und **Farben erkennen** ausführen. Im Bereich **Farbauszüge** pro Bild ausschließlich die auszuschneidenden Farbgruppen anhaken; eine unerwünschte Hintergrundgruppe abwählen.
 2. In **Laser → Laser-Einstellungen** die Arbeitsfläche in Zentimetern und die PNG-Auflösung festlegen. Standard: 30 × 20 cm bei 300 DPI.
 3. Vorhandene Materialien mit optionalem Namen und einer Farbe als `#RRGGBB` zur Liste hinzufügen. Die ausgewählten Bildfarben werden automatisch der ähnlichsten Materialfarbe zugeordnet.
 4. **Anordnen** erstellt die Seiten. Zusammenhängende Materialflächen bilden Teile; nahe Teile werden Bereichen zugeordnet. Die Anordnung hält Quelldateien als Gruppen zusammen, übernimmt die individuellen Bildmaße und dreht ausschließlich in Vierteldrehungen. Kleine Teile können freie Aussparungen größerer Teile derselben Quelldatei nutzen; ihre ursprüngliche Bereichszuordnung bleibt erhalten. Die Mindestabstände zum Plattenrand, beim Einsetzen in Aussparungen und zwischen anderen Teilen sind unabhängig einstellbar (zunächst 0 / 0,5 / 0,5 cm). Spiegelungen und Überlappungen sind ausgeschlossen.
-5. Jede Materialfarbe erhält eigene Seiten. Reicht eine Seite nicht aus, werden weitere angelegt. Seiten rechts anklicken. **Dateien und Bereiche** zeigt die Zuordnung; **Gruppenrahmen anzeigen** blendet Vorschau-Markierungen ein, die nicht exportiert werden.
+5. Jede Materialfarbe erhält eigene Seiten. Reicht eine Seite nicht aus, werden weitere angelegt. Seiten rechts anklicken. Unter **Bearbeiten → Dateien und Bereiche** steht die Zuordnung; **Gruppenrahmen anzeigen** blendet Vorschau-Markierungen ein, die nicht exportiert werden.
 6. **Seite exportieren**, **Alle Seiten exportieren** oder **Kombiniert exportieren** speichert die platzierten Teile mit den üblichen Einstellungen für Flächenfarbe und Hintergrund. Bei Gruppenfarbe wird die zugeordnete Materialfarbe verwendet. Jede Seite ist bereits einfarbig nach Material; der kombinierte Export speichert ihre gemeinsame Maske mit `_merged.png`.
 
-Nach Änderungen an Auswahl, Bildgröße, Materialien oder Arbeitsfläche muss erneut angeordnet werden; veraltete Seiten sind für den Export gesperrt. Die Anordnung verwendet eine Rechteck-Packheuristik mit Gruppierung, keine Garantie auf die weltweit dichteste Belegung. Zu große zusammenhängende Teile werden gemeldet und nicht verkleinert, zerschnitten oder entfernt. Details zu Gruppierung, Abständen und Ausgabe: [Laser-Arbeitsbereich](docs/LASER_WORKSPACE.md).
+Nach Änderungen an Farbauswahl, Bildgröße, Konturglättung, Materialien, Abständen oder Arbeitsfläche muss erneut angeordnet werden; veraltete Seiten sind für Bearbeitung und Export gesperrt. Die Anordnung verwendet eine Rechteck-Packheuristik mit ergänzender Suche in Aussparungen und garantiert keine weltweit dichteste Belegung. Zu große zusammenhängende Teile werden gemeldet und nicht verkleinert, zerschnitten oder entfernt.
 
 Auf die erste Anordnung folgt automatisch ein zweiter Optimierungslauf. Jede Materialfarbe behält das bessere Ergebnis: weniger Seiten oder bei gleicher Seitenzahl weniger belegte Begrenzungsfläche. Abstände, Bildmaße und Gruppierung bleiben erhalten.
+
+### Laser-Seiten mit der Maus bearbeiten
+
+| Aktion | Bedienung |
+| --- | --- |
+| Einzelteil verschieben | Gefülltes Teil mit der linken Maustaste ziehen |
+| Ursprünglichen Bereich verschieben | Gefülltes Teil mit der rechten Maustaste ziehen |
+| Mehrere Teile auswählen | Auf freier Fläche links drücken, die Teile freihändig umranden und loslassen |
+| Umrandung über einem Teil beginnen | Shift + linke Maustaste |
+| Lasso-Auswahl gemeinsam verschieben | Ein markiertes Teil mit links ziehen |
+| Auswahl rechts drehen | **↻** oder auf der Arbeitsfläche **R**: 90° nach rechts |
+| Auswahl links drehen | Auf der Arbeitsfläche **Shift + R**; beide Richtungen stehen auch unter **Bearbeiten** |
+| Geste abbrechen / Auswahl aufheben | **Esc** während einer Geste / ohne aktive Geste |
+| Letzte Bearbeitung zurücknehmen | **Rückgängig**, bis zu 20 Verschiebungen oder Drehungen dieser Sitzung |
+
+Ein Bereich umfasst Teile derselben Quelldatei und ursprünglichen Bereichsnummer auf der aktuellen Seite. Eine Lasso-Auswahl kann mehrere Bereiche und Quelldateien umfassen. Nach einem Rechtszug bewegt ein Linkszug wieder das angeklickte Einzelteil; nur eine bewusst umrundete Mehrfachauswahl bleibt beim Linkszug zusammen. Das Seitenverhältnis und die Größe der Teile bleiben erhalten; es wird nicht gespiegelt.
+
+Rand und tatsächliche Materialabstände werden beim Loslassen beziehungsweise Drehen geprüft. Ungültige Änderungen werden verworfen. Gültige Änderungen aktualisieren die große Vorschau, die Seitenminiatur und den Export samt `Laser_Layout.json` mit Positionen, Zuordnungen und Drehwinkeln. Manuelle Bearbeitung ist auf die aktuelle Seite beschränkt.
+
+**Erneutes Anordnen ersetzt manuelle Änderungen.** Die Importliste und manuelle Platzierungen werden nicht als dauerhaftes Bildprojekt gespeichert. Maßstäbe, Randmarkierung und Auswahlrahmen erscheinen nur in der Vorschau. Ausführliche Anleitung: [Laser-Arbeitsbereich](docs/LASER_WORKSPACE.md).
 
 ## Farbverarbeitung
 
 Die häufigste noch nicht zugeordnete RGB-Farbe dient als feste Referenzfarbe einer Gruppe. Farben werden anhand ihres euklidischen Abstands im RGB-Farbraum der nächstgelegenen passenden Referenz zugeordnet. Der Regler gibt den maximalen Abstand zur Referenz an (0–150). Es handelt sich um eine einfache RGB-Gruppierung, nicht um eine wahrnehmungsbasierte Farbraumanalyse. Auch die Hintergrundfarbe erhält eine eigene Gruppe.
 
-Vollständig transparente Pixel und Pixel unterhalb der Mindestdeckkraft gehören keiner Gruppe an und verwenden den gewählten Export-Hintergrund. Übrige Pixel werden anhand ihres gespeicherten RGB-Werts zugeordnet und entsprechend der Flächenauswahl schwarz, weiß, transparent oder in der Referenzfarbe ihrer Gruppe ausgegeben. Abgewählte Farbgruppen werden nicht gespeichert; ihre Pixel verwenden in allen anderen Masken den gewählten Hintergrund und werden keiner anderen Farbe zugewiesen. Diese Version führt keine automatische Konturreparatur oder Entfernung kleiner zusammenhängender Flächen durch. EXIF-Ausrichtung wird vor der Verarbeitung angewendet. Bei animierten PNGs wird nur das erste Bild verwendet.
+Vollständig transparente Pixel und Pixel unterhalb der Mindestdeckkraft gehören keiner Gruppe an. Übrige Pixel werden anhand ihres gespeicherten RGB-Werts zugeordnet und entsprechend der Flächenauswahl schwarz, weiß, transparent oder in der Referenzfarbe ihrer Gruppe ausgegeben. Ohne Konturglättung verwenden ausgeschlossene und abgewählte Pixel den Export-Hintergrund. Die optionale Konturglättung rekonstruiert Grenzen zwischen den Originalpixeln; ihre Lage kann dadurch gegenüber dem ursprünglichen Raster abweichen. Sie ersetzt keine Konturreparatur und bietet keine gezielte Entfernung kleiner Flächen. EXIF-Ausrichtung wird vor der Verarbeitung angewendet. Bei animierten PNGs wird nur das erste Bild verwendet.
 
 Grenzen: maximal 16 Millionen Pixel je Eingabebild und je skaliertem Exportbild sowie 256 Farbgruppen. Bei zu vielen Gruppen die Farbähnlichkeit erhöhen. Große JPGs, starke Skalierung und viele Gruppen können Zeit und Arbeitsspeicher benötigen; Verarbeitung und Export laufen außerhalb der Oberfläche und können abgebrochen werden.
 
 ## Technik und Struktur
 
 - C#, .NET 10, Avalonia 12.1.1 mit AXAML, dunkles Fluent-Theme und Inter.
-- `Views`: Fenster; `ViewModels`: Zustand und Befehle; `Models`: Daten; `Services`: Bildverarbeitung, Dateiauswahl, Einstellungen und Übersetzungen; `Controls`: wiederverwendbare Farbkachel; `Assets`: Programmsymbol.
+- `Views`: Fenster und Ansichten; `ViewModels`: Zustand und Befehle; `Models`: Daten; `Services`: Bildverarbeitung, Anordnung, Dateiauswahl, Einstellungen und Übersetzungen; `Controls`: Farbkachel und interaktive Laser-Arbeitsfläche; `Assets`: Programmsymbol.
 - Zentral verwaltete deutsche und englische Texte in `Services/Texts.cs`.
-- Einstellungen: `%LOCALAPPDATA%\HappyColorSplit\settings.json` (Sprache, Farbähnlichkeit, Mindestdeckkraft, Flächenfarbe, Export-Hintergrund, letzter erfolgreicher Exportordner sowie Größen-Einheit und DPI-Vorgabe für neue Bilder).
+- Einstellungen: `%LOCALAPPDATA%\HappyColorSplit\settings.json` (Sprache, Farbähnlichkeit, Mindestdeckkraft, Flächenfarbe, Export-Hintergrund, Konturglättung, letzter Exportordner, Größen-Einheit und DPI-Vorgabe sowie Laser-Arbeitsfläche, Abstände und Materialfarben).
 - Wenn noch keine neuen Einstellungen vorliegen, werden die Einstellungen der bisherigen Anwendung eingelesen. Beim Speichern werden sie im neuen Benutzerdatenordner abgelegt; die bisherige Datei bleibt erhalten.
-- NuGet: Avalonia 12.1.1 und SkiaSharp 3.119.4 für Bilddecodierung, Vorschau und PNG-Export. Bildverarbeitung und Avalonia-Rendering verwenden dieselbe SkiaSharp-Version. Details: [Bildverarbeitung](docs/IMAGE_PROCESSING.md).
+- NuGet: Avalonia 12.1.1 und SkiaSharp 3.119.4 für Bilddecodierung, Vorschau und PNG-Export. Bildverarbeitung und Avalonia-Rendering verwenden dieselbe SkiaSharp-Version. Für Laser-Anordnung, manuelle Bearbeitung und Konturglättung wurden keine weiteren externen Bibliotheken ergänzt. Details: [Bildverarbeitung](docs/IMAGE_PROCESSING.md).
 
 ## Windows-Paket
 
@@ -213,6 +252,6 @@ dotnet run --project Tests/HappyColorSplit.Tests.csproj
 
 Die Prüfung verwendet synthetische Bilder und kontrolliert die tatsächlichen Exportpixel, Farbgruppierung, Transparenz, Abbruch, Grenzen, JSON-Einstellungen und den Ablauf der Oberfläche ohne sichtbares Fenster. Sie prüft außerdem Mehrfachauswahl, Bildwechsel, das Entfernen und Leeren der Liste sowie Stapel-Exporte mit gleichen Dateinamen, beschädigten Dateien und Abbruch nach einem fertig exportierten Bild.
 
-Zusätzliche Prüfungen kontrollieren Deckkraft-Grenzwerte, Farbauswahl, Exportfortschritt, transparente Überlagerung, Zoom und die Auswahl pro Bild im Stapel-Export. Optionale lokale Bildvergleiche ergänzen die synthetischen Prüfungen; die dafür verwendeten Bilddateien gehören nicht zum Repository.
+Zusätzliche Prüfungen kontrollieren Deckkraft-Grenzwerte, Farbauswahl, Exportfortschritt, transparente Überlagerung, Zoom und die Auswahl pro Bild im Stapel-Export. Für die neuen Funktionen werden außerdem harte Konturpixel, eindeutige Farbzuordnung, Erhalt der cm-Größe, Laser-Abstände, Seitenanordnung, echte Mausgesten, freie Auswahl, Drehungen und Rückgängig geprüft. Die Konsolenausgabe zählt einzelne Prüfaussagen, darunter Pixelvergleiche; sie bezeichnet nicht ebenso viele eigenständige Tests. Optionale lokale Bildvergleiche ergänzen diese Prüfungen; die dafür verwendeten Bilddateien gehören nicht zum Repository.
 
 Die Decoder-Prüfungen umfassen außerdem alle acht EXIF-Ausrichtungen bei JPEG, den ersten Frame eines animierten PNG, exakte RGB-Erhaltung bei geringer Deckkraft und das 8-Bit-Graustufenformat der Exportmasken. Optionale lokale Referenzwerte lassen sich mit `--capture-baseline` erfassen und mit `--verify-baseline` vergleichen; die Bilder und Referenzdatei werden nicht ins Repository aufgenommen.
