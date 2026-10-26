@@ -97,7 +97,7 @@
                                       ToolTip.Tip="{Binding Text[LaserMoveHelp]}"
                                       SheetBackground="{StaticResource TransparencyBackground}" IsVisible="{Binding HasPages}"
                                       RenderOptions.BitmapInterpolationMode="None" />
-        <TextBlock Text="{Binding Text[LaserIntro]}" IsVisible="{Binding !HasPages}" TextWrapping="Wrap" MaxWidth="350" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Margin="15" />
+        <TextBlock Text="{Binding Text[LaserPreviewEmpty]}" IsVisible="{Binding !HasPages}" TextWrapping="Wrap" MaxWidth="350" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" FontSize="12" Margin="8" />
       </Grid>
     </Border>
     <StackPanel Grid.Row="3" Spacing="6">

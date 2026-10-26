@@ -48,6 +48,7 @@ public sealed class Texts(string language)
         ["LaserWorkspace"] = ["Laser", "Laser"],
         ["LaserWorkspaceExperimental"] = ["Laser (experimentell)", "Laser (experimental)"],
         ["Experimental"] = ["Experimentell", "Experimental"],
+        ["LaserPreviewEmpty"] = ["Hier erscheint die Materialseite", "Your material sheet appears here"],
         ["LaserSettings"] = ["Laser-Einstellungen", "Laser settings"],
         ["LaserArrange"] = ["Anordnen", "Arrange"],
         ["LaserMaterials"] = ["Vorhandene Materialfarben", "Available material colors"],
