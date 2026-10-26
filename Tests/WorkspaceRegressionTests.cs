@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Headless;
 using Avalonia.Input;
 using Avalonia.Threading;
@@ -30,7 +31,8 @@ internal static class WorkspaceRegressionTests
         File.WriteAllText(settingsPath, "{\"Language\":\"en\",\"Workspace\":{\"HorizontalSplit\":8,\"VerticalSplit\":-2}}");
         check(settings.Load().Workspace is { HorizontalSplit: .85, VerticalSplit: .15 }, "Saved divider ratios cannot hide either preview");
         settings.Save(new AppSettings { Language = "en" });
-        using var vm = new MainViewModel(new Dialogs(folder), settings);
+        var licenses = new DeferredLicenseWindow();
+        using var vm = new MainViewModel(new Dialogs(folder), settings, licenseWindow: licenses);
         var window = new MainWindow { DataContext = vm }; window.Show(); Layout();
         try
         {
@@ -40,9 +42,9 @@ internal static class WorkspaceRegressionTests
             var divider = window.FindControl<GridSplitter>("PreviewDivider")!;
             var left = window.FindControl<CollapsibleSidebar>("ImagesSidebar")!;
             var right = window.FindControl<CollapsibleSidebar>("RightSidebar")!;
-            var selector = window.FindControl<ComboBox>("PreviewLayoutSelector")!;
+            var selector = window.FindControl<ToggleButton>("PreviewLayoutSelector")!;
             check(panels.RowDefinitions.Count == 3 && panels.ColumnDefinitions.Count == 1, "Default view is stacked");
-            selector.SelectedIndex = 1; Layout();
+            Click(window, selector);
             check(vm.SideBySide && panels.ColumnDefinitions.Count == 3 && panels.RowDefinitions.Count == 1, "The manual selector places original left and export right");
             window.Width = 1120; window.Height = 740; Layout();
             check(vm.SideBySide && panels.ColumnDefinitions.Count == 3, "Window resize never changes the chosen orientation");
@@ -51,19 +53,33 @@ internal static class WorkspaceRegressionTests
             window.MouseDown(start, MouseButton.Left); window.MouseMove(start + new Vector(60, 0)); Layout(); window.MouseUp(start + new Vector(60, 0), MouseButton.Left); Layout();
             double horizontalRatio = vm.HorizontalPreviewSplit;
             check(horizontalRatio > .54 && horizontalRatio < .8, "Dragging the divider persists its actual horizontal ratio");
-            selector.SelectedIndex = 0; Layout();
+            Click(window, selector);
             check(vm.VerticalPreviewSplit == .5, "Stacked and side-by-side divider positions are independent");
             divider.Focus(); window.KeyPress(Key.Down, RawInputModifiers.None, PhysicalKey.ArrowDown, null); Layout();
             window.KeyRelease(Key.Down, RawInputModifiers.None, PhysicalKey.ArrowDown, null); Layout();
             check(vm.VerticalPreviewSplit > .5, "Keyboard arrows resize and save the focused divider");
-            selector.SelectedIndex = 1; Layout();
+            Click(window, selector);
             check(Math.Abs(panels.ColumnDefinitions[0].Width.Value - horizontalRatio) < .001, "Returning to an orientation restores its divider ratio");
 
-            var viewMenu = window.GetVisualDescendants().OfType<Button>().Single(b => Equals(b.Content, "View"));
-            var viewFlyout = (Flyout)viewMenu.Flyout!; viewFlyout.ShowAt(viewMenu); Layout();
-            ((StackPanel)viewFlyout.Content!).Children.OfType<CheckBox>().Single().IsChecked = true;
-            viewFlyout.Hide(); vm.ImagesSidebarCollapsed = true; Layout();
-            check(vm.ReduceMotion, "The View flyout controls the saved motion preference");
+            var language = window.FindControl<ToggleButton>("LanguageToggle")!;
+            Click(window, language); check(vm.LanguageIndex == 0 && !vm.EnglishSelected, "One language button switches to German");
+            Click(window, language); check(vm.LanguageIndex == 1 && vm.EnglishSelected, "The same language button switches back to English");
+            var windowsButton = window.FindControl<Button>("WindowsIntegrationButton")!;
+            windowsButton.Flyout!.ShowAt(windowsButton); Layout();
+            check(windowsButton.Classes.Contains("open"), "Windows integration highlights its open menu");
+            windowsButton.Flyout.Hide(); Layout();
+            check(!windowsButton.Classes.Contains("open"), "Closing Windows integration restores its neutral appearance");
+            var licenseButton = window.FindControl<Button>("LicensesButton")!;
+            Click(window, licenseButton);
+            check(vm.IsLicenseWindowOpen && licenseButton.Classes.Contains("open"), "License button highlights only while its window is open");
+            licenses.Close(); pump(() => !vm.IsLicenseWindowOpen); Layout();
+            check(!licenseButton.Classes.Contains("open"), "Closing licenses clears its highlight");
+            check(new Control[] { selector, language, windowsButton, licenseButton, window.FindControl<ToggleButton>("SyncPreviewsToggle")!,
+                window.FindControl<ToggleButton>("SidebarsToggle")!, window.FindControl<ToggleButton>("CombinedPreviewToggle")! }.All(c => c.Height == 34),
+                "All header and preview-toolbar buttons share a consistent height");
+            check(!window.GetVisualDescendants().OfType<Button>().Any(b => Equals(b.Content, "View") || Equals(b.Content, "Detail view / overlay")),
+                "View and detail/overlay buttons are removed from the main window");
+            vm.ReduceMotion = true; vm.ImagesSidebarCollapsed = true; Layout();
             check(left.Width == CollapsibleSidebar.RailWidth, "Reduced motion collapses immediately to a labelled rail");
             Task load = vm.AddImagesAsync([input]); pump(() => load.IsCompleted); Layout();
             check(vm.ImagesHasNotice && vm.ImagesRailLabel.Contains("1"), "A hidden image pane indicates new images and their count");
@@ -74,11 +90,12 @@ internal static class WorkspaceRegressionTests
             window.MouseDown(railPoint, MouseButton.Left); window.MouseUp(railPoint, MouseButton.Left); Layout();
             check(!vm.ImagesSidebarCollapsed && !vm.ImagesHasNotice && left.Width == left.ExpandedWidth, "Clicking the labelled rail restores the pane and clears its notice");
             vm.ImagesSidebarCollapsed = true;
-            vm.PreviewOnlyCommand.Execute(null); Layout();
+            var sidebars = window.FindControl<ToggleButton>("SidebarsToggle")!;
+            Click(window, sidebars);
             check(vm.IsPreviewOnly && vm.PreviewOnlyLabel == "Show sidebars", "Previews-only closes both sidebars");
-            vm.PreviewOnlyCommand.Execute(null); Layout();
-            check(vm.ImagesSidebarCollapsed && !vm.RightSidebarCollapsed, "Previews-only restores the previous individual sidebar states");
-            vm.ReduceMotion = false; vm.ImagesSidebarCollapsed = false;
+            Click(window, sidebars);
+            check(!vm.ImagesSidebarCollapsed && !vm.RightSidebarCollapsed && sidebars.IsChecked == false, "Show sidebars always opens both panes, including a previously collapsed left pane");
+            vm.ImagesSidebarCollapsed = true; vm.ReduceMotion = false; vm.ImagesSidebarCollapsed = false;
             check(left.Width < left.ExpandedWidth, "Normal opening starts an animated width transition");
             // Dispatcher timers are serviced by the real event loop, not RunJobs alone.
             using (var finish = new CancellationTokenSource(TimeSpan.FromMilliseconds(450))) Dispatcher.UIThread.MainLoop(finish.Token);
@@ -94,8 +111,8 @@ internal static class WorkspaceRegressionTests
             var viewPoint = original.TranslatePoint(new Point(original.Bounds.Width / 2, original.Bounds.Height / 2), window)!.Value;
             window.MouseWheel(viewPoint, new Vector(0, 3)); Layout();
             check(vm.OriginalViewport.Zoom > 1 && vm.ExportViewport.Zoom == 1 && original.Zoom == vm.OriginalViewport.Zoom, "Real mouse-wheel zoom updates only the active preview by default");
-            var sync = window.FindControl<CheckBox>("SyncPreviewsToggle")!;
-            sync.IsChecked = true; Layout();
+            var sync = window.FindControl<ToggleButton>("SyncPreviewsToggle")!;
+            Click(window, sync);
             check(vm.SynchronizePreviews && mask.Zoom == original.Zoom, "Enabling synchronization copies the most recently used viewport");
             window.MouseDown(viewPoint, MouseButton.Left); window.MouseMove(viewPoint + new Vector(25, 18)); window.MouseUp(viewPoint + new Vector(25, 18), MouseButton.Left); Layout();
             check(vm.OriginalViewport.CenterX < .5 && vm.OriginalViewport.CenterY < .5
@@ -110,17 +127,20 @@ internal static class WorkspaceRegressionTests
             var add = vm.AddImagesAsync([second]); pump(() => add.IsCompleted); Layout();
             check(original.Zoom == 1 && mask.Zoom == 1 && vm.SelectedImage.FilePath == second, "Loading a new source resets both viewport positions");
 
-            vm.RightSidebarCollapsed = true; vm.WorkspaceIndex = 1; Layout();
+            vm.RightSidebarCollapsed = true;
+            var mode = window.FindControl<ToggleButton>("WorkspaceSelector")!;
+            Click(window, mode);
             check(vm.RightSidebarCollapsed && vm.RightRailLabel.StartsWith("Expand pages") && !panels.IsVisible, "Laser mode uses the full center and the same collapsed rail for pages");
             vm.AnalyzeCommand.Execute(null); pump(() => !vm.IsBusy);
             vm.Laser.MaterialHex = "#E60A50"; vm.Laser.AddMaterialCommand.Execute(null);
             vm.Laser.ArrangeCommand.Execute(null); pump(() => !vm.IsBusy); Layout();
             check(vm.Laser.Pages.Count > 0 && vm.RightHasNotice && right.HasNotice && vm.RightRailLabel.Contains(vm.Laser.Pages.Count.ToString()),
                 "New laser pages update the hidden page rail and its notification");
-            vm.WorkspaceIndex = 0; Layout();
+            Click(window, mode);
             check(vm.SideBySide && panels.IsVisible && vm.RightRailLabel.StartsWith("Expand colors"), "Returning from Laser retains the selected color-preview layout");
             vm.LanguageIndex = 0; Layout();
-            check(selector.SelectedIndex == 1 && selector.GetVisualDescendants().OfType<TextBlock>().Any(t => t.Text == "Nebeneinander"),
+            check(selector.IsChecked == true && selector.GetVisualDescendants().OfType<TextBlock>().Any(t => t.Text == "Nebeneinander" && t.Classes.Contains("current"))
+                && selector.GetVisualDescendants().OfType<TextBlock>().Any(t => t.Text == "Untereinander" && !t.Classes.Contains("current")),
                 "Switching languages updates the visible layout label without losing the selected orientation");
             check(vm.RightRailLabel.StartsWith("Farben ausklappen") && vm.ImagesRailLabel.StartsWith("Bilder ausklappen"), "Collapsed labels follow the selected language");
             vm.ImagesSidebarCollapsed = true;
@@ -144,6 +164,18 @@ internal static class WorkspaceRegressionTests
     }
 
     private static void Layout() => Dispatcher.UIThread.RunJobs();
+    private static void Click(Window window, Control control)
+    {
+        Layout();
+        var point = control.TranslatePoint(new Point(control.Bounds.Width / 2, control.Bounds.Height / 2), window)!.Value;
+        window.MouseDown(point, MouseButton.Left); window.MouseUp(point, MouseButton.Left); Layout();
+    }
+    private sealed class DeferredLicenseWindow : ILicenseWindowService
+    {
+        private readonly TaskCompletionSource _closed = new();
+        public Task ShowAsync(Texts texts) => _closed.Task;
+        public void Close() => _closed.SetResult();
+    }
     private sealed class Dialogs(string folder) : IFileDialogService
     {
         public Task<IReadOnlyList<string>> OpenImagesAsync(Texts texts) => Task.FromResult<IReadOnlyList<string>>([]);

@@ -65,7 +65,9 @@ internal static class MergedExportRegressionTests
         vm.Tolerance = 0; vm.AnalyzeCommand.Execute(null); pump(() => !vm.IsBusy);
         Select(vm, g => g.R == 240 || g.B == 220); vm.ScalePercent = 200;
         vm.ExportAreaIndex = (int)ExportArea.Black; vm.ExportBackgroundIndex = (int)ExportBackground.Transparent;
-        var previewToggle = window.GetVisualDescendants().OfType<CheckBox>().Single(c => Equals(c.Content, "Merge selection"));
+        var previewToggle = window.FindControl<Avalonia.Controls.Primitives.ToggleButton>("CombinedPreviewToggle")!;
+        check(Grid.GetColumn(previewToggle) == 1 && Equals(previewToggle.Content, "Merge selected colors"),
+            "Merged preview is a right-aligned toolbar button with a meaningful localized label");
         previewToggle.IsChecked = true; Dispatcher.UIThread.RunJobs();
         using (var mask = Read(vm.Mask!))
             check(mask[0, 0] == new RgbaPixel(0, 0, 0) && mask[2, 0] == new RgbaPixel(0, 0, 0) && mask[4, 0].A == 0,

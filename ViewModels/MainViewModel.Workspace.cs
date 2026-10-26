@@ -5,8 +5,7 @@ namespace HappyColorSplit.ViewModels;
 
 public sealed partial class MainViewModel
 {
-    private bool _synchronizingPreviews, _togglingSidebars, _imagesNotice, _colorsNotice, _pagesNotice;
-    private (bool Left, bool Right)? _restoreSidebars;
+    private bool _synchronizingPreviews, _imagesNotice, _colorsNotice, _pagesNotice;
     private PreviewViewportViewModel? _lastViewport;
     public PreviewViewportViewModel OriginalViewport { get; } = new();
     public PreviewViewportViewModel ExportViewport { get; } = new();
@@ -14,10 +13,8 @@ public sealed partial class MainViewModel
     public bool SideBySide
     {
         get => _settings.Workspace.SideBySide;
-        set { if (value == SideBySide) return; _settings.Workspace.SideBySide = value; Changed(); Changed(nameof(PreviewLayoutIndex)); SaveSettings(); }
+        set { if (value == SideBySide) return; _settings.Workspace.SideBySide = value; Changed(); SaveSettings(); }
     }
-    public int PreviewLayoutIndex { get => SideBySide ? 1 : 0; set { if (value is 0 or 1) SideBySide = value == 1; } }
-    public IReadOnlyList<PreviewLayoutOption> PreviewLayouts { get; } = [new("LayoutStacked"), new("LayoutSideBySide")];
     public bool ImagesSidebarCollapsed
     {
         get => _settings.Workspace.ImagesCollapsed;
@@ -70,33 +67,17 @@ public sealed partial class MainViewModel
 
     private void InitializeWorkspacePreferences()
     {
-        RefreshPreviewLayoutLabels();
         PreviewOnlyCommand = new(() =>
         {
-            _togglingSidebars = true;
-            try
-            {
-                if (IsPreviewOnly)
-                {
-                    var restore = _restoreSidebars ?? (false, false); _restoreSidebars = null;
-                    ImagesSidebarCollapsed = restore.Item1; RightSidebarCollapsed = restore.Item2;
-                }
-                else
-                {
-                    _restoreSidebars = (ImagesSidebarCollapsed, RightSidebarCollapsed);
-                    ImagesSidebarCollapsed = true; RightSidebarCollapsed = true;
-                }
-            }
-            finally { _togglingSidebars = false; }
+            bool collapse = !IsPreviewOnly;
+            ImagesSidebarCollapsed = collapse; RightSidebarCollapsed = collapse;
             return Task.CompletedTask;
         }, () => true);
         OriginalViewport.PropertyChanged += PreviewViewportChanged; ExportViewport.PropertyChanged += PreviewViewportChanged;
         Images.CollectionChanged += ImagesChanged; Groups.CollectionChanged += ColorsChanged; Laser.Pages.CollectionChanged += LaserPagesChanged;
     }
-    private void RefreshPreviewLayoutLabels() { foreach (var option in PreviewLayouts) option.ChangeLanguage(Text); }
     private void SidebarChanged(string property)
     {
-        if (!_togglingSidebars) _restoreSidebars = null;
         Changed(property); Changed(nameof(IsPreviewOnly)); RefreshWorkspaceLabels(); SaveSettings();
     }
     private void SaveSplit(double value, bool horizontal)

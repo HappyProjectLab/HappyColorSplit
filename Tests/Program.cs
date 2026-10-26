@@ -205,7 +205,7 @@ try
     Check(window.GetVisualDescendants().OfType<Button>().Any(b => Equals(b.Content, "Bilder hinzufügen")), "AXAML bindings display German text");
     vm.LanguageIndex = 1; Dispatcher.UIThread.RunJobs();
     Check(window.GetVisualDescendants().OfType<Button>().Any(b => Equals(b.Content, "Add images")), "Language switch updates AXAML bindings");
-    var licenseButton = window.GetVisualDescendants().OfType<Button>().Single(b => Equals(b.Content, "Licenses & notices"));
+    var licenseButton = window.FindControl<Button>("LicensesButton")!;
     licenseButton.Command!.Execute(null);
     Check(licenseService.Language == "en" && !vm.IsBusy, "Main window opens license viewer in current language without starting image processing");
     LicenseRegressionTests.Run(window, root, Check, Pump);

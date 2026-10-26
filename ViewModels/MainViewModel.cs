@@ -19,7 +19,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private ColorAnalysis? _analysis;
     private CancellationTokenSource? _cancellation;
     private Bitmap? _original, _mask;
-    private bool _busy;
+    private bool _busy, _licensesOpen;
     private bool _showCombinedPreview, _updatingColorSelection;
     private string _filePath = "", _statusKey = "Ready";
     private object[] _statusArgs = [];
@@ -62,8 +62,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public int LanguageIndex
     {
         get => _settings.Language == "en" ? 1 : 0;
-        set { _settings.Language = value == 1 ? "en" : "de"; Changed(); Changed(nameof(Text)); Changed(nameof(Status)); Changed(nameof(ErrorDetails)); Changed(nameof(ExportOutputHelp)); Changed(nameof(ImageSizeSummary)); RefreshPreviewLayoutLabels(); Laser.ChangeLanguage(); RefreshWorkspaceLabels(); SaveSettings(); }
+        set { _settings.Language = value == 1 ? "en" : "de"; Changed(); Changed(nameof(EnglishSelected)); Changed(nameof(Text)); Changed(nameof(Status)); Changed(nameof(ErrorDetails)); Changed(nameof(ExportOutputHelp)); Changed(nameof(ImageSizeSummary)); Laser.ChangeLanguage(); RefreshWorkspaceLabels(); SaveSettings(); }
     }
+    public bool EnglishSelected { get => LanguageIndex == 1; set => LanguageIndex = value ? 1 : 0; }
+    public bool IsLicenseWindowOpen { get => _licensesOpen; private set => Set(ref _licensesOpen, value); }
     public double Tolerance
     {
         get => _settings.Tolerance;
@@ -307,8 +309,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private async Task ShowLicensesAsync()
     {
+        IsLicenseWindowOpen = true;
         try { await _licenseWindow!.ShowAsync(Text); }
         catch (Exception error) { StatusMessage("Error", error.Message); }
+        finally { IsLicenseWindowOpen = false; }
     }
 
     private async Task OpenAsync() => await RunAsync(async token =>

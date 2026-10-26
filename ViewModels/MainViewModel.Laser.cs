@@ -15,7 +15,7 @@ public sealed partial class MainViewModel
             Changed(nameof(IsLaserMode)); WorkspaceModeChanged(); if (IsLaserMode) Laser.RefreshAppearance();
         }
     }
-    public bool IsLaserMode => WorkspaceIndex == 1;
+    public bool IsLaserMode { get => WorkspaceIndex == 1; set => WorkspaceIndex = value ? 1 : 0; }
     internal Task RunLaserAsync(Func<CancellationToken, Task> work) => RunAsync(work);
     internal Task<string?> ChooseLaserOutputAsync() => _dialogs.SelectOutputAsync(Text);
     internal void RememberLaserFolder(string path) => RememberExportFolder(path);

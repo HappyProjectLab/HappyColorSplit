@@ -14,6 +14,8 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         InitializeWorkspaceLayout();
+        WindowsIntegrationButton.Flyout!.Opened += (_, _) => WindowsIntegrationButton.Classes.Add("open");
+        WindowsIntegrationButton.Flyout.Closed += (_, _) => WindowsIntegrationButton.Classes.Remove("open");
         DragDrop.SetAllowDrop(this, true);
         AddHandler(DragDrop.DragOverEvent, OnDragOver, RoutingStrategies.Bubble, handledEventsToo: true);
         AddHandler(DragDrop.DropEvent, OnDrop, RoutingStrategies.Bubble, handledEventsToo: true);

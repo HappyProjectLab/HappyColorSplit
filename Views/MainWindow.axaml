@@ -6,6 +6,30 @@
         Background="#111824" Icon="/Assets/HappyColorSplit.ico">
   <Window.Styles>
     <Style Selector="Border.panel"><Setter Property="Background" Value="#E61C2432" /></Style>
+    <Style Selector=":is(Button).toolbar">
+      <Setter Property="Height" Value="34" /><Setter Property="MinHeight" Value="34" />
+      <Setter Property="Padding" Value="10,6" /><Setter Property="FontSize" Value="12" />
+      <Setter Property="CornerRadius" Value="8" /><Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Background" Value="#182433" /><Setter Property="BorderBrush" Value="#3C5065" /><Setter Property="Foreground" Value="#D8E5EF" />
+    </Style>
+    <Style Selector=":is(Button).toolbar:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#263C50" /><Setter Property="BorderBrush" Value="#6A91AD" />
+    </Style>
+    <Style Selector=":is(ToggleButton).toolbar:checked /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#355B76" /><Setter Property="BorderBrush" Value="#7DD3FC" /><Setter Property="Foreground" Value="#FFFFFF" />
+    </Style>
+    <Style Selector=":is(Button).toolbar.open /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#355B76" /><Setter Property="BorderBrush" Value="#7DD3FC" />
+    </Style>
+    <Style Selector=":is(ToggleButton).toolbar:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#416D89" />
+    </Style>
+    <Style Selector=":is(Button).toolbar:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#476D87" />
+    </Style>
+    <Style Selector=":is(Button).toolbar:disabled"><Setter Property="Opacity" Value="0.45" /></Style>
+    <Style Selector="TextBlock.switch-option"><Setter Property="Opacity" Value="0.58" /></Style>
+    <Style Selector="TextBlock.switch-option.current"><Setter Property="Opacity" Value="1" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
   </Window.Styles>
   <Grid>
     <controls:WindowBackdrop Opacity="0.12" />
@@ -15,12 +39,16 @@
         <TextBlock Text="HappyColorSplit" FontSize="27" FontWeight="SemiBold" />
         <TextBlock Text="{Binding Text[Subtitle]}" Classes="muted" FontSize="14" />
       </StackPanel>
-      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-        <ComboBox x:Name="WorkspaceSelector" SelectedIndex="{Binding WorkspaceIndex, Mode=TwoWay}" IsEnabled="{Binding IsIdle}" MinWidth="135">
-          <ComboBoxItem Content="{Binding Text[ColorWorkspace]}" />
-          <ComboBoxItem Content="{Binding Text[LaserWorkspace]}" />
-        </ComboBox>
-        <Button Content="{Binding Text[WindowsIntegration]}" IsVisible="{Binding CanIntegrateWithWindows}">
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+        <ToggleButton x:Name="WorkspaceSelector" Classes="toolbar" IsChecked="{Binding IsLaserMode, Mode=TwoWay}" IsEnabled="{Binding IsIdle}" ToolTip.Tip="{Binding Text[SwitchWorkspace]}">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <TextBlock Text="{Binding Text[ColorWorkspace]}" Classes="switch-option" Classes.current="{Binding !IsLaserMode}" />
+            <TextBlock Text="⇄" Opacity="0.65" />
+            <TextBlock Text="{Binding Text[LaserWorkspace]}" Classes="switch-option" Classes.current="{Binding IsLaserMode}" />
+          </StackPanel>
+        </ToggleButton>
+        <Button x:Name="WindowsIntegrationButton" Classes="toolbar" IsVisible="{Binding CanIntegrateWithWindows}">
+          <StackPanel Orientation="Horizontal" Spacing="7"><TextBlock Text="{Binding Text[WindowsIntegration]}" /><TextBlock Text="▾" Opacity="0.65" /></StackPanel>
           <Button.Flyout>
             <Flyout>
               <StackPanel Spacing="12" MaxWidth="380">
@@ -31,9 +59,16 @@
             </Flyout>
           </Button.Flyout>
         </Button>
-        <Button Content="{Binding Text[Licenses]}" Command="{Binding LicensesCommand}" />
-        <TextBlock Text="{Binding Text[Language]}" VerticalAlignment="Center" Classes="muted" />
-        <ComboBox ItemsSource="{Binding Languages}" SelectedIndex="{Binding LanguageIndex, Mode=TwoWay}" MinWidth="120" />
+        <Button x:Name="LicensesButton" Classes="toolbar" Classes.open="{Binding IsLicenseWindowOpen}" Command="{Binding LicensesCommand}">
+          <StackPanel Orientation="Horizontal" Spacing="7"><TextBlock Text="{Binding Text[Licenses]}" /><TextBlock Text="↗" Opacity="0.65" /></StackPanel>
+        </Button>
+        <ToggleButton x:Name="LanguageToggle" Classes="toolbar" IsChecked="{Binding EnglishSelected, Mode=TwoWay}" ToolTip.Tip="{Binding Text[SwitchLanguage]}">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <TextBlock Text="{Binding Text[GermanLanguage]}" Classes="switch-option" Classes.current="{Binding !EnglishSelected}" />
+            <TextBlock Text="⇄" Opacity="0.65" />
+            <TextBlock Text="{Binding Text[EnglishLanguage]}" Classes="switch-option" Classes.current="{Binding EnglishSelected}" />
+          </StackPanel>
+        </ToggleButton>
       </StackPanel>
     </Grid>
     <Border Grid.Row="1" Classes="panel">
@@ -159,24 +194,20 @@
       </Border>
       </controls:CollapsibleSidebar>
       <Grid Grid.Column="1" RowDefinitions="Auto,*" RowSpacing="8">
-        <WrapPanel>
-          <ComboBox x:Name="PreviewLayoutSelector" ItemsSource="{Binding PreviewLayouts}" SelectedIndex="{Binding PreviewLayoutIndex, Mode=TwoWay}" IsVisible="{Binding !IsLaserMode}" MinWidth="145" Margin="0,0,8,4" ToolTip.Tip="{Binding Text[PreviewLayout]}">
-            <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Label}" /></DataTemplate></ComboBox.ItemTemplate>
-          </ComboBox>
-          <CheckBox x:Name="SyncPreviewsToggle" Content="{Binding Text[SyncPreviews]}" IsChecked="{Binding SynchronizePreviews, Mode=TwoWay}" IsVisible="{Binding !IsLaserMode}" ToolTip.Tip="{Binding Text[SyncPreviewsHelp]}" Margin="0,0,8,4" />
-          <Button Content="{Binding PreviewOnlyLabel}" Command="{Binding PreviewOnlyCommand}" FontSize="12" Padding="9,7" Margin="0,0,8,4" />
-          <Button Content="{Binding Text[ViewSettings]}" FontSize="12" Padding="9,7" Margin="0,0,0,4">
-            <Button.Flyout>
-              <Flyout>
-                <StackPanel Width="320" Spacing="12">
-                  <CheckBox Content="{Binding Text[ReduceMotion]}" IsChecked="{Binding ReduceMotion, Mode=TwoWay}" />
-                  <TextBlock Text="{Binding Text[ReduceMotionHelp]}" TextWrapping="Wrap" FontSize="12" />
-                  <TextBlock Text="{Binding Text[MainPreviewNavigation]}" TextWrapping="Wrap" FontSize="12" Foreground="#A9CCE0" />
-                </StackPanel>
-              </Flyout>
-            </Button.Flyout>
-          </Button>
-        </WrapPanel>
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+          <WrapPanel>
+            <ToggleButton x:Name="PreviewLayoutSelector" Classes="toolbar" IsChecked="{Binding SideBySide, Mode=TwoWay}" IsVisible="{Binding !IsLaserMode}" Margin="0,0,8,4" ToolTip.Tip="{Binding Text[PreviewLayout]}">
+              <StackPanel Orientation="Horizontal" Spacing="7">
+                <TextBlock Text="{Binding Text[LayoutStacked]}" Classes="switch-option" Classes.current="{Binding !SideBySide}" />
+                <TextBlock Text="⇄" Opacity="0.65" />
+                <TextBlock Text="{Binding Text[LayoutSideBySide]}" Classes="switch-option" Classes.current="{Binding SideBySide}" />
+              </StackPanel>
+            </ToggleButton>
+            <ToggleButton x:Name="SyncPreviewsToggle" Classes="toolbar" Content="{Binding Text[SyncPreviews]}" IsChecked="{Binding SynchronizePreviews, Mode=TwoWay}" IsVisible="{Binding !IsLaserMode}" ToolTip.Tip="{Binding Text[SyncPreviewsHelp]}" Margin="0,0,8,4" />
+            <ToggleButton x:Name="SidebarsToggle" Classes="toolbar" Content="{Binding PreviewOnlyLabel}" Command="{Binding PreviewOnlyCommand}" IsChecked="{Binding IsPreviewOnly, Mode=OneWay}" ToolTip.Tip="{Binding Text[ToggleSidebarsHelp]}" Margin="0,0,0,4" />
+          </WrapPanel>
+          <ToggleButton x:Name="CombinedPreviewToggle" Grid.Column="1" Classes="toolbar" Content="{Binding Text[CombinedPreview]}" IsChecked="{Binding ShowCombinedPreview, Mode=TwoWay}" IsEnabled="{Binding IsIdle}" IsVisible="{Binding !IsLaserMode}" ToolTip.Tip="{Binding Text[CombinedHelp]}" VerticalAlignment="Top" Margin="0,0,0,4" />
+        </Grid>
       <Grid x:Name="PreviewPanels" Grid.Row="1" RowDefinitions="*,8,*" IsVisible="{Binding !IsLaserMode}">
         <Border x:Name="OriginalPreviewPanel" Classes="panel">
           <Grid RowDefinitions="Auto,*" RowSpacing="12">
@@ -204,11 +235,7 @@
         <GridSplitter x:Name="PreviewDivider" Grid.Row="1" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#345065" ToolTip.Tip="{Binding Text[ResizePreviews]}" />
         <Border x:Name="ExportPreviewPanel" Grid.Row="2" Classes="panel">
           <Grid RowDefinitions="Auto,*" RowSpacing="12">
-            <WrapPanel>
-              <TextBlock Text="{Binding Text[Mask]}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0" />
-              <CheckBox Content="{Binding Text[CombinedPreview]}" IsChecked="{Binding ShowCombinedPreview, Mode=TwoWay}" IsEnabled="{Binding IsIdle}" ToolTip.Tip="{Binding Text[CombinedHelp]}" FontSize="11" MinHeight="0" Margin="0,0,10,0" />
-              <Button Content="{Binding Text[DetailPreview]}" Command="{Binding DetailPreviewCommand}" FontSize="11" Padding="8,4" />
-            </WrapPanel>
+            <TextBlock Text="{Binding Text[Mask]}" FontWeight="SemiBold" />
             <Border Grid.Row="1" Background="{StaticResource TransparencyBackground}" CornerRadius="8" ClipToBounds="True">
               <Grid>
                 <TextBlock Text="{Binding Text[MaskHint]}" IsVisible="{Binding !HasMask}" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" Classes="muted" Margin="20" />

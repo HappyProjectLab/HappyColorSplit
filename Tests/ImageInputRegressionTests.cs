@@ -56,7 +56,7 @@ internal static class ImageInputRegressionTests
         Task invalid = vm.AddImagesAsync([unsupported]); pump(() => invalid.IsCompleted);
         check(vm.Images.Count == 0 && !vm.HasImage && vm.HasErrors, "Unsupported-only external launch does not open a file");
 
-        var button = window.GetVisualDescendants().OfType<Button>().Single(b => Equals(b.Content, "Windows-Einbindung"));
+        var button = window.FindControl<Button>("WindowsIntegrationButton")!;
         button.Flyout!.ShowAt(button);
         Avalonia.Threading.Dispatcher.UIThread.RunJobs();
         var content = (StackPanel)((Flyout)button.Flyout).Content!;
