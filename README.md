@@ -2,9 +2,9 @@
 
 Windows-Desktop-Anwendung zum Trennen ähnlicher Farben aus PNG- und JPG-Bildern – als Ausgangspunkt für Siebdruck-Schablonen, Plotterfolien und Laser-Applikationen. Ausgewählte Farbgruppen lassen sich einzeln oder gemeinsam als PNG exportieren. Im **experimentellen Laser-Bereich** können ihre Einzelteile auf Materialseiten angeordnet und anschließend von Hand bearbeitet werden.
 
-Zuletzt veröffentlichter Download: **0.1.0-preview.5**. Dies ist eine Vorabversion. Das öffentliche Repository befindet sich unter [HappyProjectLab/HappyColorSplit](https://github.com/HappyProjectLab/HappyColorSplit).
+Zuletzt veröffentlichter Download: **0.1.0-preview.6**. Dies ist eine Vorabversion. Das öffentliche Repository befindet sich unter [HappyProjectLab/HappyColorSplit](https://github.com/HappyProjectLab/HappyColorSplit).
 
-**Stand dieser README:** Die beschriebenen Funktionen sind im unten verlinkten Download `0.1.0-preview.5` enthalten. Der Laser-Bereich ist experimentell.
+**Stand dieser README:** Die beschriebenen Funktionen sind im unten verlinkten Download `0.1.0-preview.6` enthalten. Der Laser-Bereich ist experimentell.
 
 ## Funktionsübersicht
 
@@ -24,13 +24,13 @@ Standard für Farbauszüge ist **weiße Farbfläche auf schwarzem Hintergrund**.
 
 ## Programm herunterladen
 
-### [⬇ HappyColorSplit für Windows herunterladen (ZIP, x64)](https://github.com/HappyProjectLab/HappyColorSplit/releases/download/v0.1.0-preview.5/HappyColorSplit-0.1.0-preview.5-Windows-x64.zip)
+### [⬇ HappyColorSplit für Windows herunterladen (ZIP, x64)](https://github.com/HappyProjectLab/HappyColorSplit/releases/download/v0.1.0-preview.6/HappyColorSplit-0.1.0-preview.6-Windows-x64.zip)
 
 ZIP vollständig entpacken und im Ordner `HappyColorSplit` die Datei **HappyColorSplit.exe** starten. **Die .NET-Laufzeit ist enthalten; eine zusätzliche .NET-Installation ist nicht erforderlich.** Alle Dateien und Unterordner zusammen behalten.
 
 Voraussetzung: Windows 10/11 mit x64-Prozessor. Dies ist eine Vorabversion. Der Download ist öffentlich zugänglich; ein GitHub-Konto ist dafür nicht erforderlich.
 
-[Versionshinweise, Quellcode und SHA-256-Prüfsummen](https://github.com/HappyProjectLab/HappyColorSplit/releases/tag/v0.1.0-preview.5)
+[Versionshinweise, Quellcode und SHA-256-Prüfsummen](https://github.com/HappyProjectLab/HappyColorSplit/releases/tag/v0.1.0-preview.6)
 
 ### Windows blockiert den Start? (Defender SmartScreen)
 
@@ -119,7 +119,9 @@ dotnet run --project HappyColorSplit.csproj
 
 **Neu in 0.1.0-preview.5:** Individuelle Bildgrößen, gespeicherte Farbauswahl je Bild, kombinierter PNG-Export, harte Konturglättung, ein anpassbarer Vorschau-Arbeitsbereich und der experimentelle Laser-Modus. Die Windows-Einbindung öffnet ein eigenes Fenster; die Importaktivität erscheint dezent im Fensterhintergrund.
 
-Die nachfolgenden Schritte beschreiben Version 0.1.0-preview.5.
+Die nachfolgenden Schritte beschreiben Version 0.1.0-preview.6.
+
+**Neu in 0.1.0-preview.6: Versionsanzeige und Update-Hinweis.** Unter dem Programmtitel steht die aktuelle Version. Beim Start prüft HappyColorSplit die offiziellen GitHub-Releases. Gibt es eine neuere passende Version, erscheint rechts neben dem Titel ein Button mit Version, Veröffentlichungsdatum und dezentem Lauflicht. Nach Bestätigung und erneuter Herkunftsprüfung öffnet er die konkrete Release-Seite im Standardbrowser; Download und Installation erfolgen manuell. Fest hinterlegte GitHub-IDs von Repository, Organisation und Release-Autor schützen gegen gelöschte und unter gleichem Namen neu angelegte Accounts. Bei fehlender Verbindung oder nicht bestätigter Herkunft bleibt der Button verborgen. [Bedienung, Sicherheitsprüfung und deren Grenzen](docs/UPDATES.md).
 
 Ein oder mehrere Bilder lassen sich auf das Programmfenster ziehen. Unterstützt werden `.png`, `.jpg` und `.jpeg`; andere Formate und beschädigte Dateien werden nicht geladen. Bei gemischter Auswahl werden gültige Bilder übernommen und Fehler angezeigt. Während einer Verarbeitung nimmt das Fenster keine weiteren Dateien entgegen.
 
@@ -141,6 +143,17 @@ Die Mindestdeckkraft gilt für alle Bilder. Nach der ersten erfolgreichen Erkenn
 Der Button **Farbauswahl vereinen** rechts über den Vorschauen zeigt diese gemeinsame Maske mit den aktuellen Ausgabeoptionen. Änderungen an den Häkchen aktualisieren sie sofort. Die Vorschau-Einstellung ändert nicht die Exportart: **Alle Bilder exportieren** erzeugt weiterhin einzelne Farb-PNGs; **Kombiniert exportieren** erzeugt Dateien mit der Endung `_merged.png`, jeweils in einem eigenen Bild-Unterordner. Beide Exportarten verwenden ausschließlich die gespeicherten Häkchen des jeweiligen Bildes und dessen eigene Größe und DPI.
 
 Die Vorschauen lassen sich mit Mausrad oder Plus/Minus vergrößern und mit der linken Maustaste verschieben. **Einpassen** oder Doppelklick setzt den Ausschnitt zurück. Ein gesonderter Knopf für Detailansicht und Überlagerung wird seit 0.1.0-preview.5 nicht mehr angezeigt.
+
+**Neu in 0.1.0-preview.6: Farbwahl direkt im Originalbild**
+
+Nach **Farben erkennen** lassen sich Farbgruppen direkt an ihren Flächen im Originalbild auswählen.
+
+- **Linksklick auf eine Farbfläche:** Die zugehörige Farbgruppe wird in der Liste ausgewählt und ihr einzelner Farbauszug in der Exportvorschau angezeigt. **Farbauswahl vereinen** wird dabei ausgeschaltet. Die Export-Häkchen bleiben unverändert.
+- **Rechtsklick auf eine Farbfläche:** Führt dieselbe Auswahl und Hervorhebung aus wie ein Linksklick und schaltet zusätzlich den Export-Haken der passenden Farbgruppe um: angehakt wird abgewählt, abgewählt wird angehakt. Die Farbzeile und der Haken leuchten zur Bestätigung kurz auf. Eine eingeklappte Farbleiste öffnet sich und zeigt die betroffene Zeile.
+- **Räumliche Hervorhebung:** Alle Flächen derselben erkannten Farbgruppe erhalten eine kräftige Lichtkante und einen weichen Kontaktschatten. Die übrigen Farben treten optisch zurück; die Bildflächen bleiben an ihrer ursprünglichen Position. Der Effekt blendet in etwa **120 ms** weich ein, aus und zwischen Farben über. Bloßes Darüberfahren ändert nichts. Reduzierte Bewegung überspringt die Übergänge und zeigt die Rückmeldung am Export-Haken kurz statisch.
+- **Klick auf eine freie Stelle:** Ein Links- oder Rechtsklick auf transparente oder durch die Mindestdeckkraft ausgeschlossene Bildstellen entfernt die Hervorhebung, ohne Export-Häkchen zu ändern.
+
+Die Auswahl bezieht sich auf die bereits erkannten Farbgruppen, einschließlich zusammengefasster ähnlicher Farbtöne. Es ist keine Pipette und kein zusätzlicher Modus nötig. Zoomen und Ziehen mit links bleiben verfügbar und erhalten die Hervorhebung; Ziehen mit rechts schaltet keine Haken um. Die Einzelvorschau kann auch eine nicht zum Export angehakte Gruppe zeigen. Für den Export zählen weiterhin ausschließlich die Häkchen.
 
 Die Bildliste zeigt Miniaturvorschauen. Ein Klick auf ein Bild zeigt dessen Original; **Farben erkennen** erzeugt die zugehörigen Farbgruppen und Maskenvorschauen. Die Farbauswahl bereits geprüfter Bilder bleibt beim Bildwechsel erhalten. Mit **Entfernen** oder **Liste leeren** lassen sich Bilder aus der Liste nehmen.
 

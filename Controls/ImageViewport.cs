@@ -5,7 +5,7 @@ using Avalonia.Media;
 
 namespace HappyColorSplit.Controls;
 
-public sealed class ImageViewport : Control
+public sealed partial class ImageViewport : Control
 {
     public static readonly StyledProperty<IImage?> SourceProperty = AvaloniaProperty.Register<ImageViewport, IImage?>(nameof(Source));
     public static readonly StyledProperty<double> ZoomProperty = AvaloniaProperty.Register<ImageViewport, double>(nameof(Zoom), 1);
@@ -19,6 +19,8 @@ public sealed class ImageViewport : Control
     private IPointer? _pointer;
     private Point _start;
     private double _startX, _startY;
+    private bool _lastPressWasLeft;
+    private MouseButton _pressedButton;
 
     public static Rect ImageBounds(Size viewport, Size image, double zoom, double centerX, double centerY)
     {
@@ -38,6 +40,7 @@ public sealed class ImageViewport : Control
         using var clip = context.PushClip(new Rect(Bounds.Size));
         var rect = ImageBounds(Bounds.Size, image.Size, Zoom, CenterX, CenterY);
         if (rect.Width > 0 && rect.Height > 0) context.DrawImage(image, new Rect(image.Size), rect);
+        DrawColorHighlight(context, image, rect);
     }
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
     {
@@ -56,29 +59,66 @@ public sealed class ImageViewport : Control
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);
-        if (Source is not { } image || !e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
-        if (e.ClickCount == 2) { Fit(); e.Handled = true; return; }
+        if (Source is not { } image) return;
+        var properties = e.GetCurrentPoint(this).Properties;
+        bool left = properties.PointerUpdateKind == PointerUpdateKind.LeftButtonPressed;
+        bool right = properties.PointerUpdateKind == PointerUpdateKind.RightButtonPressed && ColorPickingEnabled;
+        if (!left && !right) { _lastPressWasLeft = false; return; }
+        bool doubleClick = left && e.ClickCount == 2 && _lastPressWasLeft;
+        _lastPressWasLeft = left;
+        if (doubleClick) { Fit(); e.Handled = true; return; }
         var rect = ImageBounds(Bounds.Size, image.Size, Zoom, CenterX, CenterY);
         if (rect.Width <= 0 || rect.Height <= 0) return;
         _start = e.GetPosition(this); _startX = Center(CenterX, Bounds.Width, rect.Width); _startY = Center(CenterY, Bounds.Height, rect.Height);
-        _pointer = e.Pointer; e.Pointer.Capture(this); Cursor = new Cursor(StandardCursorType.SizeAll); Focusable = true; Focus(); e.Handled = true;
+        _pressedButton = left ? MouseButton.Left : MouseButton.Right;
+        _pointer = e.Pointer; e.Pointer.Capture(this); Cursor = left ? new Cursor(StandardCursorType.SizeAll) : null; Focusable = true; Focus(); e.Handled = true;
     }
     protected override void OnPointerMoved(PointerEventArgs e)
     {
         base.OnPointerMoved(e);
-        if (_pointer != e.Pointer || Source is not { } image) return;
+        if (_pointer != e.Pointer) return;
+        if (Source is not { } image) return;
         var rect = ImageBounds(Bounds.Size, image.Size, Zoom, CenterX, CenterY); var p = e.GetPosition(this);
+        if (!_dragging && Math.Pow(p.X - _start.X, 2) + Math.Pow(p.Y - _start.Y, 2) < 16) return;
+        _dragging = true;
+        if (_pressedButton != MouseButton.Left) return;
         if (rect.Width <= 0 || rect.Height <= 0) return;
         SetCurrentValue(CenterXProperty, Center(_startX - (p.X - _start.X) / rect.Width, Bounds.Width, rect.Width));
         SetCurrentValue(CenterYProperty, Center(_startY - (p.Y - _start.Y) / rect.Height, Bounds.Height, rect.Height)); e.Handled = true;
     }
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
-    { base.OnPointerReleased(e); if (_pointer == e.Pointer) { EndPan(); e.Handled = true; } }
+    {
+        base.OnPointerReleased(e);
+        if (_pointer != e.Pointer) return;
+        var p = e.GetPosition(this);
+        var button = _pressedButton;
+        bool click = !_dragging && Math.Pow(p.X - _start.X, 2) + Math.Pow(p.Y - _start.Y, 2) < 16 && e.InitialPressMouseButton == button;
+        EndPan();
+        if (click)
+        {
+            int group = ColorGroupAt(p);
+            if (group >= 0)
+            {
+                ColorGroupClicked?.Invoke(this, group);
+                if (button == MouseButton.Right) ColorGroupExportToggleRequested?.Invoke(this, group);
+            }
+            SelectColorHighlight(group);
+        }
+        e.Handled = true;
+    }
     protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e) { base.OnPointerCaptureLost(e); EndPan(); }
-    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e) { EndPan(); base.OnDetachedFromVisualTree(e); }
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e) { EndPan(); ClearColorHighlight(); base.OnDetachedFromVisualTree(e); }
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
-    { base.OnPropertyChanged(change); if (change.Property == SourceProperty || change.Property == BoundsProperty) EndPan(); }
-    private void EndPan() { var pointer = _pointer; _pointer = null; Cursor = null; if (pointer?.Captured == this) pointer.Capture(null); }
+    {
+        base.OnPropertyChanged(change);
+        if (change.Property == SourceProperty || change.Property == BoundsProperty) EndPan();
+        if (change.Property == SourceProperty || change.Property == AnalysisProperty || change.Property == ColorPickingEnabledProperty)
+            ClearColorHighlight();
+        else if (change.Property == BoundsProperty || change.Property == ZoomProperty || change.Property == CenterXProperty || change.Property == CenterYProperty)
+            InvalidateHighlightMasks();
+        else if (change.Property == ReduceMotionProperty && ReduceMotion) AdvanceHighlight();
+    }
+    private void EndPan() { var pointer = _pointer; _pointer = null; _dragging = false; Cursor = null; if (pointer?.Captured == this) pointer.Capture(null); }
     private void Fit() { EndPan(); SetCurrentValue(ZoomProperty, 1d); SetCurrentValue(CenterXProperty, .5); SetCurrentValue(CenterYProperty, .5); }
     protected override void OnKeyDown(KeyEventArgs e)
     {

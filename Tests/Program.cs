@@ -194,6 +194,14 @@ try
     Check(legacySettings.Load().MinimumAlpha == 177, "Migrating settings leaves previous settings intact");
 
     AppBuilder.Configure<App>().UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false }).UseSkia().WithInterFont().SetupWithoutStarting();
+    if (args.Contains("--updates-live"))
+    {
+        var liveUpdate = new GitHubUpdateService().CheckAsync(AppVersion.Current, CancellationToken.None).GetAwaiter().GetResult();
+        Check(liveUpdate.State is UpdateCheckState.UpToDate or UpdateCheckState.Available, "Live GitHub repository and release identities match the pinned values");
+        Console.WriteLine($"PASS: Live GitHub identity verification; current={AppVersion.Current}; state={liveUpdate.State}; offered={liveUpdate.Update?.Tag ?? "none"}."); return;
+    }
+    if (args.Contains("--updates-only")) { UpdateRegressionTests.Run(root, Check, Pump); Console.WriteLine("PASS: Update identity, release selection, version display and browser confirmation checks."); return; }
+    if (args.Contains("--color-hover-only")) { OriginalColorHoverTests.Run(root, Check, Pump); Console.WriteLine("PASS: Original color hover and selection checks."); return; }
     if (args.Contains("--workspace-only")) { WorkspaceRegressionTests.Run(root, Check, Pump); Console.WriteLine("PASS: Workspace interaction checks."); return; }
     var dialogs = new TestDialogs(input, root) { Inputs = [input, jpgPath] };
     var detailService = new TestDetailPreviewService();
@@ -284,6 +292,8 @@ try
     LaserRotationRegressionTests.Run(Check);
     ContourSmoothingRegressionTests.Run(root, Check, Pump);
     WorkspaceRegressionTests.Run(root, Check, Pump);
+    OriginalColorHoverTests.Run(root, Check, Pump);
+    UpdateRegressionTests.Run(root, Check, Pump);
     ImportActivityRegressionTests.Run(root, Check, Pump);
     if (args.Contains("--capture-baseline") || args.Contains("--verify-baseline"))
     {

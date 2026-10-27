@@ -14,6 +14,24 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        OriginalViewportControl.ColorGroupHighlighted += (_, index) => (DataContext as MainViewModel)?.HighlightOriginalColor(index);
+        OriginalViewportControl.ColorGroupClicked += (_, index) =>
+        {
+            if (DataContext is not MainViewModel vm) return;
+            vm.SelectOriginalColor(index);
+            if (vm.SelectedGroup is { } group) ColorsList.ScrollIntoView(group);
+        };
+        OriginalViewportControl.ColorGroupExportToggleRequested += (_, index) =>
+        {
+            if (DataContext is not MainViewModel vm || vm.ToggleOriginalColorExport(index) is not { } group) return;
+            vm.RightSidebarCollapsed = false;
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (!IsVisible || DataContext != vm || !vm.Groups.Contains(group)) return;
+                ColorsList.ScrollIntoView(group);
+                group.FlashExportChange(vm.ReduceMotion);
+            }, DispatcherPriority.Loaded);
+        };
         InitializeWorkspaceLayout();
         DragDrop.SetAllowDrop(this, true);
         AddHandler(DragDrop.DragOverEvent, OnDragOver, RoutingStrategies.Bubble, handledEventsToo: true);

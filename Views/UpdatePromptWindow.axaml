@@ -1,0 +1,16 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="HappyColorSplit.Views.UpdatePromptWindow" Title="{Binding Text[UpdateOpenTitle]}"
+        Width="640" Height="300" MinWidth="520" MinHeight="280" WindowStartupLocation="CenterOwner"
+        Background="#111824" Icon="/Assets/HappyColorSplit.ico">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="24" RowSpacing="18">
+    <TextBlock Text="{Binding ReleaseLabel}" FontSize="20" FontWeight="SemiBold" TextWrapping="Wrap" />
+    <StackPanel Grid.Row="1" Spacing="12">
+      <TextBlock Text="{Binding Text[UpdateOpenQuestion]}" TextWrapping="Wrap" />
+      <TextBlock Text="{Binding ReleasePage}" Classes="muted" TextWrapping="Wrap" />
+    </StackPanel>
+    <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+      <Button x:Name="CancelUpdateButton" Content="{Binding Text[UpdateCancel]}" Click="Cancel_OnClick" IsCancel="True" />
+      <Button x:Name="ConfirmUpdateButton" Content="{Binding Text[UpdateOpenBrowser]}" Click="Open_OnClick" IsDefault="True" />
+    </StackPanel>
+  </Grid>
+</Window>

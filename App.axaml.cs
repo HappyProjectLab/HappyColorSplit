@@ -16,10 +16,12 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             var window = new MainWindow();
-            var vm = new MainViewModel(new FileDialogService(window), new SettingsService(), new DetailPreviewService(window), new LicenseWindowService(window));
+            var vm = new MainViewModel(new FileDialogService(window), new SettingsService(), new DetailPreviewService(window), new LicenseWindowService(window),
+                updatePrompt: new UpdatePromptService(window));
             window.DataContext = vm;
             window.Closing += (_, e) => { if (vm.IsBusy) { vm.Cancel(); e.Cancel = true; } };
             window.Closed += (_, _) => vm.Dispose();
+            window.Opened += async (_, _) => await vm.CheckForUpdatesAsync();
             desktop.MainWindow = window;
             string[] paths = desktop.Args ?? [];
             if (paths.Length > 0)

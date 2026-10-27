@@ -31,7 +31,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     public MainViewModel(IFileDialogService dialogs, SettingsService settingsService, IDetailPreviewService? detailPreview = null,
         ILicenseWindowService? licenseWindow = null, IWindowsIntegrationService? windowsIntegration = null,
-        IExportFolderService? exportFolderService = null)
+        IExportFolderService? exportFolderService = null, IUpdateService? updateService = null,
+        IUpdatePromptService? updatePrompt = null, IReleaseBrowser? releaseBrowser = null)
     {
         _dialogs = dialogs; _settingsService = settingsService; _settings = settingsService.Load(); _detailPreview = detailPreview;
         _licenseWindow = licenseWindow;
@@ -56,6 +57,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         TripleContourResolutionCommand = new(TripleContourResolutionAsync, () => CanTripleContourResolution);
         Laser = new(this, _settings.Laser);
         InitializeWorkspacePreferences();
+        InitializeUpdates(updateService, updatePrompt, releaseBrowser);
     }
 
     public Texts Text => new(_settings.Language);
@@ -63,7 +65,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public int LanguageIndex
     {
         get => _settings.Language == "en" ? 1 : 0;
-        set { _settings.Language = value == 1 ? "en" : "de"; Changed(); Changed(nameof(EnglishSelected)); Changed(nameof(Text)); Changed(nameof(Status)); Changed(nameof(WindowsIntegrationStatus)); Changed(nameof(ErrorDetails)); Changed(nameof(ExportOutputHelp)); Changed(nameof(ImageSizeSummary)); Laser.ChangeLanguage(); RefreshWorkspaceLabels(); SaveSettings(); }
+        set { _settings.Language = value == 1 ? "en" : "de"; Changed(); Changed(nameof(EnglishSelected)); Changed(nameof(Text)); Changed(nameof(Status)); Changed(nameof(WindowsIntegrationStatus)); Changed(nameof(ErrorDetails)); Changed(nameof(ExportOutputHelp)); Changed(nameof(ImageSizeSummary)); Laser.ChangeLanguage(); RefreshWorkspaceLabels(); RefreshUpdateLabels(); SaveSettings(); }
     }
     public bool EnglishSelected { get => LanguageIndex == 1; set => LanguageIndex = value ? 1 : 0; }
     public bool IsLicenseWindowOpen { get => _licensesOpen; private set => Set(ref _licensesOpen, value); }
@@ -218,6 +220,26 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public bool HasImage => _source is not null;
     public bool HasMask => Mask is not null;
     public bool HasGroups => Groups.Count > 0;
+    public ColorAnalysis? OriginalColorAnalysis => _analysis;
+    public void HighlightOriginalColor(int index)
+    {
+        foreach (var group in Groups) group.IsHighlighted = group.Group.Index == index;
+    }
+    public void SelectOriginalColor(int index)
+    {
+        if (IsBusy) return;
+        var group = Groups.FirstOrDefault(g => g.Group.Index == index);
+        if (group is null) return;
+        SelectedGroup = group;
+        ShowCombinedPreview = false;
+    }
+    public ColorGroupViewModel? ToggleOriginalColorExport(int index)
+    {
+        if (IsBusy) return null;
+        var group = Groups.FirstOrDefault(g => g.Group.Index == index);
+        if (group is not null) group.ExportEnabled = !group.ExportEnabled;
+        return group;
+    }
     public string FileName => Path.GetFileName(_filePath);
     public Bitmap? Original { get => _original; private set { var old = _original; Set(ref _original, value); old?.Dispose(); } }
     public Bitmap? Mask { get => _mask; private set { var old = _mask; Set(ref _mask, value); old?.Dispose(); Changed(nameof(HasMask)); } }
@@ -498,7 +520,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private void ApplyAnalysis(ColorAnalysis result)
     {
         _analysis = result;
-        foreach (var old in Groups) old.PropertyChanged -= ExportSelectionChanged;
+        foreach (var old in Groups) { old.PropertyChanged -= ExportSelectionChanged; old.Dispose(); }
         Groups.Clear();
         foreach (var group in result.Groups)
         {
@@ -509,6 +531,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
         ExportSelectionChanged(null, new(nameof(ColorGroupViewModel.ExportEnabled)));
         Changed(nameof(HasGroups)); SelectedGroup = Groups.FirstOrDefault();
+        Changed(nameof(OriginalColorAnalysis));
     }
 
     private async Task ExportAsync() => await RunAsync(async token =>
@@ -636,7 +659,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private void ClearAnalysis()
     {
         _analysis = null; SelectedGroup = null; Mask = null;
-        foreach (var group in Groups) group.PropertyChanged -= ExportSelectionChanged;
+        Changed(nameof(OriginalColorAnalysis));
+        foreach (var group in Groups) { group.PropertyChanged -= ExportSelectionChanged; group.Dispose(); }
         Groups.Clear(); Changed(nameof(HasGroups)); Changed(nameof(ExportColorCount)); RefreshCommands();
     }
     private void StatusMessage(string key, params object[] args) { _statusKey = key; _statusArgs = args; Changed(nameof(Status)); }
@@ -665,8 +689,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public void Cancel() => _cancellation?.Cancel();
     public void Dispose()
     {
+        _updateLifetime.Cancel();
         Cancel(); DisposeWorkspacePreferences(); SaveSettings();
         Laser.Dispose();
+        foreach (var group in Groups) group.Dispose();
         Set(ref _selectedImage, null, nameof(SelectedImage));
         _source?.Dispose(); _source = null; Original = null; Mask = null;
         foreach (var image in Images) image.Dispose();

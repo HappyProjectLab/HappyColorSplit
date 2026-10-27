@@ -6,6 +6,21 @@ public sealed class Texts(string language)
     public string this[string key] => Entries.TryGetValue(key, out var pair) ? pair[language == "en" ? 1 : 0] : key;
     private static readonly Dictionary<string, string[]> Entries = new()
     {
+        ["AppVersion"] = ["Version {0}", "Version {0}"],
+        ["UpdateAvailableButton"] = ["Update {0} · {1} ↗", "Update {0} · {1} ↗"],
+        ["UpdateAvailableHelp"] = ["Neue Version verfügbar. Nach Bestätigung die Release-Seite im Standardbrowser öffnen.", "New version available. Open its release page in the default browser after confirmation."],
+        ["UpdateNotChecked"] = ["Die Update-Prüfung startet beim Öffnen des Programms.", "The update check starts when the application opens."],
+        ["UpdateChecking"] = ["Auf GitHub nach einer neueren Version suchen …", "Checking GitHub for a newer version …"],
+        ["UpdateUpToDate"] = ["Keine neuere passende Version auf GitHub verfügbar.", "No newer matching version is available on GitHub."],
+        ["UpdateUnavailable"] = ["Die Update-Prüfung ist derzeit nicht verfügbar. Beim nächsten Programmstart erneut prüfen.", "Update checking is currently unavailable. It will run again at the next application start."],
+        ["UpdateUntrusted"] = ["Die Herkunft des Update-Angebots konnte nicht bestätigt werden. Es wird kein Link geöffnet.", "The update's origin could not be verified. No link will be opened."],
+        ["UpdateChanged"] = ["Das Update-Angebot hat sich geändert oder ist nicht mehr verfügbar. Bitte das aktuelle Angebot erneut öffnen.", "The update has changed or is no longer available. Please open the current offer again."],
+        ["UpdateOpenFailed"] = ["Die Release-Seite konnte nicht sicher geöffnet werden. Bitte später erneut versuchen.", "The release page could not be opened safely. Please try again later."],
+        ["UpdateOpenTitle"] = ["GitHub-Release öffnen", "Open GitHub release"],
+        ["UpdateOpenQuestion"] = ["Diese Release-Seite im externen Standardbrowser öffnen? Herunterladen und Installieren erfolgen anschließend durch dich im Browser.", "Open this release page in your external default browser? You can then download and install it yourself."],
+        ["UpdateOpenBrowser"] = ["Im Standardbrowser öffnen", "Open in default browser"],
+        ["UpdateCancel"] = ["Abbrechen", "Cancel"],
+        ["OriginalColorPickHelp"] = ["Linksklick: Farbe hervorheben und Farbauszug anzeigen. Rechtsklick: dieselbe Auswahl und Hervorhebung sowie zusätzlich den Export-Haken umschalten; Farbzeile und Haken leuchten kurz auf. Ziehen verschiebt das Bild; ein Klick auf eine freie Stelle entfernt die Hervorhebung.", "Left-click: highlight a color and show its layer. Right-click: select and highlight the color in the same way, and also toggle its export checkbox; the row and checkbox briefly light up. Drag to pan; click an empty area to clear the highlight."],
         ["LayoutStacked"] = ["Untereinander", "Stacked"],
         ["LayoutSideBySide"] = ["Nebeneinander", "Side by side"],
         ["PreviewLayout"] = ["Vorschau-Anordnung", "Preview layout"],

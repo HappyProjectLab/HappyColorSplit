@@ -1,4 +1,14 @@
-# Umgesetzt für 0.1.0-preview.5
+# Umgesetzt für 0.1.0-preview.6
+
+Stand: 27.10.2026. Diese Ausgabe enthält die Farbwahl direkt im Originalbild, die Versionsanzeige und die GitHub-Update-Prüfung. Offene Wünsche für spätere Versionen stehen in [FEATURE_REQUESTS.md](FEATURE_REQUESTS.md).
+
+- [x] Linksklick auf eine erkannte Farbfläche wählt die Gruppe aus und zeigt ihre Einzelvorschau. Alle zugehörigen Flächen werden positionsgetreu mit kräftigerer Lichtkante und weichem Schatten hervorgehoben; Übergänge dauern etwa 120 ms.
+- [x] Rechtsklick führt dieselbe Auswahl aus und kehrt zusätzlich den Export-Haken um. Farbzeile und Haken bestätigen die Änderung durch kurzes Aufleuchten; die Farbleiste öffnet sich bei Bedarf.
+- [x] Aktuelle Version unter dem Titel anzeigen. Beim Start GitHub prüfen und einen Update-Button mit neuer Version, Veröffentlichungsdatum und Lauflicht ausschließlich bei einem passenden, herkunftsgeprüften Update anbieten.
+- [x] Release-Seite erst nach Bestätigung und erneuter Herkunftsprüfung im Standardbrowser öffnen. Keine automatische Installation. Feste IDs von Repository, Organisation und Release-Autor schützen gegen gleichnamige Nachfolger.
+- [x] README, deutsche und englische Bedienhinweise und Sicherheitsdokumentation aktualisieren; Bedienung, Herkunftsprüfung, Offline-Verhalten und Versionsvergleich durch Regressionstests absichern.
+
+## Bereits in 0.1.0-preview.5 enthalten
 
 Stand: 26.10.2026. Die abgehakten Punkte sind Bestandteil von `0.1.0-preview.5`. Offene Wünsche für spätere Versionen stehen in [FEATURE_REQUESTS.md](FEATURE_REQUESTS.md).
 

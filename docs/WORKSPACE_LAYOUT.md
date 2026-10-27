@@ -4,6 +4,10 @@ Diese Funktionen sind ab `0.1.0-preview.5` im Windows-Download enthalten.
 
 ## Deutsch
 
+**Rechtsklick im Originalbild:** Den Export-Haken der passenden Farbgruppe umkehren. Die betroffene Farbzeile und der Haken leuchten etwa eine halbe Sekunde auf und blenden weich aus. Bei eingeklappter Farbleiste wird sie geöffnet und die betroffene Zeile sichtbar gemacht. Wie beim Linksklick wird die angeklickte Farbe ausgewählt und hervorgehoben und ihre Einzelvorschau angezeigt; eine kombinierte Vorschau wird ausgeschaltet. Rechtsklicks auf transparente oder ausgefilterte Stellen entfernen wie Linksklicks die Hervorhebung, ohne Haken zu ändern. Ziehen mit rechts ändert keine Haken. Bei reduzierter Bewegung bleibt die Rückmeldung kurz statisch sichtbar.
+
+**Neu in 0.1.0-preview.6:** Ein **Linksklick im Originalbild** hebt alle Flächen der erkannten Farbgruppe optisch zum Betrachter hin hervor. Kräftigere Lichtkanten und weiche Kontaktschatten erzeugen Tiefe; die Bildflächen werden nicht verschoben. Der Effekt blendet in etwa 120 ms weich ein, aus und zwischen Farben über. Bloßes Darüberfahren oder Verlassen des Bildes ändert die Hervorhebung nicht. Gleichzeitig wird die Gruppe in der Farbliste markiert und ihre Einzelvorschau angezeigt; **Farbauswahl vereinen** wird ausgeschaltet, ohne Export-Häkchen zu ändern. Ein Linksklick auf transparente oder ausgefilterte Stellen blendet den Effekt aus. Ziehen und Zoom erhalten die Hervorhebung. Reduzierte Bewegung überspringt die Übergänge. Es gibt keine Pipette und keinen zusätzlichen Modus.
+
 Die Ansichtsbuttons sind einheitlich 32 Pixel hoch; Text und Symbole sind vertikal zentriert. Unter **Farbähnlichkeit** und **Mindestdeckkraft** erklären links- und rechtsbündige Texte die niedrige beziehungsweise hohe Einstellung. Die Zusammenfassung steht mit Abstand eine Zeile tiefer, zentriert und fett; sie bezeichnet keine mittlere Reglerposition.
 
 Bei **Bilder hinzufügen** läuft die Aktivitätsanzeige dezent über den gesamten Fensterhintergrund, bis Dateiauswahl und Import beendet sind. Der bisherige zusätzliche Abbrechen-Knopf im Hauptfenster entfällt. Im Dateiauswahldialog lässt sich weiterhin abbrechen. Farberkennung und Export behalten ihre Fortschrittsanzeige.
@@ -30,6 +34,10 @@ Anordnung, Leistenzustand, beide Trennpositionen, Synchronisierung und reduziert
 Die erweiterte Einstellung `Workspace.ReduceMotion` bleibt in dieser JSON-Datei verfügbar: `true` schaltet Klappanimation und Lauflicht ab, Beschriftungen und Hinweise bleiben erhalten. Dafür gibt es nach Entfernen von „Ansicht“ keinen Menüknopf mehr. Die Einstellung bei geschlossenem Programm ändern.
 
 ## English
+
+**Right-click the original:** Toggle the matching color group's export checkbox. Its row and checkbox light up for about half a second and fade out. A collapsed color sidebar opens and scrolls to the affected row. Just like left-clicking, this selects and highlights the clicked color and displays its individual layer, turning the combined preview off. Right-clicking transparent or filtered pixels clears the highlight just like left-clicking, without changing checkboxes. Right dragging changes no checkboxes. Reduced motion shows a brief static confirmation.
+
+**New in 0.1.0-preview.6:** **Left-click the original** to bring all areas of the detected color group visually towards the viewer. Stronger bevel lighting and soft contact shadows add depth without moving image areas. The effect fades in, out and between groups over about 120 ms. Hovering and leaving the image do not change the highlight. The color list highlights the matching group and its individual layer is shown; **Merge selected colors** turns off without changing export checkboxes. Left-click transparent or opacity-filtered pixels to fade the effect out. Pan and zoom preserve the highlight. Reduced motion skips transitions. No eyedropper or separate mode is needed.
 
 These features are included in the Windows download starting with `0.1.0-preview.5`.
 
