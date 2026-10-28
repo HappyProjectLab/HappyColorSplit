@@ -17,7 +17,8 @@ try {
     }
     $null = New-Item -ItemType Directory -Path $output -Force
     $name = 'HappyColorSplit-' + $version
-    $zip = Join-Path $output ($name + '-Windows-x64.zip')
+    $isPrerelease = $version.Contains('-')
+    $zip = Join-Path $output $(if ($isPrerelease) { $name + '-Windows-x64.zip' } else { 'HappyColorSplit-Windows-x64.zip' })
     $sourceZip = Join-Path $output ($name + '-Source.zip')
     $checksumFile = Join-Path $output ($name + '-SHA256SUMS.txt')
     foreach ($path in @($zip, $sourceZip, $checksumFile)) {
@@ -34,13 +35,15 @@ try {
 
     $usageNoticeDe = Get-Content -LiteralPath (Join-Path $publish 'docs/USAGE_NOTICE_DE.md') -Raw -Encoding utf8
     $usageNoticeEn = Get-Content -LiteralPath (Join-Path $publish 'docs/USAGE_NOTICE.md') -Raw -Encoding utf8
+    $releaseDescriptionDe = if ($isPrerelease) { 'Diese Ausgabe ist eine Vorabversion.' } else { 'Dies ist eine stabile Ausgabe. Der Laser-Bereich bleibt experimentell.' }
+    $releaseDescriptionEn = if ($isPrerelease) { 'This is a preview version.' } else { 'This is a stable release. The Laser workspace remains experimental.' }
     @"
 HappyColorSplit $version - Windows x64
 
 DE: Die ZIP-Datei vollstaendig entpacken und HappyColorSplit.exe starten.
 Die .NET-10-Laufzeit ist enthalten. Keine zusaetzliche .NET-Installation erforderlich.
 Alle Dateien und Unterordner zusammen behalten. Nur die EXE zu kopieren reicht nicht.
-Diese Ausgabe ist eine Vorabversion. Informationen zu Quellcode und Lizenzen: SOURCE.txt
+$releaseDescriptionDe Informationen zu Quellcode und Lizenzen: SOURCE.txt
 
 Windows kann die EXE nach Download und Entpacken zunaechst blockieren.
 Nur bei gepruefter Herkunft aus dem offiziellen GitHub-Release fortfahren:
@@ -53,7 +56,7 @@ Defender und SmartScreen nicht generell deaktivieren. Zulassen ist keine Sicherh
 
 EN: Extract the entire ZIP and run HappyColorSplit.exe.
 The .NET 10 runtime is included. No separate .NET installation is required.
-Keep all files and subdirectories together. This is a preview version.
+Keep all files and subdirectories together. $releaseDescriptionEn
 See SOURCE.txt for source code and licensing information.
 
 Windows may initially block the EXE after downloading and extracting the ZIP.

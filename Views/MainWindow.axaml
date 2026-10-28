@@ -65,6 +65,7 @@
         <Button x:Name="LicensesButton" Classes="toolbar" Classes.open="{Binding IsLicenseWindowOpen}" Command="{Binding LicensesCommand}">
           <StackPanel Orientation="Horizontal" Spacing="7"><TextBlock Text="{Binding Text[Licenses]}" /><TextBlock Text="↗" Opacity="0.65" /></StackPanel>
         </Button>
+        <Button x:Name="TutorialButton" Classes="toolbar" Classes.open="{Binding Tutorial.IsVisible}" Content="{Binding Text[GuideButton]}" Command="{Binding Tutorial.StartCommand}" ToolTip.Tip="{Binding Text[GuideButtonHelp]}" />
         <ToggleButton x:Name="LanguageToggle" Classes="toolbar" IsChecked="{Binding EnglishSelected, Mode=TwoWay}" ToolTip.Tip="{Binding Text[SwitchLanguage]}">
           <StackPanel Orientation="Horizontal" Spacing="7">
             <TextBlock Text="{Binding Text[GermanLanguage]}" Classes="switch-option" Classes.current="{Binding !EnglishSelected}" />
@@ -76,8 +77,8 @@
     </Grid>
     <Border Grid.Row="1" Classes="panel">
       <Grid ColumnDefinitions="Auto,*,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="20" RowSpacing="10">
-        <Button Content="{Binding Text[Open]}" Command="{Binding OpenCommand}" VerticalAlignment="Center" />
-        <StackPanel Grid.Column="1" Spacing="5" IsEnabled="{Binding IsIdle}">
+        <Button x:Name="OpenImagesButton" Content="{Binding Text[Open]}" Command="{Binding OpenCommand}" VerticalAlignment="Center" />
+        <StackPanel x:Name="TolerancePanel" Grid.Column="1" Spacing="5" IsEnabled="{Binding IsIdle}">
           <Grid ColumnDefinitions="*,Auto">
             <TextBlock Text="{Binding Text[Tolerance]}" FontWeight="SemiBold" />
             <TextBlock Grid.Column="1" Text="{Binding Tolerance, StringFormat={}{0:0}}" Foreground="#7DD3FC" />
@@ -89,7 +90,7 @@
           </Grid>
           <TextBlock Text="{Binding Text[ToleranceSummary]}" FontSize="11" FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap" Margin="0,5,0,0" />
         </StackPanel>
-        <StackPanel Grid.Column="2" Spacing="5" IsEnabled="{Binding IsIdle}">
+        <StackPanel x:Name="AlphaPanel" Grid.Column="2" Spacing="5" IsEnabled="{Binding IsIdle}">
           <Grid ColumnDefinitions="*,Auto">
             <TextBlock Text="{Binding Text[MinimumAlpha]}" FontWeight="SemiBold" />
             <TextBlock Grid.Column="1" Text="{Binding MinimumAlpha, StringFormat={}{0:0}/255}" Foreground="#7DD3FC" />
@@ -101,8 +102,8 @@
           </Grid>
           <TextBlock Text="{Binding Text[AlphaSummary]}" FontSize="11" FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap" Margin="0,5,0,0" />
         </StackPanel>
-        <Button Grid.Column="3" Content="{Binding Text[Analyze]}" Command="{Binding AnalyzeCommand}" VerticalAlignment="Center" />
-        <Grid Grid.Row="1" Grid.ColumnSpan="4" ColumnDefinitions="*,*" ColumnSpacing="16" IsEnabled="{Binding IsIdle}">
+        <Button x:Name="AnalyzeColorsButton" Grid.Column="3" Content="{Binding Text[Analyze]}" Command="{Binding AnalyzeCommand}" VerticalAlignment="Center" />
+        <Grid x:Name="ExportOptionsPanel" Grid.Row="1" Grid.ColumnSpan="4" ColumnDefinitions="*,*" ColumnSpacing="16" IsEnabled="{Binding IsIdle}">
           <Border Background="#131C29" BorderBrush="#344255" BorderThickness="1" CornerRadius="8" Padding="12,8">
             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
               <TextBlock Text="{Binding Text[ExportAreasAs]}" VerticalAlignment="Center" />
@@ -151,7 +152,7 @@
             <TextBlock Grid.Column="1" Text="{Binding Images.Count}" Foreground="#7DD3FC" />
           </Grid>
           <TextBlock Grid.Row="1" Text="{Binding Text[ImageListHint]}" TextWrapping="Wrap" Classes="muted" FontSize="11" Margin="4,0" />
-          <ListBox Grid.Row="2" ItemsSource="{Binding Images}" SelectedItem="{Binding SelectedImage, Mode=TwoWay}"
+          <ListBox x:Name="LoadedImagesList" Grid.Row="2" ItemsSource="{Binding Images}" SelectedItem="{Binding SelectedImage, Mode=TwoWay}"
                    IsEnabled="{Binding IsIdle}" Background="Transparent">
             <ListBox.ItemTemplate>
               <DataTemplate>
@@ -205,7 +206,7 @@
       </Border>
       </controls:CollapsibleSidebar>
       <Grid Grid.Column="1" RowDefinitions="Auto,*" RowSpacing="8">
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" IsVisible="{Binding !IsLaserMode}">
+        <Grid x:Name="ColorPreviewToolbar" ColumnDefinitions="*,Auto" ColumnSpacing="8" IsVisible="{Binding !IsLaserMode}">
           <WrapPanel>
             <ToggleButton x:Name="PreviewLayoutSelector" Classes="toolbar" IsChecked="{Binding SideBySide, Mode=TwoWay}" IsVisible="{Binding !IsLaserMode}" Margin="0,0,8,4" ToolTip.Tip="{Binding Text[PreviewLayout]}">
               <StackPanel Orientation="Horizontal" Spacing="7">
@@ -323,7 +324,7 @@
     </Grid>
     </controls:CollapsibleSidebar>
     </Grid>
-    <Grid Grid.Row="3" ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="10">
+    <Grid x:Name="ExportActionsPanel" Grid.Row="3" ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="10">
       <TextBlock Text="{Binding Status}" TextWrapping="Wrap" VerticalAlignment="Center" Classes="muted" MaxHeight="64" />
       <Button Grid.Column="1" Content="{Binding Text[OpenLastExport]}" Command="{Binding OpenLastExportFolderCommand}" IsEnabled="{Binding CanOpenLastExportFolder}" ToolTip.Tip="{Binding LastExportFolder}" />
       <Button Grid.Column="3" Content="{Binding Text[Export]}" Command="{Binding ExportCommand}" IsVisible="{Binding !IsLaserMode}" />
@@ -338,5 +339,25 @@
       <TextBox Text="{Binding ErrorDetails, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" MaxHeight="100" />
     </Expander>
   </Grid>
+    <controls:TutorialSpotlight x:Name="TutorialSpotlight" IsVisible="{Binding Tutorial.IsRunning}" />
+    <Border x:Name="TutorialCard" DataContext="{Binding Tutorial}" IsVisible="{Binding IsVisible}"
+            HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="440" MaxHeight="620" Margin="0,0,20,20"
+            Background="#FC172638" BorderBrush="#7DD3FC" BorderThickness="1.5" CornerRadius="12" Padding="18">
+      <StackPanel Spacing="10">
+        <TextBlock Text="{Binding ProgressLabel}" FontSize="11" Foreground="#7DD3FC" />
+        <TextBlock Text="{Binding Heading}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
+        <TextBlock Text="{Binding Description}" FontSize="13" TextWrapping="Wrap" />
+        <TextBlock Text="{Binding Hint}" IsVisible="{Binding HasHint}" FontSize="12" Foreground="#FFD38A" TextWrapping="Wrap" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+          <Button x:Name="TutorialBackButton" Content="{Binding Text[GuideBack]}" Command="{Binding BackCommand}" IsVisible="{Binding IsRunning}" Padding="12,7" />
+          <Button x:Name="TutorialNextButton" Content="{Binding NextLabel}" Command="{Binding NextCommand}" IsVisible="{Binding IsRunning}" Padding="12,7" Background="#89D6FA" Foreground="#0B2333" />
+          <Button x:Name="TutorialStartButton" Content="{Binding Text[GuideStart]}" Command="{Binding StartCommand}" IsVisible="{Binding IsWelcome}" Padding="12,7" Background="#89D6FA" Foreground="#0B2333" />
+        </StackPanel>
+        <WrapPanel HorizontalAlignment="Right" Orientation="Horizontal">
+          <Button x:Name="TutorialSkipButton" Content="{Binding Text[GuideSkip]}" Command="{Binding SkipCommand}" Padding="10,6" Margin="0,0,8,0" />
+          <Button x:Name="TutorialDisableButton" Content="{Binding Text[GuideDisable]}" Command="{Binding DisableCommand}" Padding="10,6" />
+        </WrapPanel>
+      </StackPanel>
+    </Border>
   </Grid>
 </Window>

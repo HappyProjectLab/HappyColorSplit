@@ -22,10 +22,10 @@ Sammlung gewünschter Erweiterungen. Offene Einträge sind keinem festen Release
 
 ## 3. Schritt-für-Schritt-Anleitung
 
-- [ ] Eine geführte Anleitung durch die Hauptfunktionen anbieten.
+- [x] Umgesetzt in 1.0.0: Eine geführte Anleitung mit 14 Schritten durch die Hauptfunktionen anbieten.
 - Die jeweils erklärte Funktion mit einer gut sichtbaren Umrandung hervorheben und den zugehörigen Schritt kurz erklären.
 - Die Steuerung rechts unten anzeigen: **Weiter**, **Zurück**, **Überspringen** und **Keine Tipps notwendig**.
-- Bei der Planung festlegen, wann die Anleitung angeboten wird und wie sie später erneut aufgerufen werden kann beziehungsweise die Ablehnung von Tipps berücksichtigt wird.
+- Beim ersten Start als Einführung anbieten. Überspringen beendet sie für diese Sitzung; Keine Tipps notwendig speichert eine dauerhafte Ablehnung. Fertig speichert den Abschluss. Über Anleitung jederzeit erneut aufrufbar. Vorherigen Leisten- und Moduszustand beim Beenden wiederherstellen; Export-Häkchen, Bilddaten und Vorschauzoom bleiben erhalten.
 
 ## 4. Versionshinweis
 

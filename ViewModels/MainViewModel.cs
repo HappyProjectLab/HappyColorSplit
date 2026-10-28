@@ -58,14 +58,16 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         Laser = new(this, _settings.Laser);
         InitializeWorkspacePreferences();
         InitializeUpdates(updateService, updatePrompt, releaseBrowser);
+        Tutorial = new TutorialViewModel(this, _settings, SaveSettings);
     }
 
     public Texts Text => new(_settings.Language);
+    public TutorialViewModel Tutorial { get; }
     public string[] Languages { get; } = ["Deutsch", "English"];
     public int LanguageIndex
     {
         get => _settings.Language == "en" ? 1 : 0;
-        set { _settings.Language = value == 1 ? "en" : "de"; Changed(); Changed(nameof(EnglishSelected)); Changed(nameof(Text)); Changed(nameof(Status)); Changed(nameof(WindowsIntegrationStatus)); Changed(nameof(ErrorDetails)); Changed(nameof(ExportOutputHelp)); Changed(nameof(ImageSizeSummary)); Laser.ChangeLanguage(); RefreshWorkspaceLabels(); RefreshUpdateLabels(); SaveSettings(); }
+        set { _settings.Language = value == 1 ? "en" : "de"; Changed(); Changed(nameof(EnglishSelected)); Changed(nameof(Text)); Changed(nameof(Status)); Changed(nameof(WindowsIntegrationStatus)); Changed(nameof(ErrorDetails)); Changed(nameof(ExportOutputHelp)); Changed(nameof(ImageSizeSummary)); Laser.ChangeLanguage(); RefreshWorkspaceLabels(); RefreshUpdateLabels(); Tutorial.Refresh(); SaveSettings(); }
     }
     public bool EnglishSelected { get => LanguageIndex == 1; set => LanguageIndex = value ? 1 : 0; }
     public bool IsLicenseWindowOpen { get => _licensesOpen; private set => Set(ref _licensesOpen, value); }
@@ -210,7 +212,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         Changed(nameof(ScaleDpi)); Changed(nameof(ImageSizeSummary));
         TripleContourResolutionCommand.Refresh();
     }
-    public bool IsBusy { get => _busy; private set { Set(ref _busy, value); Changed(nameof(IsIdle)); Changed(nameof(ShowProgressBar)); RefreshCommands(); } }
+    public bool IsBusy { get => _busy; private set { Set(ref _busy, value); Changed(nameof(IsIdle)); Changed(nameof(ShowProgressBar)); RefreshCommands(); Tutorial?.Refresh(); } }
     public bool IsImporting { get => _importing; private set { if (Set(ref _importing, value)) Changed(nameof(ShowProgressBar)); } }
     public bool ShowProgressBar => IsBusy && !IsImporting;
     public bool IsIdle => !IsBusy;
@@ -689,7 +691,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public void Cancel() => _cancellation?.Cancel();
     public void Dispose()
     {
-        _updateLifetime.Cancel();
+        _updateLifetime.Cancel(); Tutorial.Stop();
         Cancel(); DisposeWorkspacePreferences(); SaveSettings();
         Laser.Dispose();
         foreach (var group in Groups) group.Dispose();

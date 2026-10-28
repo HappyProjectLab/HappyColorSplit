@@ -1,4 +1,12 @@
-# Umgesetzt für 0.1.0-preview.7
+# Umgesetzt für 1.0.0
+
+Stand: 28.10.2026. Erste stabile Ausgabe der Farbauszüge; der Laser-Bereich bleibt ausdrücklich experimentell.
+
+- [x] Geführte Einführung mit 14 Schritten, Funktionsrahmen und bedienbarem Arbeitsbereich. Deutsch und Englisch; Erststart-Angebot, gespeicherte Ablehnung und jederzeitiger Wiederaufruf.
+- [x] Weiter, Zurück, Überspringen und Keine Tipps notwendig; Abschluss mit Fertig. Voraussetzungen und ausgeblendete Bereiche werden erklärt; vorheriger Modus und Leisten werden wiederhergestellt.
+- [x] Stabiles Windows-ZIP mit festem Dateinamen für GitHubs Latest-Download. Versions- und Release-Unterlagen auf 1.0.0 aktualisiert.
+
+## Umgesetzt für 0.1.0-preview.7
 
 Stand: 28.10.2026.
 

@@ -15,6 +15,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        InitializeTutorial();
         ColorsList.AddHandler(PointerPressedEvent, ColorsList_OnPointerPressed, RoutingStrategies.Bubble, handledEventsToo: true);
         OriginalViewportControl.ColorGroupHighlighted += (_, index) => (DataContext as MainViewModel)?.HighlightOriginalColor(index);
         OriginalViewportControl.ColorGroupClicked += (_, index) =>

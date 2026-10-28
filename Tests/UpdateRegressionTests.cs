@@ -15,7 +15,7 @@ using HappyColorSplit.Views;
 
 internal static class UpdateRegressionTests
 {
-    private static readonly AvailableUpdate Future = new(999, "v0.2.0", DateTimeOffset.Parse("2026-10-27T10:00:00Z"), GitHubUpdateService.ReleasePage("v0.2.0"));
+    private static readonly AvailableUpdate Future = new(999, "v2.0.0", DateTimeOffset.Parse("2026-10-27T10:00:00Z"), GitHubUpdateService.ReleasePage("v2.0.0"));
     public static void Run(string root, Action<bool, string> check, Action<Func<bool>> pump)
     {
         foreach (var (a, b) in new[] { ("0.1.0-preview.9", "0.1.0-preview.10"), ("0.1.0-preview.10", "0.1.0"), ("0.1.9", "0.1.10"), ("0.1.99", "0.2.0"), ("0.9.9", "1.0.0"), ("1.0.0-1", "1.0.0-alpha"), ("1.0.0-alpha", "1.0.0-alpha.1") })
@@ -31,10 +31,12 @@ internal static class UpdateRegressionTests
             return new GitHubUpdateService(client).CheckAsync(current, CancellationToken.None).GetAwaiter().GetResult();
         }
         string valid = "[" + Release("v0.2.0") + "]";
-        check(Read(valid).Update == Future, "Trusted GitHub metadata offers the newer release with version, publication date and canonical URL");
+        check(Read(valid).Update == new AvailableUpdate(999, "v0.2.0", Future.PublishedAt, GitHubUpdateService.ReleasePage("v0.2.0")), "Trusted GitHub metadata offers the newer release with version, publication date and canonical URL");
         check(Read("[" + Release("v0.1.0-preview.5") + "," + Release("v0.1.0-preview.4") + "]").State == UpdateCheckState.UpToDate, "Equal and older releases leave update hidden");
         check(Read("[" + Release("v0.1.0-preview.6", prerelease: true) + "]").State == UpdateCheckState.Available, "Preview installations can see newer preview releases");
         check(Read("[" + Release("v0.2.0-preview.1", prerelease: true) + "]", current: "0.1.0").State == UpdateCheckState.UpToDate, "Stable installations skip preview releases");
+        check(Read("[" + Release("v1.1.0-preview.1", prerelease: true) + "]", current: "1.0.0").State == UpdateCheckState.UpToDate, "Version 1.0.0 stays on the stable update channel");
+        check(Read("[" + Release("v1.0.1") + "]", current: "1.0.0").Update?.Tag == "v1.0.1", "Version 1.0.0 accepts a newer stable maintenance release");
         check(Read("[" + Release("v0.2.0", draft: true) + "]").State == UpdateCheckState.UpToDate, "Draft releases are never offered");
         check(Read("[" + Release("v0.2.0") + "," + Release("v0.1.0-preview.10", prerelease: true) + "]").Update?.Tag == "v0.2.0", "Semantic version takes precedence over list order");
         check(Read(valid, Repo(repository: GitHubUpdateService.RepositoryId + 1)).State == UpdateCheckState.Untrusted, "Recreated repository with the identical name is rejected by repository ID");
@@ -69,7 +71,7 @@ internal static class UpdateRegressionTests
             updates.Result = new(UpdateCheckState.Available, Future);
             var checking = vm.CheckForUpdatesAsync(); pump(() => checking.IsCompleted); Layout();
             check(host.IsVisible && beacon.IsActive && !beacon.IsHitTestVisible && button.Classes.Contains("toolbar"), "Only a verified newer release shows the toolbar button and nonblocking running light");
-            check(vm.UpdateButtonLabel.Contains("v0.2.0") && vm.UpdateButtonLabel.Contains("27.10.2026"), "Update button displays the offered version and publication date in German");
+            check(vm.UpdateButtonLabel.Contains(Future.Tag) && vm.UpdateButtonLabel.Contains("27.10.2026"), "Update button displays the offered version and publication date in German");
             vm.LanguageIndex = 1; Layout();
             check(vm.UpdateButtonLabel.Contains("2026-10-27"), "Date label updates when switching language");
             vm.ReduceMotion = true; Layout();

@@ -4,6 +4,8 @@ Diese Funktionen sind ab `0.1.0-preview.5` im Windows-Download enthalten.
 
 ## Deutsch
 
+**Neu in 1.0.0:** Der Button **Anleitung** öffnet eine geführte Einführung mit 14 Schritten und sichtbaren Funktionsrahmen. Beim ersten Start wird sie angeboten. **Überspringen** beendet sie für die Sitzung, **Keine Tipps notwendig** speichert die Ablehnung und **Fertig** den Abschluss. Sie bleibt jederzeit erneut aufrufbar. [Bedienung und Verhalten](GUIDED_TOUR.md).
+
 **Neu in 0.1.0-preview.7:** Doppelklick auf Farbfeld oder Farbbezeichnung in der Farbliste aktiviert dieselbe Hervorhebung im Originalbild und dieselbe Einzelvorschau wie ein Linksklick im Originalbild. Die kombinierte Vorschau wird ausgeschaltet; Export-Häkchen und Vorschauzoom bleiben erhalten. Die Häkchen selbst behalten ihre normale Bedienung.
 
 **Rechtsklick im Originalbild:** Den Export-Haken der passenden Farbgruppe umkehren. Die betroffene Farbzeile und der Haken leuchten etwa eine halbe Sekunde auf und blenden weich aus. Bei eingeklappter Farbleiste wird sie geöffnet und die betroffene Zeile sichtbar gemacht. Wie beim Linksklick wird die angeklickte Farbe ausgewählt und hervorgehoben und ihre Einzelvorschau angezeigt; eine kombinierte Vorschau wird ausgeschaltet. Rechtsklicks auf transparente oder ausgefilterte Stellen entfernen wie Linksklicks die Hervorhebung, ohne Haken zu ändern. Ziehen mit rechts ändert keine Haken. Bei reduzierter Bewegung bleibt die Rückmeldung kurz statisch sichtbar.
@@ -36,6 +38,8 @@ Anordnung, Leistenzustand, beide Trennpositionen, Synchronisierung und reduziert
 Die erweiterte Einstellung `Workspace.ReduceMotion` bleibt in dieser JSON-Datei verfügbar: `true` schaltet Klappanimation und Lauflicht ab, Beschriftungen und Hinweise bleiben erhalten. Dafür gibt es nach Entfernen von „Ansicht“ keinen Menüknopf mehr. Die Einstellung bei geschlossenem Programm ändern.
 
 ## English
+
+**New in 1.0.0:** **Guide** opens a 14-step introduction with visible feature outlines. It is offered on first launch. **Skip** dismisses it for this session, **No tips needed** saves the opt-out and **Finish** records completion. You can always open it again. [Behavior and instructions](GUIDED_TOUR.md).
 
 **New in 0.1.0-preview.7:** Double-click a swatch or color label in the color list to activate the same original-image highlight and individual export preview as left-clicking the original. Combined preview turns off; export checkboxes and viewport zoom stay unchanged. The checkboxes themselves keep their usual behavior.
 
