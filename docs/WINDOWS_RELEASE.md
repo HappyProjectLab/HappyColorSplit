@@ -1,6 +1,6 @@
 # Windows-Download mit integrierter Laufzeit
 
-HappyColorSplit **0.1.0-preview.6** wird als Windows-x64-ZIP mit integrierter .NET-Laufzeit **10.0.12** bereitgestellt. Der öffentlich sichtbare Maintainer-Name ist **HappyProjectLab**; allgemeiner Kontakt erfolgt über [GitHub Issues](https://github.com/HappyProjectLab/HappyColorSplit/issues).
+HappyColorSplit **0.1.0-preview.7** wird als Windows-x64-ZIP mit integrierter .NET-Laufzeit **10.0.12** bereitgestellt. Der öffentlich sichtbare Maintainer-Name ist **HappyProjectLab**; allgemeiner Kontakt erfolgt über [GitHub Issues](https://github.com/HappyProjectLab/HappyColorSplit/issues).
 
 ## Für Anwender
 
@@ -12,7 +12,7 @@ Der direkte Download-Link steht oben in der [README](../README.md). Er verweist 
 
 Nach Download und Entpacken muss `HappyColorSplit.exe` gegebenenfalls noch ausdrücklich zugelassen werden. Windows kann heruntergeladene Dateien kennzeichnen; Defender SmartScreen kann beim Start einer unbekannten App „Der Computer wurde durch Windows geschützt“ anzeigen.
 
-Nur fortfahren, wenn das Paket aus dem offiziellen [GitHub-Release](https://github.com/HappyProjectLab/HappyColorSplit/releases/tag/v0.1.0-preview.6) stammt und du die Herkunft geprüft hast. Die dort angebotenen SHA-256-Prüfsummen ermöglichen zusätzlich einen Vergleich der heruntergeladenen Dateien.
+Nur fortfahren, wenn das Paket aus dem offiziellen [GitHub-Release](https://github.com/HappyProjectLab/HappyColorSplit/releases/tag/v0.1.0-preview.7) stammt und du die Herkunft geprüft hast. Die dort angebotenen SHA-256-Prüfsummen ermöglichen zusätzlich einen Vergleich der heruntergeladenen Dateien.
 
 1. Zeigt SmartScreen eine Warnung wegen einer unbekannten App, **Weitere Informationen** und anschließend **Trotzdem ausführen** wählen, sofern angeboten.
 2. Bei einer blockierten Datei im Explorer mit der rechten Maustaste auf `HappyColorSplit.exe` klicken und **Eigenschaften → Allgemein** öffnen. Falls unten im Bereich **Sicherheit** die Option **Zulassen** erscheint, diese aktivieren und **Übernehmen** wählen. Danach erneut starten.
@@ -40,13 +40,13 @@ pwsh -NoProfile -File tools/New-WindowsRelease.ps1
 
 Das Release-Skript akzeptiert einen sauberen Git-Stand und ein Ausgabeverzeichnis innerhalb des Projekts. Es baut mit dem Profil `Windows`, kontrolliert die binäre Commit-Kennung und führt die Komponentenprüfung aus. Unter `artifacts/releases` entstehen:
 
-- `HappyColorSplit-0.1.0-preview.6-Windows-x64.zip`: Programm, Laufzeit, Lizenzunterlagen, Startanleitung und Quellcodeverweis;
-- `HappyColorSplit-0.1.0-preview.6-Source.zip`: versionierte Projektdateien desselben Commits, einschließlich Build- und Release-Anleitung;
-- `HappyColorSplit-0.1.0-preview.6-SHA256SUMS.txt`: SHA-256-Prüfsummen beider ZIP-Dateien.
+- `HappyColorSplit-0.1.0-preview.7-Windows-x64.zip`: Programm, Laufzeit, Lizenzunterlagen, Startanleitung und Quellcodeverweis;
+- `HappyColorSplit-0.1.0-preview.7-Source.zip`: versionierte Projektdateien desselben Commits, einschließlich Build- und Release-Anleitung;
+- `HappyColorSplit-0.1.0-preview.7-SHA256SUMS.txt`: SHA-256-Prüfsummen beider ZIP-Dateien.
 
 Die Inhalte des fertigen Windows-ZIPs werden bytegenau mit dem geprüften Verzeichnis verglichen. Vorhandene Release-Dateien werden nicht überschrieben. Für einen weiteren Build ein anderes Verzeichnis über `-OutputDirectory artifacts/releases-test` angeben. `-NoRestore` setzt passend wiederhergestellte Pakete voraus.
 
-Alle drei Dateien gemeinsam an ein GitHub-Release mit Tag `v0.1.0-preview.6` hängen. Der Tag muss denselben Commit bezeichnen. Diese Ausgabe als **Pre-release** kennzeichnen. Weitere Versionen erhalten neue Versionsangaben, Dateien und README-Links. Das Skript lädt selbst nichts auf GitHub hoch und ändert keine Repository-Sichtbarkeit.
+Alle drei Dateien gemeinsam an ein GitHub-Release mit Tag `v0.1.0-preview.7` hängen. Der Tag muss denselben Commit bezeichnen. Diese Ausgabe als **Pre-release** kennzeichnen. Weitere Versionen erhalten neue Versionsangaben, Dateien und README-Links. Das Skript lädt selbst nichts auf GitHub hoch und ändert keine Repository-Sichtbarkeit.
 
 ## Komponentenprüfung und Updates
 

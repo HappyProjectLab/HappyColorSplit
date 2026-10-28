@@ -1,4 +1,10 @@
-# Umgesetzt für 0.1.0-preview.6
+# Umgesetzt für 0.1.0-preview.7
+
+Stand: 28.10.2026.
+
+- [x] Doppelklick auf eine Farbe in der Farbliste aktiviert dieselbe Hervorhebung im Originalbild und dieselbe Einzelvorschau wie ein Linksklick im Originalbild. Die kombinierte Vorschau wird ausgeschaltet; Export-Häkchen und Zoom bleiben erhalten. Doppelklicks direkt auf Häkchen behalten deren normale Bedienung.
+
+## Umgesetzt für 0.1.0-preview.6
 
 Stand: 27.10.2026. Diese Ausgabe enthält die Farbwahl direkt im Originalbild, die Versionsanzeige und die GitHub-Update-Prüfung. Offene Wünsche für spätere Versionen stehen in [FEATURE_REQUESTS.md](FEATURE_REQUESTS.md).
 

@@ -28,6 +28,13 @@ public sealed partial class ImageViewport
 
     public ImageViewport() => _highlightTimer.Tick += (_, _) => AdvanceHighlight();
 
+    public void ActivateColorGroup(int group)
+    {
+        if (!ColorPickingEnabled || Analysis is not { } analysis || !analysis.Groups.Any(candidate => candidate.Index == group)) return;
+        ColorGroupClicked?.Invoke(this, group);
+        SelectColorHighlight(group);
+    }
+
     public int ColorGroupAt(Point point)
     {
         if (!ColorPickingEnabled || Analysis is not { } analysis || Source is not { } image) return -1;

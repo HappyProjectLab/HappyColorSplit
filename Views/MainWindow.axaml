@@ -281,7 +281,7 @@
       <Border Classes="panel" Padding="14,20" IsVisible="{Binding !IsLaserMode}">
         <Grid RowDefinitions="Auto,*,Auto" RowSpacing="14">
           <StackPanel Spacing="8" Margin="6,0">
-            <TextBlock Text="{Binding Text[Colors]}" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding Text[Colors]}" FontWeight="SemiBold" ToolTip.Tip="{Binding Text[ColorListPickHelp]}" />
             <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="6">
               <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                 <TextBlock Text="{Binding Text[ExportColors]}" FontSize="11" Classes="muted" />

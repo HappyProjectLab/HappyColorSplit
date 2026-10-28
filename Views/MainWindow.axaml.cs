@@ -3,6 +3,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using HappyColorSplit.Services;
 using HappyColorSplit.ViewModels;
 
@@ -14,6 +15,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        ColorsList.AddHandler(PointerPressedEvent, ColorsList_OnPointerPressed, RoutingStrategies.Bubble, handledEventsToo: true);
         OriginalViewportControl.ColorGroupHighlighted += (_, index) => (DataContext as MainViewModel)?.HighlightOriginalColor(index);
         OriginalViewportControl.ColorGroupClicked += (_, index) =>
         {
@@ -40,6 +42,21 @@ public partial class MainWindow : Window
         Opened += (_, _) => _folderTimer.Start();
         Activated += (_, _) => (DataContext as MainViewModel)?.RefreshLastExportFolder();
         Closed += (_, _) => _folderTimer.Stop();
+    }
+
+    private void ColorsList_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (e.ClickCount < 2 || e.ClickCount % 2 != 0 || e.GetCurrentPoint(ColorsList).Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed || DataContext is not MainViewModel { IsIdle: true }) return;
+        ColorGroupViewModel? group = null;
+        for (var visual = e.Source as Avalonia.Visual; visual is not null && visual != ColorsList; visual = visual.GetVisualParent())
+        {
+            // Checkbox clicks keep their own export-selection behavior.
+            if (visual is CheckBox) return;
+            if (visual is Control { DataContext: ColorGroupViewModel color }) group = color;
+        }
+        if (group is null) return;
+        OriginalViewportControl.ActivateColorGroup(group.Group.Index);
+        e.Handled = true;
     }
 
     private async void WindowsIntegration_OnClick(object? sender, RoutedEventArgs args)

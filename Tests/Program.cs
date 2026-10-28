@@ -194,6 +194,7 @@ try
     Check(legacySettings.Load().MinimumAlpha == 177, "Migrating settings leaves previous settings intact");
 
     AppBuilder.Configure<App>().UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false }).UseSkia().WithInterFont().SetupWithoutStarting();
+    if (args.Contains("--color-list-only")) { ColorListDoubleClickTests.Run(root, Check, Pump); Console.WriteLine("PASS: Color-list double-click, original highlight and export preview checks."); return; }
     if (args.Contains("--updates-live"))
     {
         var liveUpdate = new GitHubUpdateService().CheckAsync(AppVersion.Current, CancellationToken.None).GetAwaiter().GetResult();
@@ -293,6 +294,7 @@ try
     ContourSmoothingRegressionTests.Run(root, Check, Pump);
     WorkspaceRegressionTests.Run(root, Check, Pump);
     OriginalColorHoverTests.Run(root, Check, Pump);
+    ColorListDoubleClickTests.Run(root, Check, Pump);
     UpdateRegressionTests.Run(root, Check, Pump);
     ImportActivityRegressionTests.Run(root, Check, Pump);
     if (args.Contains("--capture-baseline") || args.Contains("--verify-baseline"))

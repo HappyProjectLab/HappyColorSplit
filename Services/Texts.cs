@@ -6,6 +6,7 @@ public sealed class Texts(string language)
     public string this[string key] => Entries.TryGetValue(key, out var pair) ? pair[language == "en" ? 1 : 0] : key;
     private static readonly Dictionary<string, string[]> Entries = new()
     {
+        ["ColorListPickHelp"] = ["Doppelklick auf eine Farbe: alle zugehörigen Flächen im Original hervorheben und ihren einzelnen Farbauszug anzeigen. Die Export-Häkchen bleiben unverändert.", "Double-click a color to highlight all matching areas in the original and show its individual layer. Export checkboxes stay unchanged."],
         ["AppVersion"] = ["Version {0}", "Version {0}"],
         ["UpdateAvailableButton"] = ["Update {0} · {1} ↗", "Update {0} · {1} ↗"],
         ["UpdateAvailableHelp"] = ["Neue Version verfügbar. Nach Bestätigung die Release-Seite im Standardbrowser öffnen.", "New version available. Open its release page in the default browser after confirmation."],

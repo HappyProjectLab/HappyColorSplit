@@ -4,6 +4,8 @@ Diese Funktionen sind ab `0.1.0-preview.5` im Windows-Download enthalten.
 
 ## Deutsch
 
+**Neu in 0.1.0-preview.7:** Doppelklick auf Farbfeld oder Farbbezeichnung in der Farbliste aktiviert dieselbe Hervorhebung im Originalbild und dieselbe Einzelvorschau wie ein Linksklick im Originalbild. Die kombinierte Vorschau wird ausgeschaltet; Export-Häkchen und Vorschauzoom bleiben erhalten. Die Häkchen selbst behalten ihre normale Bedienung.
+
 **Rechtsklick im Originalbild:** Den Export-Haken der passenden Farbgruppe umkehren. Die betroffene Farbzeile und der Haken leuchten etwa eine halbe Sekunde auf und blenden weich aus. Bei eingeklappter Farbleiste wird sie geöffnet und die betroffene Zeile sichtbar gemacht. Wie beim Linksklick wird die angeklickte Farbe ausgewählt und hervorgehoben und ihre Einzelvorschau angezeigt; eine kombinierte Vorschau wird ausgeschaltet. Rechtsklicks auf transparente oder ausgefilterte Stellen entfernen wie Linksklicks die Hervorhebung, ohne Haken zu ändern. Ziehen mit rechts ändert keine Haken. Bei reduzierter Bewegung bleibt die Rückmeldung kurz statisch sichtbar.
 
 **Neu in 0.1.0-preview.6:** Ein **Linksklick im Originalbild** hebt alle Flächen der erkannten Farbgruppe optisch zum Betrachter hin hervor. Kräftigere Lichtkanten und weiche Kontaktschatten erzeugen Tiefe; die Bildflächen werden nicht verschoben. Der Effekt blendet in etwa 120 ms weich ein, aus und zwischen Farben über. Bloßes Darüberfahren oder Verlassen des Bildes ändert die Hervorhebung nicht. Gleichzeitig wird die Gruppe in der Farbliste markiert und ihre Einzelvorschau angezeigt; **Farbauswahl vereinen** wird ausgeschaltet, ohne Export-Häkchen zu ändern. Ein Linksklick auf transparente oder ausgefilterte Stellen blendet den Effekt aus. Ziehen und Zoom erhalten die Hervorhebung. Reduzierte Bewegung überspringt die Übergänge. Es gibt keine Pipette und keinen zusätzlichen Modus.
@@ -34,6 +36,8 @@ Anordnung, Leistenzustand, beide Trennpositionen, Synchronisierung und reduziert
 Die erweiterte Einstellung `Workspace.ReduceMotion` bleibt in dieser JSON-Datei verfügbar: `true` schaltet Klappanimation und Lauflicht ab, Beschriftungen und Hinweise bleiben erhalten. Dafür gibt es nach Entfernen von „Ansicht“ keinen Menüknopf mehr. Die Einstellung bei geschlossenem Programm ändern.
 
 ## English
+
+**New in 0.1.0-preview.7:** Double-click a swatch or color label in the color list to activate the same original-image highlight and individual export preview as left-clicking the original. Combined preview turns off; export checkboxes and viewport zoom stay unchanged. The checkboxes themselves keep their usual behavior.
 
 **Right-click the original:** Toggle the matching color group's export checkbox. Its row and checkbox light up for about half a second and fade out. A collapsed color sidebar opens and scrolls to the affected row. Just like left-clicking, this selects and highlights the clicked color and displays its individual layer, turning the combined preview off. Right-clicking transparent or filtered pixels clears the highlight just like left-clicking, without changing checkboxes. Right dragging changes no checkboxes. Reduced motion shows a brief static confirmation.
 

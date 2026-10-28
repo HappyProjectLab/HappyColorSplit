@@ -99,10 +99,10 @@ public sealed partial class ImageViewport : Control
             int group = ColorGroupAt(p);
             if (group >= 0)
             {
-                ColorGroupClicked?.Invoke(this, group);
+                ActivateColorGroup(group);
                 if (button == MouseButton.Right) ColorGroupExportToggleRequested?.Invoke(this, group);
             }
-            SelectColorHighlight(group);
+            else SelectColorHighlight(-1);
         }
         e.Handled = true;
     }

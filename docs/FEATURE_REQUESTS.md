@@ -4,6 +4,8 @@ Sammlung gewünschter Erweiterungen. Offene Einträge sind keinem festen Release
 
 ## 1. Farbwahl direkt im Originalbild
 
+- [x] Ergänzung in 0.1.0-preview.7: Doppelklick auf eine Farbe in der Farbliste aktiviert denselben Ablauf wie ein Linksklick im Originalbild, einschließlich Hervorhebung, Einzelvorschau und Ausschalten der kombinierten Vorschau. Export-Häkchen und Zoom bleiben erhalten.
+
 - [x] Umgesetzt in 0.1.0-preview.6: Erst beim Linksklick alle Flächen derselben erkannten Farbgruppe mit feiner Lichtkante und weichem Kontaktschatten räumlich zum Betrachter hin hervorheben. Die Flächen bleiben an ihrer ursprünglichen Bildposition; keine Verschiebung nach oben, keine Pipette und kein zusätzlicher Modus.
 - Kräftigere Lichtkante und Kontrast, weiches Ein-, Aus- und Überblenden in etwa 120 ms. Die Einstellung für reduzierte Bewegung überspringt den Übergang.
 - Die zugehörige Farbgruppe in der Farbliste gleichzeitig hervorheben. Die Hervorhebung bleibt beim Darüberfahren und Verlassen des Bildes erhalten, bis eine andere Farbe oder eine freie Stelle angeklickt wird.
